@@ -1,5 +1,6 @@
 # References
 
+[mapboxgl Transpilation error](https://github.com/mapbox/mapbox-gl-js/issues/10173)
 [WDS WEBSOCKET ERROR](https://github.com/facebook/create-react-app/issues/11779)
 
 [Fix EACCESS: permissions error] (https://stackoverflow.com/questions/67639482/docker-eacces-permission-denied-mkdir-app-node-modules-cache)
@@ -13,6 +14,11 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
+
+## Production
+
+`yarn build`
+`npx serve -s build`
 
 In the project directory, you can run:
 
