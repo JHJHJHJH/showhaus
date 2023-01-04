@@ -1,0 +1,16 @@
+.control-panel {
+    font-family: "UberMove";
+    font-size: 14px;
+    line-height: 18px;
+    width: 400px;
+    background: #fff;
+    box-shadow: 0 0 0px rgb(0 0 0 / 40%); 
+    margin: 16px;
+    padding: 0px;
+    position: absolute;
+    z-index: 1;
+    top: 60px;
+    right: 0;
+    outline: none;
+    cursor: auto;
+}
