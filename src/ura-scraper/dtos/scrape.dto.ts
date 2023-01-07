@@ -4,6 +4,6 @@ export class ScrapeDto {
   @IsNumber()
   batch: number;
 
-  @IsString()
-  key: string;
+  // @IsString()
+  // key: string;
 }

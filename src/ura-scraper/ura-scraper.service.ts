@@ -42,28 +42,28 @@ export class UraScraperService {
   // }
   @Cron('0 0 * * *')
   batch1() {
-    const key = this.configService.get<string>('URA_API_KEY');
-    this.scrape(key, 1);
+    // const key = this.configService.get<string>('URA_API_KEY');
+    this.scrape(1);
   }
   @Cron('0 1 * * *')
   batch2() {
-    const key = this.configService.get<string>('URA_API_KEY');
-    this.scrape(key, 2);
+    // const key = this.configService.get<string>('URA_API_KEY');
+    this.scrape(2);
   }
   @Cron('0 2 * * *')
   batch3() {
-    const key = this.configService.get<string>('URA_API_KEY');
-    this.scrape(key, 3);
+    // const key = this.configService.get<string>('URA_API_KEY');
+    this.scrape(3);
   }
   @Cron('0 3 * * *')
   batch4() {
-    const key = this.configService.get<string>('URA_API_KEY');
-    this.scrape(key, 4);
+    // const key = this.configService.get<string>('URA_API_KEY');
+    this.scrape(4);
   }
 
-  async scrape(key: string, batch: number) {
+  async scrape(batch: number) {
     this.logger.log(`Scraping batch ${batch}...`);
-
+    const key = this.configService.get<string>('URA_API_KEY');
     const token = await this.getToken(key);
 
     if (token == null) {
@@ -95,6 +95,7 @@ export class UraScraperService {
         );
         //if location exists
         if (location_db.length > 0) {
+          this.logger.log('Existing locations found... ');
           //iterate transactions
           for (let j = 0; j < converted_location.transactions.length; j++) {
             const transaction = converted_location.transactions[j];

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Logger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LocationEntity } from 'src/location/location.entity';
 import { Repository } from 'typeorm';
@@ -7,6 +7,8 @@ import { ITransaction } from './transaction.interface';
 
 @Injectable()
 export class TransactionService {
+  private readonly logger = new Logger(TransactionService.name);
+
   constructor(
     @InjectRepository(TransactionEntity)
     private readonly transactionRepository: Repository<TransactionEntity>,
@@ -27,6 +29,10 @@ export class TransactionService {
     const transaction_db = await this.transactionRepository.find({
       where: condition,
     });
+
+    this.logger.log(
+      `[ findTransactionByParam ] Found ${transaction_db.length} transctions.`,
+    );
     return transaction_db;
   }
 }
