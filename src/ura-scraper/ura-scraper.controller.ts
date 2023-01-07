@@ -13,7 +13,7 @@ export class UraScraperController {
   @UseInterceptors(TransformInterceptor)
   @ResponseMessage(SCRAPE_MSG)
   scrapeUraApi(@Body() body: ScrapeDto) {
-    const r = this.uraScraperService.scrape(body.key, body.batch);
+    const r = this.uraScraperService.scrape(body.batch);
 
     return '';
   }
