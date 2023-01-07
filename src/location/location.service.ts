@@ -28,6 +28,10 @@ export class LocationService {
     const location_db = await this.locationRepository.find({
       where: condition,
     });
+
+    // this.logger.log(
+    //   `[ findLocationByParam ] Found ${location_db.length} locations.`,
+    // );
     return location_db;
   }
 
@@ -45,6 +49,9 @@ export class LocationService {
       )
       .getMany();
 
+    this.logger.log(
+      `[ findLocationByBoundingBox ] Found ${location_db.length} locations.`,
+    );
     return location_db;
   }
 

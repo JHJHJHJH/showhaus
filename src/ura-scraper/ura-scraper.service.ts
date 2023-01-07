@@ -95,7 +95,9 @@ export class UraScraperService {
         );
         //if location exists
         if (location_db.length > 0) {
-          this.logger.log('Existing locations found... ');
+          this.logger.log(
+            `${location_db.length} existing locations found. Checking for existing transactions...`,
+          );
           //iterate transactions
           for (let j = 0; j < converted_location.transactions.length; j++) {
             const transaction = converted_location.transactions[j];

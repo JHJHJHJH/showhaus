@@ -30,9 +30,9 @@ export class TransactionService {
       where: condition,
     });
 
-    this.logger.log(
-      `[ findTransactionByParam ] Found ${transaction_db.length} transctions.`,
-    );
+    // this.logger.log(
+    //   `[ findTransactionByParam ] Found ${transaction_db.length} transctions.`,
+    // );
     return transaction_db;
   }
 }
