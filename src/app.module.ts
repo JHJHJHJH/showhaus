@@ -6,9 +6,22 @@ import { AppService } from './app.service';
 import { UraScraperModule } from './ura-scraper/ura-scraper.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import config from './config/configuration';
-
+import { LoggerModule } from 'nestjs-pino';
 @Module({
   imports: [
+    LoggerModule.forRoot({
+      pinoHttp: {
+        customProps: (req, res) => ({
+          context: 'HTTP',
+        }),
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            singleLine: true,
+          },
+        },
+      },
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [config],
