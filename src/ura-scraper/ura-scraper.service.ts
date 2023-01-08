@@ -95,9 +95,9 @@ export class UraScraperService {
         );
         //if location exists
         if (location_db.length > 0) {
-          this.logger.log(
-            `${location_db.length} existing locations found. Checking for existing transactions...`,
-          );
+          // this.logger.log(
+          //   `${location_db.length} existing locations found. Checking for existing transactions...`,
+          // );
           //iterate transactions
           for (let j = 0; j < converted_location.transactions.length; j++) {
             const transaction = converted_location.transactions[j];
@@ -118,7 +118,7 @@ export class UraScraperService {
             }
           }
         } else {
-          this.logger.log('no location el found in db');
+          //this.logger.log('no location el found in db');
           this.logger.log(converted_location.project);
           const location_db = await this.locationService.createLocation(
             converted_location,
