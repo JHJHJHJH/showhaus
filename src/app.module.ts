@@ -10,19 +10,6 @@ import { LoggerMiddleware } from './middlewares/logger.middleware';
 
 @Module({
   imports: [
-    LoggerModule.forRoot({
-      pinoHttp: {
-        customProps: (req, res) => ({
-          context: 'HTTP',
-        }),
-        transport: {
-          target: 'pino-pretty',
-          options: {
-            singleLine: true,
-          },
-        },
-      },
-    }),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [config],
