@@ -6,7 +6,7 @@ import {MapProvider} from 'react-map-gl';
 import { LngLatBounds } from 'mapbox-gl';
 import GeocoderControl from './map-ui/GeocoderControl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-
+import MrtLayers from './layers/MrtLayers';
 // import DrawControl from './map-ui/DrawControl';
 import TransactionLayers from './layers/TransactionLayers';
 import MarkerLayer from './layers/MarkerLayer';
@@ -90,7 +90,7 @@ export default function MapContainer(){
                         position="top-left" 
                     />
 
-                    {/* <MrtLayers/> */}
+                    <MrtLayers/>
                     <TransactionLayers/>
                     <MarkerLayer/>
 

@@ -1,6 +1,8 @@
 import React, {useEffect, useState} from "react";
-import MRTLRTStn from '../../resources/MRTLRTStn_EPSG4326.json'
-import { useControl} from 'react-map-gl';
+import MRTLRTStn from '../../resources/MRT_RAIL_LINE_5M.json'
+import MRT_RAIL_STN from  '../../resources/RAIL_STN.geojson'
+// import RAIL_LINE_BASE from '../../resources/RAIL_LINE_BASE.geojson'
+import { useControl, Source, Layer} from 'react-map-gl';
 import {MapboxOverlay} from '@deck.gl/mapbox';
 import { TripsLayer } from 'deck.gl';
 import {AmbientLight, PointLight, LightingEffect} from '@deck.gl/core';
@@ -40,7 +42,7 @@ const DEFAULT_THEME = {
 };
 
 
-export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 1800 } ){
+export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
     const [time, setTime] = useState(0);
     const [animation] = useState({});
     const [mrtGeojson, SetMrtGeojson] = useState(null);
@@ -59,15 +61,40 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 1800 } )
         return () => window.cancelAnimationFrame(animation.id);
     }, [animation]);
 
-    // const mrtStyle = {
-    //     id: 'mrt',
-    //     type: 'circle',
-    //     paint: {
-    //         'circle-radius': 4,
-    //         'circle-color': '#009645',
-    //         'circle-opacity': 0.6
-    //     }
-    // };
+    // const geojsonLyr = new GeoJsonLayer({
+    //     id: 'geojson-layer',
+    //     MRTLRTgeojson,
+    //     pickable: true,
+    //     stroked: false,
+    //     filled: true,
+    //     extruded: true,
+    //     pointType: 'circle',
+    //     lineWidthScale: 20,
+    //     lineWidthMinPixels: 2,
+    //     getFillColor: [160, 160, 180, 200],
+    //     getLineColor: d => mapMrtColors(d.properties['RAIL_LINE']),
+    //     getPointRadius: 100,
+    //     getLineWidth: 1,
+    //     getElevation: 30
+    //   });
+    const mrtStyle = {
+        id: 'rail_line',
+        type: 'line',
+        paint: {
+            'line-color': ['get','COLOR'],
+            'line-width': 3,
+            'line-opacity':0.4
+        }
+    };
+    const stnStyle = {
+        id: 'rail_stn',
+        type: 'circle',
+        paint: {
+            'circle-color': ['get','COLOR'],
+            'circle-radius': 5,
+            'circle-opacity':0.7
+        }
+    };
     const tripsLayer = new TripsLayer({
         id: 'mrt-layer',
         data : mrtTripsData,
@@ -76,169 +103,102 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 1800 } )
         getTimestamps: d => d.timestamps,
         effects : theme.effects,
         getColor: d => d.color,
-        opacity: 0.8,
-        widthMinPixels: 3,
+        opacity: 0.1,
+        widthMinPixels: 5,
         rounded: true,
         fadeTrail: true,
-        trailLength: 10000,
+        trailLength: 5000,
         currentTime: time,
         depthTest: false
       });
-    // const lineLayer =  new LineLayer({
-    //     id: 'line',
-    //     data: mrtTripsData,
-    //     opacity: 0.8,
-    //     getSourcePosition: d => d.start,
-    //     getTargetPosition: d => d.end,
-    //     getColor: d => d.color,
-    //     getWidth: 1,
-    //     pickable: true
-    //   })
-    useEffect(() => {
-        function cleanDuplicateStations( mrtJson ){
-            const cleaned = { type: "FeatureCollection", features: [] }
-            const stationList = []
-            for (let i = 0; i < mrtJson.features.length; i++) {
-                const feature = mrtJson.features[i];
-                const stnName = feature.properties['STN_NAME'];
-                
-                if( !stationList.includes(stnName) ){
-                    cleaned.features.push( feature );
-                    stationList.push( stnName);
-                }
-            }
-            return cleaned;
+
+      function mapMrtColors( line ){
+        let rgb = [0,0,0];
+        switch(line){
+            case 'NS':
+                rgb = [228,53,48];
+                break;
+            case 'TE':
+                rgb = [159,94,29];
+                break;
+            case 'EW':
+            case 'CG':
+                rgb = [12,153,67];
+                break;
+            case 'NE':
+                rgb = [161,45,182];
+                break;
+            case 'CE':
+            case 'CC':
+                rgb = [255,162,35];
+                break;
+            case 'DT':
+                rgb = [5,89,185];
+                break;
+            
+            case 'PT':
+            case 'ST':
+            case 'SW':
+            case 'BP':
+            case 'PE':
+            case 'PW':
+            case 'SE':
+                rgb = [142,155,144]
+                break;
+            default:
+                throw new Error('MRT Line not supported');
         }
-        
-        function categoriseStations( mrtJson ){
-            const cleanedMrtJson = cleanDuplicateStations( mrtJson );
-            const stationDict = {}
-        
-            for (let i = 0; i < cleanedMrtJson.features.length; i++) {
-                const feature = JSON.parse(JSON.stringify(cleanedMrtJson.features[i]));
-                const stationNumber = feature.properties['STN_NO'];
-                
-                const split = stationNumber.split('/');
-                for (let j = 0; j < split.length; j++) {
-                    const clonedFeature = JSON.parse(JSON.stringify(cleanedMrtJson.features[i]));
-                    const line = split[j].substring(0,2);
-                    const number = split[j].substring(2);
-                    clonedFeature.properties["LINE"] = line;
-                    clonedFeature.properties["LINE_NO"] = number;
-                    
-                    if( line in stationDict ){
-                        stationDict[ line ].push( clonedFeature );
-                    }
-                    else {
-                        stationDict[ line ] = [ clonedFeature ];
-                    }
-                }
-        
-                cleanedMrtJson.features[i] = feature;
-            }
-        
-            return stationDict;
-        }
-        
-        function sortCategorisedStations( categorisedStations ){
-        
-            const clonedStations = JSON.parse(JSON.stringify(categorisedStations));
-        
-            for (const key in clonedStations) {
-                const stations = clonedStations[key];
-                //console.log(  stations )
-                stations.sort(function(a,b){
-                    return a.properties['LINE_NO'] - b.properties['LINE_NO'];
-                });
-        
-                clonedStations[key] = stations;
-            }
-        
-            return clonedStations;
-        
-        }
-        
-        function generateTripsData( sortedStations ){
+        return rgb;
+    }
+    useEffect(() => { 
+        function generateTripsData( railLines ){
 
             var tripsData = []
-            //var numberOfPoints = 100;
-            for (const key in sortedStations) {
+            const features = railLines['features'];
+            for( const k in features ){
+                const feature = features[k];
+                console.log(feature)
                 var points = [];
                 var timestamp = [];
-                if (Object.hasOwnProperty.call(sortedStations, key)) {
-                    const stations = sortedStations[key];
-                    
-                    if( stations.length < 2){
-                        break;
-                    }
-        
-                    for (let i = 0; i < stations.length; i++) {
-                        
-                        // const index = i % (stations.length) ;
-                        const index = i;
-                        const station = stations[index];
-        
-                        points.push(station.geometry.coordinates);
-                        timestamp.push( i * loopLength/stations.length  );
-                    }
+                if( feature['geometry']['type'] !== 'LineString'){
+                    break;
                 }
+              
+                var coordinates = feature['geometry']['coordinates'];
+                console.log(coordinates)
+                var railLine = feature['properties']['RAIL_LINE'];
+    
+                for (let i = 0; i < coordinates.length; i++) {
+                        
+                    // const index = i % (stations.length) ;
+                    const index = i;
+                    const coord = coordinates[index];
+    
+                    points.push(coord);
+                    timestamp.push( i * loopLength/coordinates.length  );
+                }
+
                 const pathObj = {
                     "path" : points,
                     "timestamps" : timestamp,
-                    "color" : mapMrtColors(key)
+                    "color" : mapMrtColors(railLine)
                 }
                 tripsData.push( pathObj );
+
             }
         
-            console.log(tripsData );
+            // console.log(tripsData );
             return tripsData;
         }
         
-        function mapMrtColors( line ){
-            let rgb = [0,0,0];
-            switch(line){
-                case 'NS':
-                    rgb = [228,53,48];
-                    break;
-                case 'TE':
-                    rgb = [159,94,29];
-                    break;
-                case 'EW':
-                case 'CG':
-                    rgb = [12,153,67];
-                    break;
-                case 'NE':
-                    rgb = [161,45,182];
-                    break;
-                case 'CE':
-                case 'CC':
-                    rgb = [255,162,35];
-                    break;
-                case 'DT':
-                    rgb = [5,89,185];
-                    break;
-                
-                case 'PT':
-                case 'ST':
-                case 'SW':
-                case 'BP':
-                case 'PE':
-                case 'PW':
-                case 'SE':
-                    rgb = [142,155,144]
-                    break;
-                default:
-                    throw new Error('MRT Line not supported');
-            }
-            return rgb;
-        }
+
 
         async function init(){
             try {
-
-                const categorised = categoriseStations(MRTLRTStn);
-                const sorted  = sortCategorisedStations( categorised );
-                const tripsData = generateTripsData( sorted );
+                // console.log( MRTLRTStn );
+                // const categorised = categoriseStations(MRTLRTStn);
+                // const sorted  = sortCategorisedStations( categorised );
+                const tripsData = generateTripsData( MRTLRTStn );
             
                 SetMrtTripsData(tripsData);
 
@@ -248,7 +208,7 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 1800 } )
         }
 
 
-        init();
+        // init();
 
     }, [mrtGeojson] );
 
@@ -257,7 +217,13 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 1800 } )
             {/* <Source id="mrt"  type="geojson" data={mrtGeojson} >
                 <Layer {...mrtStyle} />
             </Source> */}
-            <DeckGLOverlay layers={[tripsLayer]}/>;
+            {/* <Source id="rail_line"  type="geojson" data={RAIL_LINE_BASE} >
+                <Layer {...mrtStyle} />
+            </Source> */}
+            <Source id="rail_stn"  type="geojson" data={MRT_RAIL_STN} >
+                <Layer {...stnStyle} />
+            </Source>
+            {/* <DeckGLOverlay layers={[ tripsLayer ]}/>; */}
         </>
     );
 }
