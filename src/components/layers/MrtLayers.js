@@ -77,6 +77,19 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
     //     getLineWidth: 1,
     //     getElevation: 30
     //   });
+
+    const stnIconStyle = {
+        id: 'rail_stn_icon',
+        type: 'symbol',
+        layout: {
+            'icon-image': 'rail-metro',
+            'icon-allow-overlap': true,
+            'icon-offset' : [0,-22],
+            'icon-size': 0.5
+            
+        }
+    };
+
     const mrtStyle = {
         id: 'rail_line',
         type: 'line',
@@ -93,6 +106,26 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
             'circle-color': ['get','COLOR'],
             'circle-radius': 5,
             'circle-opacity':0.7
+        }
+    };
+    const stnTxtStyle = {
+        "id": "rail_stn_txt",
+        "type": "symbol",
+        "paint": {
+            "text-color": ['get','COLOR'], //Color of your choice
+            // "text-halo-blur": textHaloBlur,
+            // "text-halo-color": textHaloColor,
+            // "text-halo-width": textHaloWidth,
+            // "text-opacity": textOpacity
+        },
+        "layout": {
+            "text-field": ['get', 'STN_NAME'], //This will get "t" property from your geojson
+            "text-size": ['interpolate', ['linear'], ['zoom'], 10, 0, 20, 10],  
+            // "text-font": textFontFamily,
+            "text-rotation-alignment": "auto",
+            "text-allow-overlap": true,
+            "text-anchor": "top",
+            "text-offset": [0, -2]
         }
     };
     const tripsLayer = new TripsLayer({
@@ -221,8 +254,10 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
                 <Layer {...mrtStyle} />
             </Source> */}
             <Source id="rail_stn"  type="geojson" data={MRT_RAIL_STN} >
-                <Layer {...stnStyle} />
+                <Layer {...stnIconStyle} />
+                <Layer {...stnTxtStyle} />
             </Source>
+
             {/* <DeckGLOverlay layers={[ tripsLayer ]}/>; */}
         </>
     );

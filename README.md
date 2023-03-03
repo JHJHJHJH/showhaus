@@ -1,5 +1,6 @@
 # References
-
+[mapboxgl icon-overlap](https://github.com/mapbox/mapbox-gl-js/issues/4064)
+[mapboxgl interpolate color/size when zoom](https://docs.mapbox.com/mapbox-gl-js/example/change-building-color-based-on-zoom-level/)
 [mapboxgl Transpilation error](https://github.com/mapbox/mapbox-gl-js/issues/10173)
 [WDS WEBSOCKET ERROR](https://github.com/facebook/create-react-app/issues/11779)
 
