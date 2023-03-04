@@ -82,11 +82,17 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
         id: 'rail_stn_icon',
         type: 'symbol',
         layout: {
-            'icon-image': 'rail-metro',
+            'icon-image': 'smrt-icon',
             'icon-allow-overlap': true,
-            'icon-offset' : [0,-22],
-            'icon-size': 0.5
-            
+            'icon-offset' : [0,-20],
+            'icon-size': ['interpolate', ['linear'], ['zoom'], 10, 0.5, 20, 1.3],
+           
+        },
+        paint: {
+            // "icon-halo-color": "rgba(255, 0, 0 ,0.5)",
+            "icon-color": ['get', 'COLOR'],
+            // "icon-halo-color": ['get', 'COLOR'],
+            "icon-halo-width": 0.0
         }
     };
 
@@ -104,7 +110,10 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
         type: 'circle',
         paint: {
             'circle-color': ['get','COLOR'],
-            'circle-radius': 5,
+            // 'circle-radius': 5,
+            // When zoom is 10, txt-size is 0.
+            // When zoom(into) is 20, txt-size is 10
+            "circle-radius": ['interpolate', ['linear'], ['zoom'], 10, 2, 20, 6], 
             'circle-opacity':0.7
         }
     };
@@ -119,13 +128,15 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
             // "text-opacity": textOpacity
         },
         "layout": {
-            "text-field": ['get', 'STN_NAME'], //This will get "t" property from your geojson
-            "text-size": ['interpolate', ['linear'], ['zoom'], 10, 0, 20, 10],  
+            "text-field": ['get', 'STN_NAME'], 
+            // When zoom is 10, txt-size is 0.
+            // When zoom(into) is 20, txt-size is 10
+            "text-size": ['interpolate', ['linear'], ['zoom'], 10, 0, 20, 10], 
             // "text-font": textFontFamily,
             "text-rotation-alignment": "auto",
             "text-allow-overlap": true,
             "text-anchor": "top",
-            "text-offset": [0, -2]
+            "text-offset": [0, -4]
         }
     };
     const tripsLayer = new TripsLayer({
@@ -256,6 +267,7 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
             <Source id="rail_stn"  type="geojson" data={MRT_RAIL_STN} >
                 <Layer {...stnIconStyle} />
                 <Layer {...stnTxtStyle} />
+                {/* <Layer {...stnStyle} /> */}
             </Source>
 
             {/* <DeckGLOverlay layers={[ tripsLayer ]}/>; */}

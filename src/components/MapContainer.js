@@ -11,7 +11,9 @@ import MrtLayers from './layers/MrtLayers';
 import TransactionLayers from './layers/TransactionLayers';
 import MarkerLayer from './layers/MarkerLayer';
 // import PositionMarker from './PositionMarker';
+import SMRT_ICON from '../resources/smrt-icon.svg'
 export default function MapContainer(){
+ 
 
     const mapViewState = useSelector((state) => state.mapViewState );
     // const transactionState  = useSelector((state) => state.transactionState );
@@ -47,8 +49,13 @@ export default function MapContainer(){
                 //dispatch(onSelectSite(feature.properties.name));
                 
             });
-            
 
+            //add svg icon during runtime
+            const image = new Image(30, 18);
+            image.src = SMRT_ICON;
+            map.current.addImage('smrt-icon', image, { sdf: true })
+            
+            //console.log(map.current) //debug
 
         }
     }
@@ -89,7 +96,6 @@ export default function MapContainer(){
                         mapboxAccessToken={process.env.REACT_APP_MAPBOX_API_KEY} 
                         position="top-left" 
                     />
-
                     <MrtLayers/>
                     <TransactionLayers/>
                     <MarkerLayer/>

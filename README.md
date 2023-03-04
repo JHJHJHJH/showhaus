@@ -1,4 +1,6 @@
 # References
+[mapboxgl symbol docs](https://docs.mapbox.com/mapbox-gl-js/style-spec/layers/#symbol)
+[mapboxgl recolorable icons SDF] (https://docs.mapbox.com/help/troubleshooting/using-recolorable-images-in-mapbox-maps/)
 [mapboxgl icon-overlap](https://github.com/mapbox/mapbox-gl-js/issues/4064)
 [mapboxgl interpolate color/size when zoom](https://docs.mapbox.com/mapbox-gl-js/example/change-building-color-based-on-zoom-level/)
 [mapboxgl Transpilation error](https://github.com/mapbox/mapbox-gl-js/issues/10173)
