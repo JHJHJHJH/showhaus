@@ -30,7 +30,10 @@ export default function MapContainer(){
         dispatch(updateViewState(evt.viewState)) ;
 
     }
-    
+    //add svg icon during runtime
+    const image = new Image(30, 18);
+    image.src = SMRT_ICON;
+
     const handleLoad = async (e) => {
         if( map.current != null ){
             console.log("Assigning click event...");
@@ -50,9 +53,6 @@ export default function MapContainer(){
                 
             });
 
-            //add svg icon during runtime
-            const image = new Image(30, 18);
-            image.src = SMRT_ICON;
             map.current.addImage('smrt-icon', image, { sdf: true })
             
             //console.log(map.current) //debug
