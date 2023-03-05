@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
-import MRTLRTStn from '../../resources/RAIL-LINE-DENSIFIED5M.json'
+import MRTLRTStn from '../../resources/rail-line-dense5m.json'
 import MRT_RAIL_STN from  '../../resources/RAIL_STN.geojson'
-import RAIL_LINE_BASE from '../../resources/RAIL_LINE_BASE.geojson'
+import RAIL_LINE_BASE from '../../resources/rail-line-base.geojson'
 import { useControl, Source, Layer } from 'react-map-gl';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { TripsLayer } from 'deck.gl';
@@ -61,23 +61,6 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
         return () => window.cancelAnimationFrame(animation.id);
     }, [animation]);
 
-    // const geojsonLyr = new GeoJsonLayer({
-    //     id: 'geojson-layer',
-    //     MRTLRTgeojson,
-    //     pickable: true,
-    //     stroked: false,
-    //     filled: true,
-    //     extruded: true,
-    //     pointType: 'circle',
-    //     lineWidthScale: 20,
-    //     lineWidthMinPixels: 2,
-    //     getFillColor: [160, 160, 180, 200],
-    //     getLineColor: d => mapMrtColors(d.properties['RAIL_LINE']),
-    //     getPointRadius: 100,
-    //     getLineWidth: 1,
-    //     getElevation: 30
-    //   });
-
     const stnIconStyle = {
         id: 'rail_stn_icon',
         type: 'symbol',
@@ -101,7 +84,7 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
         type: 'line',
         paint: {
             'line-color': ['get','COLOR'],
-            'line-width': 2,
+            'line-width': 1,
             'line-opacity':0.4
         }
     };
@@ -147,9 +130,9 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
         getTimestamps: d => d.timestamps,
         effects : theme.effects,
         getColor: d => d.color,
-        opacity: 0.7,
-        widthMinPixels: 5,
-        rounded: true,
+        opacity: 0.5,
+        widthMinPixels: 2,
+        lineCapRounded: true,
         fadeTrail: true,
         trailLength: 150,
         currentTime: time,
@@ -201,25 +184,29 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
             const features = railLines['features'];
             for( const k in features ){
                 const feature = features[k];
-                console.log(feature)
-                var points = [];
-                var timestamp = [];
-                if( feature['geometry']['type'] !== 'LineString'){
-                    break;
+
+                let coordinates = {};
+                if( feature['geometry']['type'] === 'LineString'){
+                    coordinates = feature['geometry']['coordinates']
+                }
+                else if ( feature['geometry']['type'] === 'MultiLineString'){
+                    coordinates = feature['geometry']['coordinates'][0]
                 }
               
-                var coordinates = feature['geometry']['coordinates'];
-                console.log(coordinates)
                 var railLine = feature['properties']['RAIL_LINE'];
-    
+                var points = [];
+                var timestamp = [];
+                // var reversedPoints = []
+                // var reversedTimestamp = []
                 for (let i = 0; i < coordinates.length; i++) {
-                        
-                    // const index = i % (stations.length) ;
                     const index = i;
                     const coord = coordinates[index];
     
                     points.push(coord);
                     timestamp.push( i * loopLength/coordinates.length  );
+
+                    // reversedPoints.push( coordinates[coordinates.length-i]);
+                    // reversedTimestamp.push( i * loopLength/coordinates.length  );
                 }
 
                 const pathObj = {
@@ -227,7 +214,15 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
                     "timestamps" : timestamp,
                     "color" : mapMrtColors(railLine)
                 }
+
+                // const reversedPathObj = {
+                //     "path" : reversedPoints,
+                //     "timestamps" : reversedTimestamp,
+                //     "color" : mapMrtColors(railLine)
+                // }
+
                 tripsData.push( pathObj );
+                // tripsData.push( reversedPathObj );
 
             }
         
@@ -235,13 +230,8 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
             return tripsData;
         }
         
-
-
         async function init(){
             try {
-                // console.log( MRTLRTStn );
-                // const categorised = categoriseStations(MRTLRTStn);
-                // const sorted  = sortCategorisedStations( categorised );
                 const tripsData = generateTripsData( MRTLRTStn );
             
                 SetMrtTripsData(tripsData);
@@ -250,7 +240,6 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
                 console.error(e);
             }
         }
-
 
         init();
 
