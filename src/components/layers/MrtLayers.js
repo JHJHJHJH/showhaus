@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from "react";
-import MRTLRTStn from '../../resources/MRT_RAIL_LINE_5M.json'
+import MRTLRTStn from '../../resources/RAIL-LINE-DENSIFIED5M.json'
 import MRT_RAIL_STN from  '../../resources/RAIL_STN.geojson'
-// import RAIL_LINE_BASE from '../../resources/RAIL_LINE_BASE.geojson'
-import { useControl, Source, Layer} from 'react-map-gl';
-import {MapboxOverlay} from '@deck.gl/mapbox';
+import RAIL_LINE_BASE from '../../resources/RAIL_LINE_BASE.geojson'
+import { useControl, Source, Layer } from 'react-map-gl';
+import { MapboxOverlay } from '@deck.gl/mapbox';
 import { TripsLayer } from 'deck.gl';
-import {AmbientLight, PointLight, LightingEffect} from '@deck.gl/core';
+import { AmbientLight, PointLight, LightingEffect } from '@deck.gl/core';
 
 function DeckGLOverlay(props) {
     const overlay = useControl(() => new MapboxOverlay(props));
@@ -42,7 +42,7 @@ const DEFAULT_THEME = {
 };
 
 
-export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
+export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
     const [time, setTime] = useState(0);
     const [animation] = useState({});
     const [mrtGeojson, SetMrtGeojson] = useState(null);
@@ -96,12 +96,12 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
         }
     };
 
-    const mrtStyle = {
+    const baseMrtStyle = {
         id: 'rail_line',
         type: 'line',
         paint: {
             'line-color': ['get','COLOR'],
-            'line-width': 3,
+            'line-width': 2,
             'line-opacity':0.4
         }
     };
@@ -147,16 +147,16 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
         getTimestamps: d => d.timestamps,
         effects : theme.effects,
         getColor: d => d.color,
-        opacity: 0.1,
+        opacity: 0.7,
         widthMinPixels: 5,
         rounded: true,
         fadeTrail: true,
-        trailLength: 5000,
+        trailLength: 150,
         currentTime: time,
         depthTest: false
-      });
+    });
 
-      function mapMrtColors( line ){
+    function mapMrtColors( line ){
         let rgb = [0,0,0];
         switch(line){
             case 'NS':
@@ -252,7 +252,7 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
         }
 
 
-        // init();
+        init();
 
     }, [mrtGeojson] );
 
@@ -261,16 +261,16 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
             {/* <Source id="mrt"  type="geojson" data={mrtGeojson} >
                 <Layer {...mrtStyle} />
             </Source> */}
-            {/* <Source id="rail_line"  type="geojson" data={RAIL_LINE_BASE} >
-                <Layer {...mrtStyle} />
-            </Source> */}
+
             <Source id="rail_stn"  type="geojson" data={MRT_RAIL_STN} >
                 <Layer {...stnIconStyle} />
                 <Layer {...stnTxtStyle} />
                 {/* <Layer {...stnStyle} /> */}
             </Source>
-
-            {/* <DeckGLOverlay layers={[ tripsLayer ]}/>; */}
+            <Source id="rail_line"  type="geojson" data={RAIL_LINE_BASE} >
+                <Layer {...baseMrtStyle} />
+            </Source>
+            <DeckGLOverlay layers={[ tripsLayer ]}/>;
         </>
     );
 }
