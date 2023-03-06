@@ -1,8 +1,9 @@
 import React from 'react';
 import Map from 'react-map-gl';
+import { updateLocation } from '../reducers/transactionSlice';
 import { useSelector, useDispatch } from 'react-redux'
 import { updateViewState } from '../reducers/mapViewStateSlice';
-import {MapProvider} from 'react-map-gl';
+import { MapProvider, Marker} from 'react-map-gl';
 import { LngLatBounds } from 'mapbox-gl';
 import GeocoderControl from './map-ui/GeocoderControl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -14,7 +15,7 @@ import MarkerLayer from './layers/MarkerLayer';
 import SMRT_ICON from '../resources/smrt-icon.svg'
 export default function MapContainer(){
  
-
+    const transactionState = useSelector((state) => state.transactionState );
     const mapViewState = useSelector((state) => state.mapViewState );
     // const transactionState  = useSelector((state) => state.transactionState );
     
@@ -34,11 +35,25 @@ export default function MapContainer(){
     const image = new Image(30, 18);
     image.src = SMRT_ICON;
 
+    // var markerTransact = new Marker();
+    function add_marker (event) {
+        var coordinates = event.lngLat;
+        console.log('Lng:', coordinates.lng, 'Lat:', coordinates.lat);
+        dispatch(updateLocation({ "latitude": coordinates.lat, "longitude" : coordinates.lng })) ;
+
+        // markerTransact.setLngLat(coordinates).addTo(map.current.getMap() );
+    }
     const handleLoad = async (e) => {
         if( map.current != null ){
-            console.log("Assigning click event...");
+            console.log("Assigning click events...");
             
+            map.current.on('click', add_marker );
+
             map.current.on('click', (event) => {
+                // var coordinates = event.lngLat;
+                // console.log('Lng:', coordinates.lng, 'Lat:', coordinates.lat);
+                // marker.setLngLat(coordinates).addTo(map.current.getMap());
+
                 // If the user clicked on one of your markers, get its information.
                 const features = map.current.getMap().queryRenderedFeatures(event.point, {
                   layers: ['transactions']
@@ -91,10 +106,11 @@ export default function MapContainer(){
                             trash: true
                         }}
                     /> */}
-                    
+                    <Marker longitude={ transactionState.location.longitude } 
+                            latitude={ transactionState.location.latitude }/>
                     <GeocoderControl 
                         mapboxAccessToken={process.env.REACT_APP_MAPBOX_API_KEY} 
-                        position="top-left" 
+                        position="top-left"
                     />
                     <MrtLayers/>
                     <TransactionLayers/>

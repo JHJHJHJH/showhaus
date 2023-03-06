@@ -1,4 +1,5 @@
 # References
+[mapbox add marker on click](https://github.com/mapbox/mapbox-gl-js/issues/9209)
 [mapboxgl symbol docs](https://docs.mapbox.com/mapbox-gl-js/style-spec/layers/#symbol)
 [mapboxgl recolorable icons SDF] (https://docs.mapbox.com/help/troubleshooting/using-recolorable-images-in-mapbox-maps/)
 [mapboxgl icon-overlap](https://github.com/mapbox/mapbox-gl-js/issues/4064)

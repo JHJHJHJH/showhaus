@@ -32,11 +32,11 @@ export default function GeocoderControl(props) {
         console.log( "Coordinates : " + location );
         dispatch(updateLocation({ "latitude": location[1], "longitude" : location[0] })) ;
 
-        if (location && props.marker) {
-          setMarker(<Marker {...props.marker} longitude={location[0]} latitude={location[1]} />);
-        } else {
-          setMarker(null);
-        }
+        // if (location && props.marker) {
+        //   setMarker(<Marker {...props.marker} longitude={location[0]} latitude={location[1]} />);
+        // } else {
+        //   setMarker(null);
+        // }
         
       });
       ctrl.on('error', props.onError);
