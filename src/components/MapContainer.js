@@ -1,6 +1,6 @@
 import React from 'react';
 import Map from 'react-map-gl';
-import { updateLocation } from '../reducers/transactionSlice';
+import { updateLocation } from '../reducers/inputSlice';
 import { useSelector, useDispatch } from 'react-redux'
 import { updateViewState } from '../reducers/mapViewStateSlice';
 import { MapProvider, Marker} from 'react-map-gl';
@@ -14,10 +14,8 @@ import MarkerLayer from './layers/MarkerLayer';
 // import PositionMarker from './PositionMarker';
 import SMRT_ICON from '../resources/smrt-icon.svg'
 export default function MapContainer(){
- 
-    const transactionState = useSelector((state) => state.transactionState );
+    const inputState = useSelector((state) => state.inputState );
     const mapViewState = useSelector((state) => state.mapViewState );
-    // const transactionState  = useSelector((state) => state.transactionState );
     
     const dispatch = useDispatch();
     const map = React.useRef();
@@ -99,8 +97,8 @@ export default function MapContainer(){
                             trash: true
                         }}
                     /> */}
-                    <Marker longitude={ transactionState.location.longitude } 
-                            latitude={ transactionState.location.latitude }/>
+                    <Marker longitude={ inputState.location.longitude } 
+                            latitude={ inputState.location.latitude }/>
                     <GeocoderControl 
                         mapboxAccessToken={process.env.REACT_APP_MAPBOX_API_KEY} 
                         position="top-left"

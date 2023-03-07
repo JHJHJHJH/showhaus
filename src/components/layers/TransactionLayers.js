@@ -10,6 +10,7 @@ export default function TransactionLayers(){
     const dispatch = useDispatch();
     const mapViewState = useSelector((state) => state.mapViewState );
     const transactionState = useSelector((state) => state.transactionState );
+    const inputState = useSelector((state) => state.inputState );
 
     const [radiusGeojson, SetRadiusGeojson] = useState(null);
     const [transactionsFoundGeojson, SetTransactionsFoundGeojson] = useState(null);
@@ -108,9 +109,8 @@ export default function TransactionLayers(){
         }
         async function update(){
             try {
-                if( transactionState.location.latitude !== 0 && transactionState.location.longitude !== 0 && transactionsGeojson != null){
-                    
-                    const searchRadius = makeRadius( [ transactionState.location.longitude, transactionState.location.latitude ], transactionState.radius )
+                if( inputState.location.latitude !== 0 && inputState.location.longitude !== 0 && transactionsGeojson != null){
+                    const searchRadius = makeRadius( [ inputState.location.longitude, inputState.location.latitude ], inputState.radius )
     
                     SetRadiusGeojson( searchRadius );
 
@@ -133,7 +133,7 @@ export default function TransactionLayers(){
 
         update();
 
-    }, [transactionState.location, transactionState.radius, transactionsGeojson] );  // eslint-disable-line react-hooks/exhaustive-deps
+    }, [inputState.location, inputState.radius, transactionsGeojson] );  // eslint-disable-line react-hooks/exhaustive-deps
 
 
     return(

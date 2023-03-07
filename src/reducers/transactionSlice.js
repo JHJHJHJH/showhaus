@@ -20,12 +20,8 @@ const transactionSlice = createSlice({
     initialState: {
         transactions: [],
         status: null,
-        opacity: 0.12,
-        radius: 2,
-        location: {
-            "longitude" : 0,
-            "latitude" : 0
-        }
+        opacity: 0.12
+
     },
     extraReducers: {
         [getTransactions.pending]: (state, action ) => {
@@ -42,13 +38,6 @@ const transactionSlice = createSlice({
     reducers: { 
         updateOpacity: (state, action) => {
             state.opacity = parseFloat(action.payload);
-        },
-        updateRadius: (state, action) => {
-            state.radius = parseFloat(action.payload);
-        },
-        updateLocation: (state, action )=> {
-            state.location.latitude = action.payload.latitude;
-            state.location.longitude = action.payload.longitude;
         },
         updateTransactions: ( state, action )=> {
             const features = action.payload.features;
@@ -97,7 +86,7 @@ const transactionSlice = createSlice({
         }      
     }
 });
-export const { updateOpacity, updateRadius, updateLocation, updateTransactions} = transactionSlice.actions;
+export const { updateOpacity, updateTransactions} = transactionSlice.actions;
 
 const transactionReducer = transactionSlice.reducer;
 export default transactionReducer;
