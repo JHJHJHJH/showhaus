@@ -139,7 +139,7 @@ export default function MarkerLayer({theme = DEFAULT_THEME }) {
     getColor: [253, 128, 93],
     opacity: 0.8,
     widthMinPixels: 0.8,
-    rounded: true,
+    lineCapRounded: true,
     fadeTrail: true,
     trailLength: 1000,
     currentTime: time

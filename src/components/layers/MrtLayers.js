@@ -1,11 +1,11 @@
 import React, {useEffect, useState} from "react";
-import MRTLRTStn from '../../resources/MRT_RAIL_LINE_5M.json'
+import MRTLRTStn from '../../resources/rail-line-dense5m.json'
 import MRT_RAIL_STN from  '../../resources/RAIL_STN.geojson'
-// import RAIL_LINE_BASE from '../../resources/RAIL_LINE_BASE.geojson'
-import { useControl, Source, Layer} from 'react-map-gl';
-import {MapboxOverlay} from '@deck.gl/mapbox';
+import RAIL_LINE_BASE from '../../resources/rail-line-base.geojson'
+import { useControl, Source, Layer } from 'react-map-gl';
+import { MapboxOverlay } from '@deck.gl/mapbox';
 import { TripsLayer } from 'deck.gl';
-import {AmbientLight, PointLight, LightingEffect} from '@deck.gl/core';
+import { AmbientLight, PointLight, LightingEffect } from '@deck.gl/core';
 
 function DeckGLOverlay(props) {
     const overlay = useControl(() => new MapboxOverlay(props));
@@ -42,7 +42,7 @@ const DEFAULT_THEME = {
 };
 
 
-export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
+export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
     const [time, setTime] = useState(0);
     const [animation] = useState({});
     const [mrtGeojson, SetMrtGeojson] = useState(null);
@@ -60,23 +60,6 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
         animation.id = window.requestAnimationFrame(animate);
         return () => window.cancelAnimationFrame(animation.id);
     }, [animation]);
-
-    // const geojsonLyr = new GeoJsonLayer({
-    //     id: 'geojson-layer',
-    //     MRTLRTgeojson,
-    //     pickable: true,
-    //     stroked: false,
-    //     filled: true,
-    //     extruded: true,
-    //     pointType: 'circle',
-    //     lineWidthScale: 20,
-    //     lineWidthMinPixels: 2,
-    //     getFillColor: [160, 160, 180, 200],
-    //     getLineColor: d => mapMrtColors(d.properties['RAIL_LINE']),
-    //     getPointRadius: 100,
-    //     getLineWidth: 1,
-    //     getElevation: 30
-    //   });
 
     const stnIconStyle = {
         id: 'rail_stn_icon',
@@ -96,12 +79,12 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
         }
     };
 
-    const mrtStyle = {
+    const baseMrtStyle = {
         id: 'rail_line',
         type: 'line',
         paint: {
             'line-color': ['get','COLOR'],
-            'line-width': 3,
+            'line-width': 1,
             'line-opacity':0.4
         }
     };
@@ -147,16 +130,16 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
         getTimestamps: d => d.timestamps,
         effects : theme.effects,
         getColor: d => d.color,
-        opacity: 0.1,
-        widthMinPixels: 5,
-        rounded: true,
+        opacity: 0.5,
+        widthMinPixels: 2,
+        lineCapRounded: true,
         fadeTrail: true,
-        trailLength: 5000,
+        trailLength: 150,
         currentTime: time,
         depthTest: false
-      });
+    });
 
-      function mapMrtColors( line ){
+    function mapMrtColors( line ){
         let rgb = [0,0,0];
         switch(line){
             case 'NS':
@@ -201,25 +184,29 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
             const features = railLines['features'];
             for( const k in features ){
                 const feature = features[k];
-                console.log(feature)
-                var points = [];
-                var timestamp = [];
-                if( feature['geometry']['type'] !== 'LineString'){
-                    break;
+
+                let coordinates = {};
+                if( feature['geometry']['type'] === 'LineString'){
+                    coordinates = feature['geometry']['coordinates']
+                }
+                else if ( feature['geometry']['type'] === 'MultiLineString'){
+                    coordinates = feature['geometry']['coordinates'][0]
                 }
               
-                var coordinates = feature['geometry']['coordinates'];
-                console.log(coordinates)
                 var railLine = feature['properties']['RAIL_LINE'];
-    
+                var points = [];
+                var timestamp = [];
+                // var reversedPoints = []
+                // var reversedTimestamp = []
                 for (let i = 0; i < coordinates.length; i++) {
-                        
-                    // const index = i % (stations.length) ;
                     const index = i;
                     const coord = coordinates[index];
     
                     points.push(coord);
                     timestamp.push( i * loopLength/coordinates.length  );
+
+                    // reversedPoints.push( coordinates[coordinates.length-i]);
+                    // reversedTimestamp.push( i * loopLength/coordinates.length  );
                 }
 
                 const pathObj = {
@@ -227,7 +214,15 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
                     "timestamps" : timestamp,
                     "color" : mapMrtColors(railLine)
                 }
+
+                // const reversedPathObj = {
+                //     "path" : reversedPoints,
+                //     "timestamps" : reversedTimestamp,
+                //     "color" : mapMrtColors(railLine)
+                // }
+
                 tripsData.push( pathObj );
+                // tripsData.push( reversedPathObj );
 
             }
         
@@ -235,13 +230,8 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
             return tripsData;
         }
         
-
-
         async function init(){
             try {
-                // console.log( MRTLRTStn );
-                // const categorised = categoriseStations(MRTLRTStn);
-                // const sorted  = sortCategorisedStations( categorised );
                 const tripsData = generateTripsData( MRTLRTStn );
             
                 SetMrtTripsData(tripsData);
@@ -251,8 +241,7 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
             }
         }
 
-
-        // init();
+        init();
 
     }, [mrtGeojson] );
 
@@ -261,16 +250,16 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 120 } ){
             {/* <Source id="mrt"  type="geojson" data={mrtGeojson} >
                 <Layer {...mrtStyle} />
             </Source> */}
-            {/* <Source id="rail_line"  type="geojson" data={RAIL_LINE_BASE} >
-                <Layer {...mrtStyle} />
-            </Source> */}
+
             <Source id="rail_stn"  type="geojson" data={MRT_RAIL_STN} >
                 <Layer {...stnIconStyle} />
                 <Layer {...stnTxtStyle} />
                 {/* <Layer {...stnStyle} /> */}
             </Source>
-
-            {/* <DeckGLOverlay layers={[ tripsLayer ]}/>; */}
+            <Source id="rail_line"  type="geojson" data={RAIL_LINE_BASE} >
+                <Layer {...baseMrtStyle} />
+            </Source>
+            <DeckGLOverlay layers={[ tripsLayer ]}/>;
         </>
     );
 }
