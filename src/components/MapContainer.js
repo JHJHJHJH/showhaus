@@ -35,25 +35,19 @@ export default function MapContainer(){
     const image = new Image(30, 18);
     image.src = SMRT_ICON;
 
-    // var markerTransact = new Marker();
+    //ADD MAPBOX MARKER ON CLICK
     function add_marker (event) {
         var coordinates = event.lngLat;
-        console.log('Lng:', coordinates.lng, 'Lat:', coordinates.lat);
+        console.log('Marker added | Lng:', coordinates.lng, 'Lat:', coordinates.lat);
         dispatch(updateLocation({ "latitude": coordinates.lat, "longitude" : coordinates.lng })) ;
-
         // markerTransact.setLngLat(coordinates).addTo(map.current.getMap() );
     }
     const handleLoad = async (e) => {
         if( map.current != null ){
-            console.log("Assigning click events...");
-            
+            //ASSIGN CLICK EVENTS
             map.current.on('click', add_marker );
 
             map.current.on('click', (event) => {
-                // var coordinates = event.lngLat;
-                // console.log('Lng:', coordinates.lng, 'Lat:', coordinates.lat);
-                // marker.setLngLat(coordinates).addTo(map.current.getMap());
-
                 // If the user clicked on one of your markers, get its information.
                 const features = map.current.getMap().queryRenderedFeatures(event.point, {
                   layers: ['transactions']
@@ -71,7 +65,6 @@ export default function MapContainer(){
             map.current.addImage('smrt-icon', image, { sdf: true })
             
             //console.log(map.current) //debug
-
         }
     }
 

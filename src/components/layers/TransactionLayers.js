@@ -15,8 +15,6 @@ export default function TransactionLayers(){
     const [transactionsFoundGeojson, SetTransactionsFoundGeojson] = useState(null);
     const [transactionsGeojson, SetTransactionsGeojson] = useState(null);
 
-
-
     //Styles
     const radiusStyle = {
         id: 'search-radius',
