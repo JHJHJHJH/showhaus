@@ -39,7 +39,7 @@ const transactionSlice = createSlice({
         },
         updateTransactionsInRadius: ( state, action )=> {
             const features = action.payload.features;
-            console.log( features );
+            //console.log( features );
 
             const transactionList = [];
             for (let i = 0; i < features.length; i++) {

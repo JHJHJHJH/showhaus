@@ -98,14 +98,14 @@ export default function MarkerLayer({theme = DEFAULT_THEME }) {
     return () => window.cancelAnimationFrame(animation.id);
   }, [animation]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const inputState = useSelector((state) => state.inputState );
+  const searchRadiusState = useSelector((state) => state.searchRadiusState );
 
   const scatterplotLayer = new ScatterplotLayer({
     id: 'my-scatterplot',
     // data: [
     //   {position: [ transactionState.location.longitude ,  transactionState.location.latitude], size: 2}
     // ],
-    data : calculatePattern( inputState.location.longitude ,  inputState.location.latitude),
+    data : calculatePattern( searchRadiusState.location.longitude ,  searchRadiusState.location.latitude),
     opacity: 0.2,
     stroked: false,
     filled: true,
@@ -129,7 +129,7 @@ export default function MarkerLayer({theme = DEFAULT_THEME }) {
    */
   const tripsLayer = new TripsLayer({
     id: 'trips-layer',
-    data : calculateTripsPattern( inputState.location.longitude ,  inputState.location.latitude),
+    data : calculateTripsPattern( searchRadiusState.location.longitude ,  searchRadiusState.location.latitude),
     getPath: d => d.map( p => p.position),
     // deduct start timestamp from each data point to avoid overflow
     getTimestamps: d => d.map( p => p.timestamp ),

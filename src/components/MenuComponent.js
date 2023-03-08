@@ -1,10 +1,10 @@
 import React from "react";
 import {useDispatch, useSelector} from 'react-redux';
-import { updateRadius } from "../reducers/inputSlice";
+import { updateRadius } from "../reducers/searchRadiusSlice";
 import NearbyMrt from "./nearbys/NearbyMrt";
 
 export default function MenuComponent(){
-    const inputState = useSelector((state) => state.inputState );
+    const searchRadiusState = useSelector((state) => state.searchRadiusState );
     const dispatch = useDispatch();
     return (
         <div className="p-4">
@@ -18,11 +18,11 @@ export default function MenuComponent(){
                     min={1}
                     max={5}
                     step={0.1}
-                    value={inputState.radius}
+                    value={searchRadiusState.radius}
                     onChange={(e) =>  dispatch(updateRadius( e.target.value ))}
                     id="radiusRange"
                 />
-                {inputState.radius}
+                {searchRadiusState.radius}
             </div>
             <NearbyMrt/>
         </div>

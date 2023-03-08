@@ -3,7 +3,7 @@ import {useState} from 'react';
 import { useDispatch } from 'react-redux';
 import {useControl, Marker} from 'react-map-gl';
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
-import { updateLocation } from '../../reducers/inputSlice';
+import { updateLocation } from '../../reducers/searchRadiusSlice';
 //adopted from:
 //https://github.com/visgl/react-map-gl/blob/7.0-release/examples/geocoder/src/geocoder-control.tsx
 //return a marker

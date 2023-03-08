@@ -1,4 +1,4 @@
-{
+const RAIL_STN = {
 "type": "FeatureCollection",
 "name": "RAIL_STN",
 "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
@@ -196,3 +196,4 @@
 { "type": "Feature", "properties": { "STN_NAME": "MAYFLOWER MRT STATION", "STN_NO": "TE6", "STN_CODE": "TE6", "COLORS": [ "#9E5B20" ], "COLOR": "#9E5B20" }, "geometry": { "type": "Point", "coordinates": [ 103.836790770268664, 1.372103173214584 ] } }
 ]
 }
+export default RAIL_STN

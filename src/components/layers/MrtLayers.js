@@ -1,12 +1,14 @@
 import React, {useEffect, useState} from "react";
 import MRTLRTStn from '../../resources/rail-line-dense5m.json'
-import MRT_RAIL_STN from  '../../resources/RAIL_STN.geojson'
 import RAIL_LINE_BASE from '../../resources/rail-line-base.geojson'
 import { useControl, Source, Layer } from 'react-map-gl';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { TripsLayer } from 'deck.gl';
 import { AmbientLight, PointLight, LightingEffect } from '@deck.gl/core';
-
+import { useSelector, useDispatch } from "react-redux";
+import { booleanPointInPolygon, featureCollection } from '@turf/turf';
+import MRT_RAIL_STN from  '../../resources/RAIL_STN.js'
+import { updateMrtInRadius } from "../../reducers/searchRadiusSlice";
 function DeckGLOverlay(props) {
     const overlay = useControl(() => new MapboxOverlay(props));
     overlay.setProps(props);
@@ -43,10 +45,13 @@ const DEFAULT_THEME = {
 
 
 export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
+    
+    const dispatch = useDispatch();
     const [time, setTime] = useState(0);
     const [animation] = useState({});
     const [mrtGeojson, SetMrtGeojson] = useState(null);
     const [mrtTripsData, SetMrtTripsData] = useState(null);
+    const [mrtFoundGeojson, SetMrtFoundGeojson]= useState(null);
 
     const animate = () => {
         const animationSpeed = 1; 
@@ -244,6 +249,47 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
         init();
 
     }, [mrtGeojson] );
+
+    const searchRadiusState = useSelector((state) => state.searchRadiusState );
+
+    useEffect(() => {
+
+        //filters transactions within circle
+        //sourceGeoJSON : all transactions (Point features)
+        //filterFeature : geojson circle
+        function getFeaturesWithinRadius(sourceGeoJSON, filterFeature) {
+            // Loop through all the features in the source radiusGeojson and return the ones that 
+            // are inside the filter feature (buffered radius) and are confirmed landing sites
+            var joined = sourceGeoJSON.features.filter(function (feature) {
+                return booleanPointInPolygon(feature, filterFeature);
+            });
+        
+            return joined;
+        }
+        async function update(){
+            try {
+                if( searchRadiusState.location.latitude !== 0 && searchRadiusState.location.longitude !== 0 && MRT_RAIL_STN != null){
+
+                    var featuresInBuffer = getFeaturesWithinRadius(MRT_RAIL_STN, searchRadiusState.searchRadius);
+                    
+                    const foundMrts = featureCollection(featuresInBuffer);
+
+                    //SetMrtFoundGeojson(foundMrts);
+                    
+                    dispatch( updateMrtInRadius(foundMrts ));
+                    // console.log ( "Transactions within radius...");
+                    // console.log(foundMrts) ;                   
+                }
+
+                
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        update();
+
+    }, [searchRadiusState.location, searchRadiusState.radius, MRT_RAIL_STN] );  // eslint-disable-line react-hooks/exhaustive-deps
 
     return(
         <>

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Source, Layer } from "react-map-gl";
-import { point,buffer, booleanPointInPolygon, featureCollection } from '@turf/turf';
+import { booleanPointInPolygon, featureCollection } from '@turf/turf';
 import axios from "axios";
 import { updateTransactionsInRadius } from   "../../reducers/transactionSlice";
 
@@ -9,7 +9,7 @@ export default function TransactionLayers(){
 
     const dispatch = useDispatch();
     const mapViewState = useSelector((state) => state.mapViewState );
-    const inputState = useSelector((state) => state.inputState );
+    const searchRadiusState = useSelector((state) => state.searchRadiusState );
 
     const [transactionsFoundGeojson, SetTransactionsFoundGeojson] = useState(null);
     const [transactionsGeojson, SetTransactionsGeojson] = useState(null);
@@ -89,17 +89,17 @@ export default function TransactionLayers(){
         }
         async function update(){
             try {
-                if( inputState.location.latitude !== 0 && inputState.location.longitude !== 0 && transactionsGeojson != null){
+                if( searchRadiusState.location.latitude !== 0 && searchRadiusState.location.longitude !== 0 && transactionsGeojson != null){
 
-                    var featuresInBuffer = getFeaturesWithinRadius(transactionsGeojson, inputState.searchRadius);
+                    var featuresInBuffer = getFeaturesWithinRadius(transactionsGeojson, searchRadiusState.searchRadius);
 
                     const foundTransactions = featureCollection(featuresInBuffer);
                     
                     SetTransactionsFoundGeojson(foundTransactions);
                     
                     dispatch( updateTransactionsInRadius(foundTransactions ));
-                    console.log ( "Transactions within radius...");
-                    console.log(foundTransactions) ;                   
+                    // console.log ( "Transactions within radius...");
+                    // console.log(foundTransactions) ;                   
                 }
 
                 
@@ -110,7 +110,7 @@ export default function TransactionLayers(){
 
         update();
 
-    }, [inputState.location, inputState.radius, transactionsGeojson] );  // eslint-disable-line react-hooks/exhaustive-deps
+    }, [searchRadiusState.location, searchRadiusState.radius, transactionsGeojson] );  // eslint-disable-line react-hooks/exhaustive-deps
 
 
     return(

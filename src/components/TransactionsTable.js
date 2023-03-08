@@ -31,7 +31,7 @@ export default function TransactionsTable(){
           try { 
             
             const data = transactionState.transactions;
-            console.log(data);
+            // console.log(data);
             SetRows( data );
           } catch (e) {
               console.error(e);

@@ -1,13 +1,10 @@
 import React, {useEffect, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Source, Layer } from "react-map-gl";
-import { point,buffer, booleanPointInPolygon, featureCollection } from '@turf/turf';
-import axios from "axios";
-import { updateTransactions } from   "../../reducers/transactionSlice";
 
 export default function SearchRadiusLayer(){
 
-    const inputState = useSelector((state) => state.inputState );
+    const searchRadiusState = useSelector((state) => state.searchRadiusState );
 
     const [radiusGeojson, SetRadiusGeojson] = useState(null);
 
@@ -17,7 +14,7 @@ export default function SearchRadiusLayer(){
         type: 'fill',
         paint: {
             'fill-color': '#F1CF65',
-            'fill-opacity': inputState.opacity
+            'fill-opacity': searchRadiusState.opacity
         }
     };
 
@@ -40,8 +37,8 @@ export default function SearchRadiusLayer(){
     useEffect(() => {
         async function update(){
             try {
-                if( inputState.location.latitude !== 0 && inputState.location.longitude !== 0 ){
-                    SetRadiusGeojson( inputState.searchRadius );             
+                if( searchRadiusState.location.latitude !== 0 && searchRadiusState.location.longitude !== 0 ){
+                    SetRadiusGeojson( searchRadiusState.searchRadius );             
                 }                
             } catch (e) {
                 console.error(e);
@@ -50,7 +47,7 @@ export default function SearchRadiusLayer(){
 
         update();
 
-    }, [inputState.location, inputState.radius] );  // eslint-disable-line react-hooks/exhaustive-deps
+    }, [searchRadiusState.location, searchRadiusState.radius] );  // eslint-disable-line react-hooks/exhaustive-deps
 
 
     return(
