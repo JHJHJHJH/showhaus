@@ -24,7 +24,8 @@ export const searchRadiusStateSlice = createSlice({
     },
     updateMrtInRadius: (state, action )=> {
       const featureCollection = action.payload
-      state.mrtStations = featureCollection['features'].map(( feat )=> feat['properties']['STN_NAME'] )
+      const stationNames = featureCollection['features'].map(( feat )=> feat['properties']['STN_NAME'] )
+      state.mrtStations = [ ...new Set(stationNames )];
       // state.mrtCodes = featureCollection['features'].map(( feat )=> feat['properties']['STN_CODE'] )
   }
   },

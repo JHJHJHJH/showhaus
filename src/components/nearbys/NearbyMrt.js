@@ -8,7 +8,7 @@ export default function NearbyMrt(){
             <label className="font-bold" >What's nearby ?</label>
         
             {searchRadiusState.mrtStations.map( (stn) =>(
-                <div className="my-2" key={stn}> {stn} </div>  
+                <div className="my-2"> {stn} </div>  
             ))}
         </div>
     )
