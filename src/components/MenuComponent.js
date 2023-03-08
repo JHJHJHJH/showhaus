@@ -8,9 +8,9 @@ export default function MenuComponent(){
     const dispatch = useDispatch();
     return (
         <div className="p-4">
-            <div className="font-bold">Settings</div>
+            <div className="font-bold my-2">Settings</div>
 
-            <div>
+            <div className="my-2">
                 <label >Radius (km)</label>
                 
                 <input
