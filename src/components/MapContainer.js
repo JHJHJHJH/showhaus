@@ -13,6 +13,7 @@ import TransactionLayers from './layers/TransactionLayers';
 import MarkerLayer from './layers/MarkerLayer';
 // import PositionMarker from './PositionMarker';
 import SMRT_ICON from '../resources/smrt-icon.svg'
+import SearchRadiusLayer from './layers/SearchRadiusLayer';
 export default function MapContainer(){
     const inputState = useSelector((state) => state.inputState );
     const mapViewState = useSelector((state) => state.mapViewState );
@@ -103,6 +104,7 @@ export default function MapContainer(){
                         mapboxAccessToken={process.env.REACT_APP_MAPBOX_API_KEY} 
                         position="top-left"
                     />
+                    <SearchRadiusLayer/>
                     <MrtLayers/>
                     <TransactionLayers/>
                     <MarkerLayer/>
