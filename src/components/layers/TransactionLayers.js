@@ -1,29 +1,19 @@
 import React, {useEffect, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Source, Layer } from "react-map-gl";
-import { point,buffer, booleanPointInPolygon, featureCollection } from '@turf/turf';
+import { booleanPointInPolygon, featureCollection } from '@turf/turf';
 import axios from "axios";
-import { updateTransactions } from   "../../reducers/transactionSlice";
+import { updateTransactionsInRadius } from   "../../reducers/transactionSlice";
 
 export default function TransactionLayers(){
 
     const dispatch = useDispatch();
     const mapViewState = useSelector((state) => state.mapViewState );
-    const transactionState = useSelector((state) => state.transactionState );
+    const searchRadiusState = useSelector((state) => state.searchRadiusState );
 
-    const [radiusGeojson, SetRadiusGeojson] = useState(null);
     const [transactionsFoundGeojson, SetTransactionsFoundGeojson] = useState(null);
     const [transactionsGeojson, SetTransactionsGeojson] = useState(null);
 
-    //Styles
-    const radiusStyle = {
-        id: 'search-radius',
-        type: 'fill',
-        paint: {
-            'fill-color': '#F1CF65',
-            'fill-opacity': transactionState.opacity
-        }
-    };
 
     const foundTransactionsStyle = {
         id: 'found-transactions',
@@ -49,7 +39,6 @@ export default function TransactionLayers(){
         async function init(){
             try {
                 const emptyData = {"type": "FeatureCollection", "features": [] };                
-                SetRadiusGeojson(emptyData);
                 SetTransactionsFoundGeojson(emptyData);
             } catch (e) {
                 console.error(e);
@@ -85,14 +74,6 @@ export default function TransactionLayers(){
     }, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        //Source
-        //https://labs.mapbox.com/education/proximity-analysis/selecting-within-a-distance/#your-turn
-        //Creates radiusGeojson circle
-        function makeRadius(lngLatArray, radiusInMeters){
-            var pt = point(lngLatArray);
-            var buffered = buffer(pt, radiusInMeters, { units: 'kilometers' });
-            return buffered;
-        }
 
         //filters transactions within circle
         //sourceGeoJSON : all transactions (Point features)
@@ -108,21 +89,17 @@ export default function TransactionLayers(){
         }
         async function update(){
             try {
-                if( transactionState.location.latitude !== 0 && transactionState.location.longitude !== 0 && transactionsGeojson != null){
-                    
-                    const searchRadius = makeRadius( [ transactionState.location.longitude, transactionState.location.latitude ], transactionState.radius )
-    
-                    SetRadiusGeojson( searchRadius );
+                if( searchRadiusState.location.latitude !== 0 && searchRadiusState.location.longitude !== 0 && transactionsGeojson != null){
 
-                    var featuresInBuffer = getFeaturesWithinRadius(transactionsGeojson, searchRadius);
+                    var featuresInBuffer = getFeaturesWithinRadius(transactionsGeojson, searchRadiusState.searchRadius);
 
                     const foundTransactions = featureCollection(featuresInBuffer);
                     
                     SetTransactionsFoundGeojson(foundTransactions);
                     
-                    dispatch( updateTransactions(foundTransactions ));
-                    console.log ( "Transactions within radius...");
-                    console.log(foundTransactions) ;                   
+                    dispatch( updateTransactionsInRadius(foundTransactions ));
+                    // console.log ( "Transactions within radius...");
+                    // console.log(foundTransactions) ;                   
                 }
 
                 
@@ -133,15 +110,11 @@ export default function TransactionLayers(){
 
         update();
 
-    }, [transactionState.location, transactionState.radius, transactionsGeojson] );  // eslint-disable-line react-hooks/exhaustive-deps
+    }, [searchRadiusState.location, searchRadiusState.radius, transactionsGeojson] );  // eslint-disable-line react-hooks/exhaustive-deps
 
 
     return(
         <>
-        <Source id="search-radius"  type="geojson" data={radiusGeojson} >
-            <Layer {...radiusStyle} />
-        </Source>
-
         <Source id="transactions"  type="geojson" data={transactionsGeojson} >
             <Layer {...transactionsStyle} />
         </Source>
@@ -150,6 +123,5 @@ export default function TransactionLayers(){
             <Layer {...foundTransactionsStyle} />
         </Source>
         </>
-        
     );
 }

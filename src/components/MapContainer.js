@@ -1,9 +1,9 @@
 import React from 'react';
 import Map from 'react-map-gl';
-import { updateLocation } from '../reducers/transactionSlice';
+import { updateLocation } from '../reducers/searchRadiusSlice';
 import { useSelector, useDispatch } from 'react-redux'
 import { updateViewState } from '../reducers/mapViewStateSlice';
-import { MapProvider, Marker} from 'react-map-gl';
+import { MapProvider, Marker, NavigationControl} from 'react-map-gl';
 import { LngLatBounds } from 'mapbox-gl';
 import GeocoderControl from './map-ui/GeocoderControl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -13,11 +13,10 @@ import TransactionLayers from './layers/TransactionLayers';
 import MarkerLayer from './layers/MarkerLayer';
 // import PositionMarker from './PositionMarker';
 import SMRT_ICON from '../resources/smrt-icon.svg'
+import SearchRadiusLayer from './layers/SearchRadiusLayer';
 export default function MapContainer(){
- 
-    const transactionState = useSelector((state) => state.transactionState );
+    const searchRadiusState = useSelector((state) => state.searchRadiusState );
     const mapViewState = useSelector((state) => state.mapViewState );
-    // const transactionState  = useSelector((state) => state.transactionState );
     
     const dispatch = useDispatch();
     const map = React.useRef();
@@ -38,7 +37,7 @@ export default function MapContainer(){
     //ADD MAPBOX MARKER ON CLICK
     function add_marker (event) {
         var coordinates = event.lngLat;
-        console.log('Marker added | Lng:', coordinates.lng, 'Lat:', coordinates.lat);
+        console.log('Marker | Lng:', coordinates.lng, 'Lat:', coordinates.lat);
         dispatch(updateLocation({ "latitude": coordinates.lat, "longitude" : coordinates.lng })) ;
         // markerTransact.setLngLat(coordinates).addTo(map.current.getMap() );
     }
@@ -99,15 +98,17 @@ export default function MapContainer(){
                             trash: true
                         }}
                     /> */}
-                    <Marker longitude={ transactionState.location.longitude } 
-                            latitude={ transactionState.location.latitude }/>
+                    <Marker longitude={ searchRadiusState.location.longitude } 
+                            latitude={ searchRadiusState.location.latitude }/>
                     <GeocoderControl 
                         mapboxAccessToken={process.env.REACT_APP_MAPBOX_API_KEY} 
                         position="top-left"
                     />
+                    <SearchRadiusLayer/>
                     <MrtLayers/>
                     <TransactionLayers/>
                     <MarkerLayer/>
+                    <NavigationControl/>
 
                 </Map>
                 {/* <ControlPanel/> */}

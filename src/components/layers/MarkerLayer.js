@@ -70,7 +70,6 @@ const material = {
   specularColor: [60, 64, 70]
 };
 
-
 const lightingEffect = new LightingEffect({ambientLight, pointLight});
 
 const DEFAULT_THEME = {
@@ -99,15 +98,14 @@ export default function MarkerLayer({theme = DEFAULT_THEME }) {
     return () => window.cancelAnimationFrame(animation.id);
   }, [animation]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const transactionState = useSelector((state) => state.transactionState );
-  
+  const searchRadiusState = useSelector((state) => state.searchRadiusState );
 
   const scatterplotLayer = new ScatterplotLayer({
     id: 'my-scatterplot',
     // data: [
     //   {position: [ transactionState.location.longitude ,  transactionState.location.latitude], size: 2}
     // ],
-    data : calculatePattern( transactionState.location.longitude ,  transactionState.location.latitude),
+    data : calculatePattern( searchRadiusState.location.longitude ,  searchRadiusState.location.latitude),
     opacity: 0.2,
     stroked: false,
     filled: true,
@@ -131,7 +129,7 @@ export default function MarkerLayer({theme = DEFAULT_THEME }) {
    */
   const tripsLayer = new TripsLayer({
     id: 'trips-layer',
-    data : calculateTripsPattern( transactionState.location.longitude ,  transactionState.location.latitude),
+    data : calculateTripsPattern( searchRadiusState.location.longitude ,  searchRadiusState.location.latitude),
     getPath: d => d.map( p => p.position),
     // deduct start timestamp from each data point to avoid overflow
     getTimestamps: d => d.map( p => p.timestamp ),
