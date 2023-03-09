@@ -12,7 +12,6 @@ export const mapViewStateSlice = createSlice({
         maxLon: 104.05,
         maxLat: 1.474612 
     },
-    transactions : [],
     status: 'idle',
     error : null 
   },

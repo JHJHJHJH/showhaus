@@ -46,20 +46,20 @@ export default function MapContainer(){
             //ASSIGN CLICK EVENTS
             map.current.on('click', add_marker );
 
-            map.current.on('click', (event) => {
-                // If the user clicked on one of your markers, get its information.
-                const features = map.current.getMap().queryRenderedFeatures(event.point, {
-                  layers: ['transactions']
-                });
+            // map.current.on('click', (event) => {
+            //     // If the user clicked on one of your markers, get its information.
+            //     const features = map.current.getMap().queryRenderedFeatures(event.point, {
+            //       layers: ['transactions']
+            //     });
                 
-                if (!features.length) { return; }
-                const feature = features[0];
+            //     if (!features.length) { return; }
+            //     const feature = features[0];
 
-                const featTransaction = JSON.parse(feature.properties.transactions)
-                console.log( featTransaction );
-                //dispatch(onSelectSite(feature.properties.name));
+            //     const featTransaction = JSON.parse(feature.properties.transactions)
+            //     console.log( featTransaction );
+            //     //dispatch(onSelectSite(feature.properties.name));
                 
-            });
+            // });
 
             map.current.addImage('smrt-icon', image, { sdf: true })
             
@@ -87,7 +87,7 @@ export default function MapContainer(){
                     }}
                     maxBounds={ maxBounds(mapViewState) }
                     onLoad={handleLoad}
-                    onMove = { evt => handleOnMove(evt, map) }
+                    onMoveEnd = { evt => handleOnMove(evt, map) }
                 >
                     
                     {/* <DrawControl

@@ -51,7 +51,6 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
     const [animation] = useState({});
     const [mrtGeojson, SetMrtGeojson] = useState(null);
     const [mrtTripsData, SetMrtTripsData] = useState(null);
-    const [mrtFoundGeojson, SetMrtFoundGeojson]= useState(null);
 
     const animate = () => {
         const animationSpeed = 1; 

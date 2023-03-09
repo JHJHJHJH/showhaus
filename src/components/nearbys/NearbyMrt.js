@@ -1,5 +1,5 @@
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 export default function NearbyMrt(){
     const searchRadiusState = useSelector((state) => state.searchRadiusState );
 
@@ -7,8 +7,8 @@ export default function NearbyMrt(){
         <div className="nearby-mrt">
             <label className="font-bold" >What's nearby ?</label>
         
-            {searchRadiusState.mrtStations.map( (stn) =>(
-                <div className="my-2"> {stn} </div>  
+            {searchRadiusState.mrtStations.map( (stn, index) =>(
+                <div className="my-2" key={index}> {stn} </div>  
             ))}
         </div>
     )

@@ -115,9 +115,9 @@ export default function TransactionLayers(){
 
     return(
         <>
-        <Source id="transactions"  type="geojson" data={transactionsGeojson} >
+        {/* <Source id="transactions"  type="geojson" data={transactionsGeojson} >
             <Layer {...transactionsStyle} />
-        </Source>
+        </Source> */}
 
         <Source id="found-transactions"  type="geojson" data={transactionsFoundGeojson} >
             <Layer {...foundTransactionsStyle} />
