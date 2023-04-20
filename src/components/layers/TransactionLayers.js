@@ -68,100 +68,6 @@ export default function TransactionLayers(){
             ]
         }
     };
-
-    const heatLayer = {
-        'id': 'heat',
-        'type': 'heatmap',
-        'maxzoom': 15,
-        'paint': {
-            // increase weight as diameter breast height increases
-            'heatmap-weight': {
-                'property': 'highestPrice', //to switch according to user input
-                'type': 'exponential',
-                'stops': [
-                    [collectionLowestPrice, 1],
-                    [collectionHighestPrice, 2]
-                ]
-            },
-            // increase intensity as zoom level increases
-            'heatmap-intensity': {
-                'stops': [
-                    [11, 0.1],
-                    [15, 1]
-                ]
-            },
-            // use sequential color palette to use exponentially as the weight increases
-            'heatmap-color': [
-                'interpolate',
-                ['linear'],
-                ['heatmap-density'],
-                0,
-                'rgba(43,131,186,0)',
-                0.2,
-                'rgb(171,221,164)',
-                0.4,
-                'rgb(255,255,191)',
-                0.6,
-                'rgb(253,174,97)',
-                0.8,
-                'rgb(215,25,28)'
-            ],
-            // increase radius as zoom increases
-            'heatmap-radius': {
-                'stops': [
-                    [11, 15],
-                    [15, 20]
-                ]
-            },
-            // decrease opacity to transition into the circle layer
-            // 'heatmap-opacity': {
-            //     'default': 1,
-            //     'stops': [
-            //         [14, 1],
-            //         [15, 0.2]
-            //     ]
-            // }
-        }
-    }
-    const heatCircle = {
-            id: 'tx-circle',
-            type: 'circle',
-            minzoom: 14,
-            paint: {
-            // increase the radius of the circle as the zoom level and dbh value increases
-            'circle-radius': {
-                property: 'highestPrice',
-                type: 'exponential',
-                stops: [
-                [{ zoom: 14, value: collectionLowestPrice }, 3],
-                [{ zoom: 14, value: collectionHighestPrice }, 6],
-                [{ zoom: 17, value: collectionLowestPrice }, 15],
-                [{ zoom: 17, value: collectionHighestPrice }, 30]
-                ]
-            },
-            'circle-color': {
-                property: 'highestPrice',
-                type: 'exponential',
-                stops: [
-                    [collectionLowestPrice, 'rgb(43,131,186)'],
-                    [collectionLowestPrice+ 1*((collectionHighestPrice-collectionLowestPrice)/4), 'rgb(171,221,164)'],
-                    [collectionLowestPrice+ 2*((collectionHighestPrice-collectionLowestPrice)/4), 'rgb(255,255,191)'],
-                    [collectionLowestPrice+ 3*((collectionHighestPrice-collectionLowestPrice)/4), 'rgb(253,174,97)'],
-                    [collectionHighestPrice, 'rgb(215,25,28)'],
-                ]
-            },
-            'circle-stroke-color': 'white',
-            'circle-stroke-width': 1,
-            'circle-opacity': {
-                type: 'exponential',
-                stops: [
-                    [14, 0.1],
-                    [15, 0.9]
-                ]
-            }
-        }
-        
-    }
     // const gridlayer = new GridLayer({
     //     id: 'new-grid-layer',
     //     transactionHeatMap,
@@ -371,11 +277,8 @@ export default function TransactionLayers(){
         {/* <DeckGLOverlay layers={[ gridlayer ]}/>; */}
         <Source id="found-transactions"  type="geojson" data={transactionsFoundGeojson} cluster={true} clusterRadius={50}>
             {/* <Layer {...foundTransactionsStyle} /> */}
-            {/* <Layer {...heatLayer} /> */}
             <Layer {...clusterStyle} beforeId={"cluster-count"}/>
             <Layer {...clusterTextStyle}  />
-            
-            {/* <Layer {...heatCircle} /> */}
             
         </Source>
         
