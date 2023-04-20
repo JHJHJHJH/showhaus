@@ -28,8 +28,8 @@ export const searchRadiusStateSlice = createSlice({
     },
     updateMrtInRadius: (state, action )=> {
       const featureCollection = action.payload
-      const stationNames = featureCollection['features'].map(( feat )=> feat['properties']['STN_NAME'] )
-      state.mrtStations = [ ...new Set(stationNames )];
+      const stationNames = featureCollection['features'].map(( feat )=>parseStationNames( feat['properties']['STN_NAME'] ))
+      state.mrtStations = [ ...new Set(stationNames)];
       // state.mrtCodes = featureCollection['features'].map(( feat )=> feat['properties']['STN_CODE'] )
     }
   },
@@ -44,7 +44,27 @@ function makeRadiusGeojson(lngLatArray, radiusInMeters){
   return buffered;
 }
 
+function parseStationNames(str){
+  if(str.toLowerCase().includes('ONE-NORTH')){
+    return 'one-north MRT Station'
+  }
+  var parsed = '';
+  var split = str.split(' ');
+  for (let i = 0; i < split.length-2; i++) {
+    const s = split[i];
+    const pascal = toPascalCase(s);
+    parsed+=pascal + ' ';
+  }
+  parsed += split[ split.length -2 ] + ' '
+  parsed += toPascalCase(split[ split.length -1 ])
+  
 
+  return parsed;
+}
+
+function toPascalCase(str) {
+  return str.replace(/(\w)(\w*)/g, function(g0,g1,g2){return g1.toUpperCase() + g2.toLowerCase();});
+}
 // Action creators are generated for each case reducer function
 export const { updateLocation, updateRadius, updateMrtInRadius, updatePropertyTypes } = searchRadiusStateSlice.actions
 

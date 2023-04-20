@@ -19,7 +19,7 @@ export default function PropertyTypes(){
 
     }
     return(
-        <div className="property-opt">
+        <div className="my-4 property-opt">
             <label className="font-bold" >Property Types</label>
         
             {searchRadiusState.propertyTypes.map( (propertyType, index) =>(

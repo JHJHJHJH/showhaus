@@ -52,20 +52,21 @@ export default function TransactionLayers(){
                 'step',
                 ['get', 'noOfTransactions'],
                 '#51bbd6',
-                100,
+                70,
                 '#f1f075',
-                750,
+                400,
                 '#f28cb1'
             ],
             'circle-radius': [
                 'step',
                 ['get', 'noOfTransactions'],
                 20,
-                100,
+                70,
                 30,
-                750,
+                400,
                 40
-            ]
+            ],
+            'circle-opacity': 0.7
         }
     };
     // const gridlayer = new GridLayer({
@@ -275,10 +276,11 @@ export default function TransactionLayers(){
     return(
         <>
         {/* <DeckGLOverlay layers={[ gridlayer ]}/>; */}
-        <Source id="found-transactions"  type="geojson" data={transactionsFoundGeojson} cluster={true} clusterRadius={50}>
+        <Source id="found-transactions"  type="geojson" data={transactionsFoundGeojson} cluster={true} clusterRadius={80}>
             {/* <Layer {...foundTransactionsStyle} /> */}
-            <Layer {...clusterStyle} beforeId={"cluster-count"}/>
             <Layer {...clusterTextStyle}  />
+            
+            <Layer {...clusterStyle} beforeId={"cluster-count"}/>
             
         </Source>
         
