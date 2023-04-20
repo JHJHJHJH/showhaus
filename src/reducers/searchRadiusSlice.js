@@ -3,16 +3,20 @@ import { point,buffer } from '@turf/turf';
 export const searchRadiusStateSlice = createSlice({
   name: 'searchRadiusState',
   initialState: {
-    radius: 2,
+    radius: 1.5,
     location: {
         "longitude" : 0,
         "latitude" : 0
     },
     opacity: 0.12,
     searchRadius: {},
-    mrtStations: []
+    mrtStations: [],
+    propertyTypes: []
   },
   reducers: {
+    updatePropertyTypes: (state, action )=> {
+      state.propertyTypes = action.payload;      
+    },
     updateLocation: (state, action )=> {
         state.location.latitude = action.payload.latitude;
         state.location.longitude = action.payload.longitude;
@@ -27,7 +31,7 @@ export const searchRadiusStateSlice = createSlice({
       const stationNames = featureCollection['features'].map(( feat )=> feat['properties']['STN_NAME'] )
       state.mrtStations = [ ...new Set(stationNames )];
       // state.mrtCodes = featureCollection['features'].map(( feat )=> feat['properties']['STN_CODE'] )
-  }
+    }
   },
 })
 
@@ -42,7 +46,7 @@ function makeRadiusGeojson(lngLatArray, radiusInMeters){
 
 
 // Action creators are generated for each case reducer function
-export const { updateLocation, updateRadius, updateMrtInRadius } = searchRadiusStateSlice.actions
+export const { updateLocation, updateRadius, updateMrtInRadius, updatePropertyTypes } = searchRadiusStateSlice.actions
 
 const searchRadiusStateReducer = searchRadiusStateSlice.reducer;
 export default searchRadiusStateReducer

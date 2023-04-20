@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { booleanPointInPolygon, featureCollection } from '@turf/turf';
 import MRT_RAIL_STN from  '../../resources/RAIL_STN.js'
 import { updateMrtInRadius } from "../../reducers/searchRadiusSlice";
+
 function DeckGLOverlay(props) {
     const overlay = useControl(() => new MapboxOverlay(props));
     overlay.setProps(props);
@@ -227,7 +228,6 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
 
                 tripsData.push( pathObj );
                 // tripsData.push( reversedPathObj );
-
             }
         
             // console.log(tripsData );

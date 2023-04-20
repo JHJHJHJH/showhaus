@@ -26,6 +26,8 @@ const transactionSlice = createSlice({
             state.status = 'loading';
         },
         [getTransactions.fulfilled]: (state, {payload}) =>{
+            console.log("fulfilled");
+            console.log( payload );
             state.transactions = payload;
             state.status = 'success';
         },
