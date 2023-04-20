@@ -1,7 +1,8 @@
 import React from "react";
 import {useDispatch, useSelector} from 'react-redux';
 import { updateRadius } from "../reducers/searchRadiusSlice";
-import NearbyMrt from "./nearbys/NearbyMrt";
+import NearbyMrt from "./menu/NearbyMrt";
+import PropertyTypes from "./menu/PropertyTypes";
 
 export default function MenuComponent(){
     const searchRadiusState = useSelector((state) => state.searchRadiusState );
@@ -24,6 +25,7 @@ export default function MenuComponent(){
                 />
                 {searchRadiusState.radius}
             </div>
+            <PropertyTypes/>
             <NearbyMrt/>
         </div>
         

@@ -1,4 +1,10 @@
 # References
+[mapbox clusters](https://docs.mapbox.com/mapbox-gl-js/example/cluster/)
+
+[mapbox heatmap legend](https://docs.mapbox.com/help/tutorials/choropleth-studio-gl-pt-2)
+
+[mapbox "stops" styling docs](https://docs.mapbox.com/mapbox-gl-js/style-spec/other/)
+
 [mapbox add marker on click](https://github.com/mapbox/mapbox-gl-js/issues/9209)
 
 [mapboxgl symbol docs](https://docs.mapbox.com/mapbox-gl-js/style-spec/layers/#symbol)

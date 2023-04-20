@@ -3,24 +3,27 @@ import Map from 'react-map-gl';
 import { updateLocation } from '../reducers/searchRadiusSlice';
 import { useSelector, useDispatch } from 'react-redux'
 import { updateViewState } from '../reducers/mapViewStateSlice';
-import { MapProvider, Marker, NavigationControl} from 'react-map-gl';
+import { MapProvider, Popup, Marker, NavigationControl} from 'react-map-gl';
 import { LngLatBounds } from 'mapbox-gl';
 import GeocoderControl from './map-ui/GeocoderControl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import MrtLayers from './layers/MrtLayers';
 // import DrawControl from './map-ui/DrawControl';
 import TransactionLayers from './layers/TransactionLayers';
-import MarkerLayer from './layers/MarkerLayer';
 // import PositionMarker from './PositionMarker';
 import SMRT_ICON from '../resources/smrt-icon.svg'
 import SearchRadiusLayer from './layers/SearchRadiusLayer';
 export default function MapContainer(){
     const searchRadiusState = useSelector((state) => state.searchRadiusState );
     const mapViewState = useSelector((state) => state.mapViewState );
+    const [showPopup, setShowPopup] = React.useState(true);
+    const [latitudePopup, setLatitudePopup] = React.useState(0);
+    const [longitudePopup, setLongitudePopup] = React.useState(0);
     
     const dispatch = useDispatch();
     const map = React.useRef();
-    
+
+
     const maxBounds = (m) => {
         const b = new LngLatBounds( [ m.maxBounds.minLon,  m.maxBounds.minLat], [ m.maxBounds.maxLon,  m.maxBounds.maxLat ] )
         return b;
@@ -37,14 +40,22 @@ export default function MapContainer(){
     //ADD MAPBOX MARKER ON CLICK
     function add_marker (event) {
         var coordinates = event.lngLat;
-        console.log('Marker | Lng:', coordinates.lng, 'Lat:', coordinates.lat);
+        //console.log('Marker | Lng:', coordinates.lng, 'Lat:', coordinates.lat);
         dispatch(updateLocation({ "latitude": coordinates.lat, "longitude" : coordinates.lng })) ;
         // markerTransact.setLngLat(coordinates).addTo(map.current.getMap() );
     }
+    function formatPrice(price) {
+        return "$" + price.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
+    }
+
+    const [projectName, setProjectName] = React.useState('');
+    const [streetName, setStreetName] = React.useState('');
+    const [numOfTransactions, setNumOfTransactions] = React.useState('');
+    const [price, setPrice] = React.useState('');
     const handleLoad = async (e) => {
         if( map.current != null ){
             //ASSIGN CLICK EVENTS
-            map.current.on('click', add_marker );
+            map.current.on('dblclick', add_marker );
 
             // map.current.on('click', (event) => {
             //     // If the user clicked on one of your markers, get its information.
@@ -62,8 +73,24 @@ export default function MapContainer(){
             // });
 
             map.current.addImage('smrt-icon', image, { sdf: true })
-            
             //console.log(map.current) //debug
+
+            map.current.on('click', 'clusters', (event) => {
+                var latLng = event.features[0].geometry.coordinates;
+                
+                setLatitudePopup( latLng[0] );
+                setLongitudePopup( latLng[1] );
+                const projectName =  event.features[0].properties.project;
+                const streetName =  event.features[0].properties.street;
+                const numOfTransactions = event.features[0].properties.noOfTransactions;
+                const formattedPrice = formatPrice( event.features[0].properties.highestPrice );
+                
+                setProjectName(projectName);
+                setStreetName(streetName);
+                setNumOfTransactions(numOfTransactions);
+                setPrice(formattedPrice);
+                setShowPopup(true);
+            });
         }
     }
 
@@ -98,16 +125,33 @@ export default function MapContainer(){
                             trash: true
                         }}
                     /> */}
+
+                    {/* PRICE POPUP  */}
+                    {showPopup && (
+                        <Popup longitude={latitudePopup} latitude={longitudePopup}
+                            anchor="bottom"
+                            onClose={() => setShowPopup(false)}
+                            closeOnClick={false}
+                        >
+                            
+                            <p><b>Project : </b> {projectName}</p>
+                            <p><b>Street : </b> {streetName}</p>
+                            <p><b>Transactions : </b> {numOfTransactions}</p>
+                            <p><b>Price : </b> {price}</p>
+                            
+                        </Popup>)}
+                    {/* TRANSACTION MARKER */}
                     <Marker longitude={ searchRadiusState.location.longitude } 
                             latitude={ searchRadiusState.location.latitude }/>
                     <GeocoderControl 
                         mapboxAccessToken={process.env.REACT_APP_MAPBOX_API_KEY} 
                         position="top-left"
                     />
+                    <TransactionLayers/>
                     <SearchRadiusLayer/>
                     <MrtLayers/>
                     <TransactionLayers/>
-                    <MarkerLayer/>
+                    {/* <MarkerLayer/> */}
                     <NavigationControl/>
 
                 </Map>

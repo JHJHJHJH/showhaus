@@ -3,16 +3,20 @@ import { point,buffer } from '@turf/turf';
 export const searchRadiusStateSlice = createSlice({
   name: 'searchRadiusState',
   initialState: {
-    radius: 2,
+    radius: 1.5,
     location: {
         "longitude" : 0,
         "latitude" : 0
     },
     opacity: 0.12,
     searchRadius: {},
-    mrtStations: []
+    mrtStations: [],
+    propertyTypes: []
   },
   reducers: {
+    updatePropertyTypes: (state, action )=> {
+      state.propertyTypes = action.payload;      
+    },
     updateLocation: (state, action )=> {
         state.location.latitude = action.payload.latitude;
         state.location.longitude = action.payload.longitude;
@@ -24,10 +28,10 @@ export const searchRadiusStateSlice = createSlice({
     },
     updateMrtInRadius: (state, action )=> {
       const featureCollection = action.payload
-      const stationNames = featureCollection['features'].map(( feat )=> feat['properties']['STN_NAME'] )
-      state.mrtStations = [ ...new Set(stationNames )];
+      const stationNames = featureCollection['features'].map(( feat )=>parseStationNames( feat['properties']['STN_NAME'] ))
+      state.mrtStations = [ ...new Set(stationNames)];
       // state.mrtCodes = featureCollection['features'].map(( feat )=> feat['properties']['STN_CODE'] )
-  }
+    }
   },
 })
 
@@ -40,9 +44,29 @@ function makeRadiusGeojson(lngLatArray, radiusInMeters){
   return buffered;
 }
 
+function parseStationNames(str){
+  if(str.toLowerCase().includes('ONE-NORTH')){
+    return 'one-north MRT Station'
+  }
+  var parsed = '';
+  var split = str.split(' ');
+  for (let i = 0; i < split.length-2; i++) {
+    const s = split[i];
+    const pascal = toPascalCase(s);
+    parsed+=pascal + ' ';
+  }
+  parsed += split[ split.length -2 ] + ' '
+  parsed += toPascalCase(split[ split.length -1 ])
+  
 
+  return parsed;
+}
+
+function toPascalCase(str) {
+  return str.replace(/(\w)(\w*)/g, function(g0,g1,g2){return g1.toUpperCase() + g2.toLowerCase();});
+}
 // Action creators are generated for each case reducer function
-export const { updateLocation, updateRadius, updateMrtInRadius } = searchRadiusStateSlice.actions
+export const { updateLocation, updateRadius, updateMrtInRadius, updatePropertyTypes } = searchRadiusStateSlice.actions
 
 const searchRadiusStateReducer = searchRadiusStateSlice.reducer;
 export default searchRadiusStateReducer

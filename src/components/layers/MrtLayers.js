@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { booleanPointInPolygon, featureCollection } from '@turf/turf';
 import MRT_RAIL_STN from  '../../resources/RAIL_STN.js'
 import { updateMrtInRadius } from "../../reducers/searchRadiusSlice";
+
 function DeckGLOverlay(props) {
     const overlay = useControl(() => new MapboxOverlay(props));
     overlay.setProps(props);
@@ -49,7 +50,7 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
     const dispatch = useDispatch();
     const [time, setTime] = useState(0);
     const [animation] = useState({});
-    const [mrtGeojson, SetMrtGeojson] = useState(null);
+
     const [mrtTripsData, SetMrtTripsData] = useState(null);
 
     const animate = () => {
@@ -76,9 +77,7 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
            
         },
         paint: {
-            // "icon-halo-color": "rgba(255, 0, 0 ,0.5)",
             "icon-color": ['get', 'COLOR'],
-            // "icon-halo-color": ['get', 'COLOR'],
             "icon-halo-width": 0.0
         }
     };
@@ -92,27 +91,12 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
             'line-opacity':0.4
         }
     };
-    const stnStyle = {
-        id: 'rail_stn',
-        type: 'circle',
-        paint: {
-            'circle-color': ['get','COLOR'],
-            // 'circle-radius': 5,
-            // When zoom is 10, txt-size is 0.
-            // When zoom(into) is 20, txt-size is 10
-            "circle-radius": ['interpolate', ['linear'], ['zoom'], 10, 2, 20, 6], 
-            'circle-opacity':0.7
-        }
-    };
+
     const stnTxtStyle = {
         "id": "rail_stn_txt",
         "type": "symbol",
         "paint": {
             "text-color": ['get','COLOR'], //Color of your choice
-            // "text-halo-blur": textHaloBlur,
-            // "text-halo-color": textHaloColor,
-            // "text-halo-width": textHaloWidth,
-            // "text-opacity": textOpacity
         },
         "layout": {
             "text-field": ['get', 'STN_NAME'], 
@@ -200,17 +184,13 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
                 var railLine = feature['properties']['RAIL_LINE'];
                 var points = [];
                 var timestamp = [];
-                // var reversedPoints = []
-                // var reversedTimestamp = []
+
                 for (let i = 0; i < coordinates.length; i++) {
                     const index = i;
                     const coord = coordinates[index];
     
                     points.push(coord);
                     timestamp.push( i * loopLength/coordinates.length  );
-
-                    // reversedPoints.push( coordinates[coordinates.length-i]);
-                    // reversedTimestamp.push( i * loopLength/coordinates.length  );
                 }
 
                 const pathObj = {
@@ -219,18 +199,10 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
                     "color" : mapMrtColors(railLine)
                 }
 
-                // const reversedPathObj = {
-                //     "path" : reversedPoints,
-                //     "timestamps" : reversedTimestamp,
-                //     "color" : mapMrtColors(railLine)
-                // }
-
                 tripsData.push( pathObj );
-                // tripsData.push( reversedPathObj );
-
+                
             }
         
-            // console.log(tripsData );
             return tripsData;
         }
         
@@ -247,7 +219,7 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
 
         init();
 
-    }, [mrtGeojson] );
+    }, [] );
 
     const searchRadiusState = useSelector((state) => state.searchRadiusState );
 
@@ -273,11 +245,7 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
                     
                     const foundMrts = featureCollection(featuresInBuffer);
 
-                    //SetMrtFoundGeojson(foundMrts);
-                    
                     dispatch( updateMrtInRadius(foundMrts ));
-                    // console.log ( "Transactions within radius...");
-                    // console.log(foundMrts) ;                   
                 }
 
                 
@@ -292,14 +260,9 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
 
     return(
         <>
-            {/* <Source id="mrt"  type="geojson" data={mrtGeojson} >
-                <Layer {...mrtStyle} />
-            </Source> */}
-
             <Source id="rail_stn"  type="geojson" data={MRT_RAIL_STN} >
                 <Layer {...stnIconStyle} />
                 <Layer {...stnTxtStyle} />
-                {/* <Layer {...stnStyle} /> */}
             </Source>
             <Source id="rail_line"  type="geojson" data={RAIL_LINE_BASE} >
                 <Layer {...baseMrtStyle} />
