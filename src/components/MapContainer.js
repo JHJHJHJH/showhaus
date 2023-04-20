@@ -10,7 +10,6 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import MrtLayers from './layers/MrtLayers';
 // import DrawControl from './map-ui/DrawControl';
 import TransactionLayers from './layers/TransactionLayers';
-import MarkerLayer from './layers/MarkerLayer';
 // import PositionMarker from './PositionMarker';
 import SMRT_ICON from '../resources/smrt-icon.svg'
 import SearchRadiusLayer from './layers/SearchRadiusLayer';
@@ -152,7 +151,7 @@ export default function MapContainer(){
                     <SearchRadiusLayer/>
                     <MrtLayers/>
                     <TransactionLayers/>
-                    <MarkerLayer/>
+                    {/* <MarkerLayer/> */}
                     <NavigationControl/>
 
                 </Map>
