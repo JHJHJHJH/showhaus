@@ -51,7 +51,11 @@ export default function MapContainer(){
     const [projectName, setProjectName] = React.useState('');
     const [streetName, setStreetName] = React.useState('');
     const [numOfTransactions, setNumOfTransactions] = React.useState('');
-    const [price, setPrice] = React.useState('');
+    const [locationId, setLocationId] = React.useState('');
+    const [highestTx, setHighestTx]= React.useState({});
+    const [medianTx, setMedianTx]= React.useState({});
+    const [lowestTx, setLowestTx]= React.useState({});
+    
     const handleLoad = async (e) => {
         if( map.current != null ){
             //ASSIGN CLICK EVENTS
@@ -76,19 +80,39 @@ export default function MapContainer(){
             //console.log(map.current) //debug
 
             map.current.on('click', 'clusters', (event) => {
+                 
                 var latLng = event.features[0].geometry.coordinates;
-                
+                var tx = event.features[0].properties.transactions;
+                var transactions = JSON.parse(tx);
+                console.log(transactions);
                 setLatitudePopup( latLng[0] );
                 setLongitudePopup( latLng[1] );
                 const projectName =  event.features[0].properties.project;
                 const streetName =  event.features[0].properties.street;
-                const numOfTransactions = event.features[0].properties.noOfTransactions;
-                const formattedPrice = formatPrice( event.features[0].properties.highestPrice );
+                const locationId = event.features[0].properties.location_id;
+
+                const numOfTransactions = transactions.length;
+                const sortedTransactions = transactions.sort(function(a, b) {
+                    return a.price - b.price;
+                });
+                
+                const lowestPriceTx = sortedTransactions[0];
+                lowestPriceTx['price'] = formatPrice(lowestPriceTx['price']);
+                const highestPriceTx = sortedTransactions[sortedTransactions.length-1];
+                highestPriceTx['price'] = formatPrice(highestPriceTx['price']);
+                const medianTransaction = sortedTransactions[ Math.floor(sortedTransactions.length/2)]
+                medianTransaction['price'] = formatPrice(medianTransaction['price']);
+
+                setHighestTx(highestPriceTx);
+                setLowestTx(lowestPriceTx);
+                setMedianTx(medianTransaction);
+
+                setLocationId(locationId);
                 
                 setProjectName(projectName);
                 setStreetName(streetName);
                 setNumOfTransactions(numOfTransactions);
-                setPrice(formattedPrice);
+                
                 setShowPopup(true);
             });
         }
@@ -130,15 +154,42 @@ export default function MapContainer(){
                     {showPopup && (
                         <Popup longitude={latitudePopup} latitude={longitudePopup}
                             anchor="bottom"
+                            maxWidth={"420px"}
                             onClose={() => setShowPopup(false)}
                             closeOnClick={false}
                         >
-                            
+                            <p><b>LocationId : </b> {locationId}</p>
                             <p><b>Project : </b> {projectName}</p>
                             <p><b>Street : </b> {streetName}</p>
                             <p><b>Transactions : </b> {numOfTransactions}</p>
-                            <p><b>Price : </b> {price}</p>
+                            <style>{"table{ width:100% } th,td{ text-align: left; padding-right:12px; }"}</style>
+                            <table >
+                                <tr>
+                                    <th>Transaction</th>
+                                    <th>Price ($)</th>
+                                    <th>Area (m<sup>2</sup>)</th>
+                                    <th>Floor</th>
+                                </tr>
                             
+                                <tr>
+                                    <td>Highest</td>
+                                    <td>{highestTx.price}</td>
+                                    <td>{highestTx.area}</td>
+                                    <td>{highestTx.floor_range}</td>
+                                </tr>
+                                <tr>
+                                    <td>Median</td>
+                                    <td>{medianTx.price}</td>
+                                    <td>{medianTx.area}</td>
+                                    <td>{medianTx.floor_range}</td>
+                                </tr>
+                                <tr>
+                                    <td>Lowest</td>
+                                    <td>{lowestTx.price}</td>
+                                    <td>{lowestTx.area}</td>
+                                    <td>{lowestTx.floor_range}</td>
+                                </tr>
+                            </table>
                         </Popup>)}
                     {/* TRANSACTION MARKER */}
                     <Marker longitude={ searchRadiusState.location.longitude } 

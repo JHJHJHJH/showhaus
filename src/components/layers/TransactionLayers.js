@@ -113,6 +113,7 @@ export default function TransactionLayers(){
                 //filter out prices below minValidPrice
                 const minValidPrice = 100000;
                 const feats = response.data.data.features;
+                
                 for (let i = 0; i < feats.length; i++) {
                     const feat = feats[i];
                     const transactions = feat.properties.transactions;
@@ -121,7 +122,8 @@ export default function TransactionLayers(){
                     for (let j = 0; j < transactions.length; j++) {
                         const transaction = transactions[j];
                         propertyTypes.add(transaction["property_type"]);
-                        if(transaction.price > minValidPrice){
+                        if(transaction.price < minValidPrice){
+                            console.log(transaction)
                             newTransactions.push( transaction);
                         }
                     }
@@ -133,7 +135,7 @@ export default function TransactionLayers(){
                     }
                     
                 }
-                console.log( response );
+                
                 dispatch(updatePropertyTypes([...propertyTypes].map((value) => { return {"id": value, "isChecked": true}})));
                 SetTransactionsGeojson(response.data.data);
             } catch (e) {
