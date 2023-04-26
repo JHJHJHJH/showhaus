@@ -3,7 +3,7 @@ import { point,buffer } from '@turf/turf';
 export const searchRadiusStateSlice = createSlice({
   name: 'searchRadiusState',
   initialState: {
-    radius: 1.5,
+    radius: 0.4,
     location: {
         "longitude" : 0,
         "latitude" : 0

@@ -11,12 +11,13 @@ export default function MenuComponent(){
         <div className="p-4">
             <div className="font-bold my-2">Settings</div>
 
-            <div className="my-2">
-                <label >Radius (km)</label>
+            <div className="my-2 text-sm">
+                <label>Radius (km)</label>
                 
                 <input
+                    className="mx-2" 
                     type="range"
-                    min={1}
+                    min={0.1}
                     max={5}
                     step={0.1}
                     value={searchRadiusState.radius}
