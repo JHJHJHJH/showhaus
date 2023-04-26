@@ -31,7 +31,12 @@ export default function MapContainer(){
 
     const handleOnMove = (evt, map) => {        
         dispatch(updateViewState(evt.viewState)) ;
+    }
 
+    const handleOnClick = (e) => {
+        if(showPopup){
+            setShowPopup(false);
+        }
     }
     //add svg icon during runtime
     const image = new Image(30, 18);
@@ -55,7 +60,7 @@ export default function MapContainer(){
     const [highestTx, setHighestTx]= React.useState({});
     const [medianTx, setMedianTx]= React.useState({});
     const [lowestTx, setLowestTx]= React.useState({});
-    
+
     const handleLoad = async (e) => {
         if( map.current != null ){
             //ASSIGN CLICK EVENTS
@@ -84,7 +89,7 @@ export default function MapContainer(){
                 var latLng = event.features[0].geometry.coordinates;
                 var tx = event.features[0].properties.transactions;
                 var transactions = JSON.parse(tx);
-                console.log(transactions);
+                // console.log(transactions);
                 setLatitudePopup( latLng[0] );
                 setLongitudePopup( latLng[1] );
                 const projectName =  event.features[0].properties.project;
@@ -95,24 +100,37 @@ export default function MapContainer(){
                 const sortedTransactions = transactions.sort(function(a, b) {
                     return a.price - b.price;
                 });
-                
-                const lowestPriceTx = sortedTransactions[0];
-                lowestPriceTx['price'] = formatPrice(lowestPriceTx['price']);
-                const highestPriceTx = sortedTransactions[sortedTransactions.length-1];
-                highestPriceTx['price'] = formatPrice(highestPriceTx['price']);
-                const medianTransaction = sortedTransactions[ Math.floor(sortedTransactions.length/2)]
-                medianTransaction['price'] = formatPrice(medianTransaction['price']);
-
-                setHighestTx(highestPriceTx);
-                setLowestTx(lowestPriceTx);
-                setMedianTx(medianTransaction);
+                if( sortedTransactions.length === 1 ){
+                    const singleTx = sortedTransactions[0];
+                    singleTx['price'] = formatPrice(singleTx['price']);
+                    
+                    setHighestTx(singleTx);
+                    setLowestTx(singleTx);
+                    setMedianTx({});
+                } else if ( sortedTransactions.length === 2 ){
+                    const lowestPriceTx = sortedTransactions[0];
+                    lowestPriceTx['price'] = formatPrice(lowestPriceTx['price']);
+                    const highestPriceTx = sortedTransactions[sortedTransactions.length-1];
+                    highestPriceTx['price'] = formatPrice(highestPriceTx['price']);
+                    setHighestTx(highestPriceTx);
+                    setMedianTx({});
+                    setLowestTx(lowestPriceTx);
+                } else {
+                    const lowestPriceTx = sortedTransactions[0];
+                    lowestPriceTx['price'] = formatPrice(lowestPriceTx['price']);
+                    const highestPriceTx = sortedTransactions[sortedTransactions.length-1];
+                    highestPriceTx['price'] = formatPrice(highestPriceTx['price']);
+                    setHighestTx(highestPriceTx);
+                    setLowestTx(lowestPriceTx);
+                    const medianTransaction = sortedTransactions[ Math.floor(sortedTransactions.length/2)]
+                    medianTransaction['price'] = formatPrice(medianTransaction['price']);
+                    setMedianTx(medianTransaction);
+                }       
 
                 setLocationId(locationId);
-                
                 setProjectName(projectName);
                 setStreetName(streetName);
                 setNumOfTransactions(numOfTransactions);
-                
                 setShowPopup(true);
             });
         }
@@ -139,6 +157,7 @@ export default function MapContainer(){
                     maxBounds={ maxBounds(mapViewState) }
                     onLoad={handleLoad}
                     onMoveEnd = { evt => handleOnMove(evt, map) }
+                    onClick = { evt => handleOnClick(evt)}
                 >
                     
                     {/* <DrawControl
@@ -156,7 +175,7 @@ export default function MapContainer(){
                             anchor="bottom"
                             maxWidth={"420px"}
                             onClose={() => setShowPopup(false)}
-                            closeOnClick={true}
+                            closeOnClick={false}
                         >
                             {/* <p><b>LocationId : </b> {locationId}</p> */}
                             <p><b>Project : </b> {projectName}</p>
@@ -164,6 +183,7 @@ export default function MapContainer(){
                             <p><b>Transactions : </b> {numOfTransactions}</p>
                             <style>{"table{ width:100% } th,td{ text-align: left; padding-right:12px; }"}</style>
                             <table >
+                                <tbody>
                                 <tr>
                                     <th>Transaction</th>
                                     <th>Price ($)</th>
@@ -189,6 +209,7 @@ export default function MapContainer(){
                                     <td>{lowestTx.area}</td>
                                     <td>{lowestTx.floor_range}</td>
                                 </tr>
+                                </tbody>
                             </table>
                         </Popup>)}
                     {/* TRANSACTION MARKER */}

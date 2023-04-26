@@ -123,7 +123,7 @@ export default function TransactionLayers(){
                         const transaction = transactions[j];
                         propertyTypes.add(transaction["property_type"]);
                         if(transaction.price < minValidPrice){
-                            console.log(transaction)
+                            // console.log(transaction)
                             newTransactions.push( transaction);
                         }
                     }
@@ -209,7 +209,7 @@ export default function TransactionLayers(){
             SetCollectionLowestPrice(collectionLowest);
             SetCollectionHighestPrice(collectionHighest);
             // console.log( lowestTx );
-            console.log("Price range: " + formatPrice( collectionLowest) + " ~ " + formatPrice( collectionHighest) );
+            // console.log("Price range: " + formatPrice( collectionLowest) + " ~ " + formatPrice( collectionHighest) );
             // console.log(collectionHighest)
         }
         //filters transactions within circle
