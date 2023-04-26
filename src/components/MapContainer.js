@@ -156,9 +156,9 @@ export default function MapContainer(){
                             anchor="bottom"
                             maxWidth={"420px"}
                             onClose={() => setShowPopup(false)}
-                            closeOnClick={false}
+                            closeOnClick={true}
                         >
-                            <p><b>LocationId : </b> {locationId}</p>
+                            {/* <p><b>LocationId : </b> {locationId}</p> */}
                             <p><b>Project : </b> {projectName}</p>
                             <p><b>Street : </b> {streetName}</p>
                             <p><b>Transactions : </b> {numOfTransactions}</p>
