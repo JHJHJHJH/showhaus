@@ -2,7 +2,7 @@ import './styles/App.css';
 import React from 'react';
 import MapContainer from './components/MapContainer'
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import MenuComponent from './components/MenuComponent';
+import MenuComponent from './components/menu/MenuComponent';
 import TransactionsDrawer from './components/TransactionsDrawer';
 import logo192 from './resources/showhaus-banner-nobg.png'
 // import GeocoderControl from './components/map-ui/GeocoderControl';
