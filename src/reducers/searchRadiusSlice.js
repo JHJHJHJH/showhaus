@@ -8,7 +8,7 @@ export const searchRadiusStateSlice = createSlice({
         "longitude" : 0,
         "latitude" : 0
     },
-    opacity: 0.12,
+    opacity: 0.15,
     searchRadius: {},
     mrtStations: [],
     propertyTypes: []

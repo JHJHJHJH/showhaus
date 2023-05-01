@@ -13,7 +13,7 @@ export default function SearchRadiusLayer(){
         id: 'search-radius',
         type: 'fill',
         paint: {
-            'fill-color': '#F1CF65',
+            'fill-color': '#546E7A',
             'fill-opacity': searchRadiusState.opacity
         }
     };

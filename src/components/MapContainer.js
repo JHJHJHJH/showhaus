@@ -3,26 +3,23 @@ import Map from 'react-map-gl';
 import { updateLocation } from '../reducers/searchRadiusSlice';
 import { useSelector, useDispatch } from 'react-redux'
 import { updateViewState } from '../reducers/mapViewStateSlice';
-import { MapProvider, Popup, Marker, NavigationControl} from 'react-map-gl';
+import { MapProvider, Marker, NavigationControl} from 'react-map-gl';
 import { LngLatBounds } from 'mapbox-gl';
 import GeocoderControl from './map-ui/GeocoderControl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import MrtLayers from './layers/MrtLayers';
 // import DrawControl from './map-ui/DrawControl';
-import TransactionLayers from './layers/TransactionLayers';
+import TransactionLayers from './transaction/TransactionLayers';
 // import PositionMarker from './PositionMarker';
 import SMRT_ICON from '../resources/smrt-icon.svg'
 import SearchRadiusLayer from './layers/SearchRadiusLayer';
+import { TransactionPopup } from './transaction/TransactionPopup';
 export default function MapContainer(){
     const searchRadiusState = useSelector((state) => state.searchRadiusState );
     const mapViewState = useSelector((state) => state.mapViewState );
-    const [showPopup, setShowPopup] = React.useState(true);
-    const [latitudePopup, setLatitudePopup] = React.useState(0);
-    const [longitudePopup, setLongitudePopup] = React.useState(0);
-    
+
     const dispatch = useDispatch();
     const map = React.useRef();
-
 
     const maxBounds = (m) => {
         const b = new LngLatBounds( [ m.maxBounds.minLon,  m.maxBounds.minLat], [ m.maxBounds.maxLon,  m.maxBounds.maxLat ] )
@@ -33,11 +30,6 @@ export default function MapContainer(){
         dispatch(updateViewState(evt.viewState)) ;
     }
 
-    const handleOnClick = (e) => {
-        if(showPopup){
-            setShowPopup(false);
-        }
-    }
     //add svg icon during runtime
     const image = new Image(30, 18);
     image.src = SMRT_ICON;
@@ -47,24 +39,14 @@ export default function MapContainer(){
         var coordinates = event.lngLat;
         //console.log('Marker | Lng:', coordinates.lng, 'Lat:', coordinates.lat);
         dispatch(updateLocation({ "latitude": coordinates.lat, "longitude" : coordinates.lng })) ;
-        // markerTransact.setLngLat(coordinates).addTo(map.current.getMap() );
     }
-    function formatPrice(price) {
-        return "$" + price.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
-    }
-
-    const [projectName, setProjectName] = React.useState('');
-    const [streetName, setStreetName] = React.useState('');
-    const [numOfTransactions, setNumOfTransactions] = React.useState('');
-    const [locationId, setLocationId] = React.useState('');
-    const [highestTx, setHighestTx]= React.useState({});
-    const [medianTx, setMedianTx]= React.useState({});
-    const [lowestTx, setLowestTx]= React.useState({});
 
     const handleLoad = async (e) => {
         if( map.current != null ){
             //ASSIGN CLICK EVENTS
             map.current.on('dblclick', add_marker );
+
+            map.current.addImage('smrt-icon', image, { sdf: true });
 
             // map.current.on('click', (event) => {
             //     // If the user clicked on one of your markers, get its information.
@@ -81,58 +63,8 @@ export default function MapContainer(){
                 
             // });
 
-            map.current.addImage('smrt-icon', image, { sdf: true })
-            //console.log(map.current) //debug
+            
 
-            map.current.on('click', 'clusters', (event) => {
-                 
-                var latLng = event.features[0].geometry.coordinates;
-                var tx = event.features[0].properties.transactions;
-                var transactions = JSON.parse(tx);
-                // console.log(transactions);
-                setLatitudePopup( latLng[0] );
-                setLongitudePopup( latLng[1] );
-                const projectName =  event.features[0].properties.project;
-                const streetName =  event.features[0].properties.street;
-                const locationId = event.features[0].properties.location_id;
-
-                const numOfTransactions = transactions.length;
-                const sortedTransactions = transactions.sort(function(a, b) {
-                    return a.price - b.price;
-                });
-                if( sortedTransactions.length === 1 ){
-                    const singleTx = sortedTransactions[0];
-                    singleTx['price'] = formatPrice(singleTx['price']);
-                    
-                    setHighestTx(singleTx);
-                    setLowestTx(singleTx);
-                    setMedianTx({});
-                } else if ( sortedTransactions.length === 2 ){
-                    const lowestPriceTx = sortedTransactions[0];
-                    lowestPriceTx['price'] = formatPrice(lowestPriceTx['price']);
-                    const highestPriceTx = sortedTransactions[sortedTransactions.length-1];
-                    highestPriceTx['price'] = formatPrice(highestPriceTx['price']);
-                    setHighestTx(highestPriceTx);
-                    setMedianTx({});
-                    setLowestTx(lowestPriceTx);
-                } else {
-                    const lowestPriceTx = sortedTransactions[0];
-                    lowestPriceTx['price'] = formatPrice(lowestPriceTx['price']);
-                    const highestPriceTx = sortedTransactions[sortedTransactions.length-1];
-                    highestPriceTx['price'] = formatPrice(highestPriceTx['price']);
-                    setHighestTx(highestPriceTx);
-                    setLowestTx(lowestPriceTx);
-                    const medianTransaction = sortedTransactions[ Math.floor(sortedTransactions.length/2)]
-                    medianTransaction['price'] = formatPrice(medianTransaction['price']);
-                    setMedianTx(medianTransaction);
-                }       
-
-                setLocationId(locationId);
-                setProjectName(projectName);
-                setStreetName(streetName);
-                setNumOfTransactions(numOfTransactions);
-                setShowPopup(true);
-            });
         }
     }
 
@@ -157,7 +89,6 @@ export default function MapContainer(){
                     maxBounds={ maxBounds(mapViewState) }
                     onLoad={handleLoad}
                     onMoveEnd = { evt => handleOnMove(evt, map) }
-                    onClick = { evt => handleOnClick(evt)}
                 >
                     
                     {/* <DrawControl
@@ -170,48 +101,8 @@ export default function MapContainer(){
                     /> */}
 
                     {/* PRICE POPUP  */}
-                    {showPopup && (
-                        <Popup longitude={latitudePopup} latitude={longitudePopup}
-                            anchor="bottom"
-                            maxWidth={"420px"}
-                            onClose={() => setShowPopup(false)}
-                            closeOnClick={false}
-                        >
-                            {/* <p><b>LocationId : </b> {locationId}</p> */}
-                            <p><b>Project : </b> {projectName}</p>
-                            <p><b>Street : </b> {streetName}</p>
-                            <p><b>Transactions : </b> {numOfTransactions}</p>
-                            <style>{"table{ width:100% } th,td{ text-align: left; padding-right:12px; }"}</style>
-                            <table >
-                                <tbody>
-                                <tr>
-                                    <th>Transaction</th>
-                                    <th>Price ($)</th>
-                                    <th>Area (m<sup>2</sup>)</th>
-                                    <th>Floor</th>
-                                </tr>
-                            
-                                <tr>
-                                    <td>Highest</td>
-                                    <td>{highestTx.price}</td>
-                                    <td>{highestTx.area}</td>
-                                    <td>{highestTx.floor_range}</td>
-                                </tr>
-                                <tr>
-                                    <td>Median</td>
-                                    <td>{medianTx.price}</td>
-                                    <td>{medianTx.area}</td>
-                                    <td>{medianTx.floor_range}</td>
-                                </tr>
-                                <tr>
-                                    <td>Lowest</td>
-                                    <td>{lowestTx.price}</td>
-                                    <td>{lowestTx.area}</td>
-                                    <td>{lowestTx.floor_range}</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </Popup>)}
+                    <TransactionPopup/>
+                    
                     {/* TRANSACTION MARKER */}
                     <Marker longitude={ searchRadiusState.location.longitude } 
                             latitude={ searchRadiusState.location.latitude }/>
