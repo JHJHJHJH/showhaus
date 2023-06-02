@@ -79,6 +79,7 @@ export class UraScraperService {
 
     let newLocationsCount = 0;
     let newTransactionsCount = 0;
+    await this.locationService.removeAllLocations();
     //class-transformer
     //convert json object to location entity
     if (locations.Result.length > 0) {
@@ -86,54 +87,19 @@ export class UraScraperService {
         const location = locations.Result[i];
 
         const converted_location = plainToClass(LocationEntity, location);
-
-        //console.log(converted_location);
-
-        //if does not exist, create location
-        const location_db = await this.locationService.findLocationByParam(
+        const location_db = await this.locationService.createLocation(
           converted_location,
         );
-        //if location exists
-        if (location_db.length > 0) {
-          // this.logger.log(
-          //   `${location_db.length} existing locations found. Checking for existing transactions...`,
-          // );
-          //iterate transactions
-          for (let j = 0; j < converted_location.transactions.length; j++) {
-            const transaction = converted_location.transactions[j];
-            const transaction_db =
-              await this.transactionService.findTransactionByParam(
-                transaction,
-                location_db[0].id,
-              );
-            //if transaction does not exist, create transaction
-            //if exist
-            if (transaction_db.length === 0) {
-              transaction.locationId = location_db[0].id;
-              const new_transaction =
-                await this.transactionService.createTransaction(transaction);
 
-              //Add count for logging
-              newTransactionsCount += 1;
-            }
-          }
-        } else {
-          //this.logger.log('no location el found in db');
-          this.logger.log(converted_location.project);
-          const location_db = await this.locationService.createLocation(
-            converted_location,
-          );
-
-          //Add count for logging
-          newLocationsCount += 1;
-          newTransactionsCount += location_db.transactions.length;
-        }
+        //Add count for logging
+        newLocationsCount += 1;
+        newTransactionsCount += location_db.transactions.length;
       }
-
-      this.logger.log('New locations added: ' + newLocationsCount);
-      this.logger.log('New Transactions added: ' + newTransactionsCount);
-      this.logger.log(`Scrape batch ${batch} complete!`);
     }
+
+    this.logger.log('New locations added: ' + newLocationsCount);
+    this.logger.log('New Transactions added: ' + newTransactionsCount);
+    this.logger.log(`Scrape batch ${batch} complete!`);
   }
 
   async getToken(key: string): Promise<GetToken> {
