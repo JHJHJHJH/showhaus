@@ -18,11 +18,7 @@ export class LocationService {
     return saved;
   }
 
-  async removeAllLocations() {
-    await this.locationRepository.createQueryBuilder().delete().execute();
-  }
-
-  async findLocationByParam(location: ILocation): Promise<LocationEntity[]> {
+  async findLocationByParam(location: ILocation) {
     const condition = {
       project: `${location.project}`,
       street: `${location.street}`,

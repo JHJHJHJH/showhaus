@@ -55,9 +55,7 @@ export class TransactionEntity {
   @Column({ name: 'tenure', default: 0 })
   tenure: string;
 
-  @ManyToOne(() => LocationEntity, (loc) => loc.transactions, {
-    cascade: true,
-  })
+  @ManyToOne(() => LocationEntity, (loc) => loc.transactions)
   @JoinColumn({ name: 'location_id' })
   location: LocationEntity;
 

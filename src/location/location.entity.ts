@@ -35,7 +35,9 @@ export class LocationEntity {
 
   @Expose({ name: 'transaction' })
   @Type(() => TransactionEntity)
-  @OneToMany(() => TransactionEntity, (tx) => tx.location)
+  @OneToMany(() => TransactionEntity, (tx) => tx.location, {
+    cascade: ['insert', 'update'],
+  })
   transactions: TransactionEntity[];
 
   @Transform(({ value }) => parseInt(value), { toClassOnly: true })
