@@ -7,6 +7,7 @@ import { UraScraperModule } from './ura-scraper/ura-scraper.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import config from './config/configuration';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { LoggerMiddleware } from './middlewares/logger.middleware';
     }),
     ScheduleModule.forRoot(),
     UraScraperModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
