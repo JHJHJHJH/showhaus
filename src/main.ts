@@ -2,7 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import config from './config/configuration';
-
+import supertokens from 'supertokens-node';
+import { SupertokensExceptionFilter } from './auth/auth.filter';
 async function bootstrap() {
   // console.log('Nest bootstrap started...');
   // console.log(`Environment: ${process.env.NODE_ENV} `);
@@ -17,13 +18,19 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.useGlobalPipes(pipe);
   app.enableCors({
-    origin: '*',
+    origin: ['*', process.env.PRODUCTION_URL, process.env.LOCAL_URL],
     methods: 'GET, PUT, POST, DELETE',
-    allowedHeaders: 'Content-Type, Authorization',
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      ...supertokens.getAllCORSHeaders(),
+    ],
+    credentials: true,
   });
+
+  app.useGlobalFilters(new SupertokensExceptionFilter());
   console.log(`App running on <${process.env.NODE_ENV}>....`);
   console.log(`Listening to PORT ${port}....`);
-  console.log(config);
   await app.listen(port);
 }
 bootstrap();

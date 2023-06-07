@@ -11,6 +11,20 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule.forRoot({
+      // https://try.supertokens.com is for demo purposes. Replace this with the address of your core instance (sign up on supertokens.com), or self host a core.
+      connectionURI:
+        'https://dev-2f61bc9101ef11ee8b9f3fc3a7d3670f-ap-southeast-1.aws.supertokens.io:3568',
+      apiKey: '3Uu-D24pSjgaebK0AtE0Jfr1xoIDOu',
+      appInfo: {
+        // Learn more about this on https://supertokens.com/docs/thirdparty/appinfo
+        appName: 'showhouse',
+        apiDomain: 'http://localhost:8080/api',
+        websiteDomain: 'http://localhost:8080',
+        apiBasePath: '/auth',
+        websiteBasePath: '/auth',
+      },
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       load: [config],
