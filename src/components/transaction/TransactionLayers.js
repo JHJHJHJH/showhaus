@@ -100,7 +100,7 @@ export default function TransactionLayers(){
             try {
                 const response = await axios({
                     method:'get',
-                    url: `${process.env.REACT_APP_BACKEND_URL}/location`,
+                    url: `${process.env.REACT_APP_SHOWHOUSE_API_URL}/location`,
                     headers: { },
                     params : { 
                         minLon: mapViewState.maxBounds.minLon,
