@@ -14,6 +14,7 @@ import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { SessionContainer } from 'supertokens-node/recipe/session';
 import { AuthGuard } from './auth/auth.guard';
 import { Session } from './auth/session.decorator';
+import ThirdParty from 'supertokens-node/recipe/thirdparty';
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -23,6 +24,15 @@ export class AppController {
   async getTest(@Session() session: SessionContainer): Promise<string> {
     // TODO: magic
     return 'magic';
+  }
+
+  @Get('user-email')
+  @UseGuards(new AuthGuard())
+  async getUserInfo(@Session() session: SessionContainer): Promise<string> {
+    const userId = session.getUserId();
+    // You can learn more about the `User` object over here https://github.com/supertokens/core-driver-interface/wiki
+    const userInfo: ThirdParty.User = await ThirdParty.getUserById(userId);
+    return userInfo.email;
   }
 
   @Get()
