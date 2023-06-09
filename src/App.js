@@ -1,11 +1,11 @@
 import './styles/App.css';
 import React from 'react';
-import MapContainer from './components/MapContainer'
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import MenuComponent from './components/menu/MenuComponent';
-import TransactionsDrawer from './components/TransactionsDrawer';
-import logo192 from './resources/showhaus-banner-nobg.png'
-// import GeocoderControl from './components/map-ui/GeocoderControl';
+import { getSuperTokensRoutesForReactRouterDom } from "supertokens-auth-react/ui";
+import Home from './pages/Home';
+import { Route, Routes } from "react-router-dom"
+import { ThirdPartyPreBuiltUI } from "supertokens-auth-react/recipe/thirdparty/prebuiltui";
+import * as reactRouterDom from "react-router-dom";
 
 const theme = createTheme({
   palette: {
@@ -25,26 +25,15 @@ const theme = createTheme({
 });
 
 export default function App() {
+
   return (
     <ThemeProvider theme={theme}>
-      <div className='grid h-screen grid-rows-10 grid-flow-col gap-0'>
-        
-        <div className="row-span-1 bg-slate-100 drop-shadow-xl p-1 text-2xl font-bold">
-          <img src={logo192} alt="showhaus" width={220} height={80}/>
-        </div>
-        <div className="grid row-span-9 h-full grid-cols-4 grid-flow-row gap-0">
-          <div className="col-span-3 bg-blue-300">
-            <MapContainer/>
-            <TransactionsDrawer/>
-
-          </div>
-          <div className="col-span-1 bg-slate-100 drop-shadow-xl">
-              <MenuComponent/>
-          </div>
-        </div>      
-      </div>
-
-
+        <Routes>
+          {getSuperTokensRoutesForReactRouterDom(reactRouterDom, [ThirdPartyPreBuiltUI])}
+          
+          {/* <Route path="/books" element={<BookList />} /> */}
+          <Route path="/" element={<Home />} />
+        </Routes>
     </ThemeProvider>
 
   );
