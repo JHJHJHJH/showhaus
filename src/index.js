@@ -16,8 +16,8 @@ SuperTokens.init({
   enableDebugLogs: process.env.NODE_ENV === 'production' ? false : true,
   appInfo: {
       appName: "showhouse",
-      apiDomain: "http://localhost:8080/api",
-      websiteDomain: "http://localhost:3000",
+      apiDomain: `${process.env.REACT_APP_SHOWHOUSE_API_URL}`,
+      websiteDomain: `${process.env.REACT_APP_SHOWHOUSE_URL}`,
       apiBasePath: "/auth",
       websiteBasePath: "/auth"
   },

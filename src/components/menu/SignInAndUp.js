@@ -10,7 +10,7 @@ export default function SignInAndUp() {
     async function getInfo(){
         const response = await axios({
             method:'get',
-            url: `${process.env.REACT_APP_BACKEND_URL_DEV}/user-email`,
+            url: `${process.env.REACT_APP_SHOWHOUSE_API_URL}/user-email`,
         });
         setUserEmail( response.data );
         console.log(response )
@@ -34,6 +34,7 @@ export default function SignInAndUp() {
         console.log( session );
         getInfo();
     }
+    
 
     return (
         <>
