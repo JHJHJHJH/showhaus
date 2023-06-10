@@ -25,6 +25,7 @@ async function bootstrap() {
     ],
     methods: 'GET, PUT, POST, DELETE',
     allowedHeaders: [
+      'Access-Control-Allow-Origin',
       'Content-Type',
       'Authorization',
       ...supertokens.getAllCORSHeaders(),
