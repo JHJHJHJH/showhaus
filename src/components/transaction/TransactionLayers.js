@@ -100,8 +100,10 @@ export default function TransactionLayers(){
             try {
                 const response = await axios({
                     method:'get',
-                    url: `${process.env.REACT_APP_BACKEND_URL}/location`,
-                    headers: { },
+                    url: `${process.env.REACT_APP_SHOWHOUSE_API_URL}/location`,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     params : { 
                         minLon: mapViewState.maxBounds.minLon,
                         minLat: mapViewState.maxBounds.minLat,

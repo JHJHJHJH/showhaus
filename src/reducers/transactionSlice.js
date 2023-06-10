@@ -7,8 +7,10 @@ export const getTransactions = createAsyncThunk(
   
     const res = await axios({
         method:'get',
-        url: `${process.env.REACT_APP_BACKEND_URL}/location`,
-        headers: { },
+        url: `${process.env.REACT_APP_SHOWHOUSE_API_URL}/location`,
+        headers: {
+            'Content-Type': 'application/json',
+        },
         params : data
     })
     console.log( res );
