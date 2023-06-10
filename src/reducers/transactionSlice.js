@@ -4,10 +4,10 @@ import axios from 'axios';
 export const getTransactions = createAsyncThunk(
     'transactions/get',
     async ( data ) => {
-  
+    axios.defaults.trailingSlash = true;
     const res = await axios({
         method:'get',
-        url: `${process.env.REACT_APP_SHOWHOUSE_API_URL}/location/`,
+        url: `${process.env.REACT_APP_SHOWHOUSE_API_URL}/location`,
         headers: {
             'Content-Type': 'application/json',
         },

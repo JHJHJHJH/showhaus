@@ -98,9 +98,10 @@ export default function TransactionLayers(){
         //fetch ALL transaction data from API
         async function fetchData(){
             try {
+                axios.defaults.trailingSlash = true;
                 const response = await axios({
                     method:'get',
-                    url: `${process.env.REACT_APP_SHOWHOUSE_API_URL}/location/`,
+                    url: `${process.env.REACT_APP_SHOWHOUSE_API_URL}/location`,
                     headers: {
                         'Content-Type': 'application/json',
                     },
