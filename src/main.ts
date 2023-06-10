@@ -19,6 +19,7 @@ async function bootstrap() {
   app.useGlobalPipes(pipe);
   app.enableCors({
     origin: [process.env.SHOWHOUSE_URL_PROD, process.env.SHOWHOUSE_URL_DEV],
+    preflightContinue: false,
     methods: 'GET, PUT, POST, DELETE',
     allowedHeaders: [
       'Content-Type',
