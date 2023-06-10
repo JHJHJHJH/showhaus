@@ -6,16 +6,59 @@ import reportWebVitals from './reportWebVitals';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Provider } from 'react-redux'
 import store from './store.js';
-
+import { BrowserRouter } from "react-router-dom"
 import {createRoot} from 'react-dom/client';
+import SuperTokens, { SuperTokensWrapper } from "supertokens-auth-react";
+import ThirdParty, {Github, Google, Facebook, Apple} from "supertokens-auth-react/recipe/thirdparty";
+import Session from "supertokens-auth-react/recipe/session";
+
+SuperTokens.init({
+  enableDebugLogs: process.env.NODE_ENV === 'production' ? false : true,
+  appInfo: {
+      appName: "showhouse",
+      apiDomain: `${process.env.REACT_APP_SHOWHOUSE_API_URL}`,
+      websiteDomain: `${process.env.REACT_APP_SHOWHOUSE_URL}`,
+      apiBasePath: "/auth",
+      websiteBasePath: "/auth"
+  },
+  recipeList: [
+      ThirdParty.init({
+          getRedirectionURL: async (context) => {
+            if (context.action === "SUCCESS") {
+                if (context.redirectToPath !== undefined) {
+                    // we are navigating back to where the user was before they authenticated
+                    return context.redirectToPath;
+                }
+                return "/";
+            }
+            return undefined;
+          },
+          signInAndUpFeature: {
+              providers: [
+                  // Github.init(),
+                  Google.init(),
+                  // Facebook.init(),
+                  // Apple.init(),
+              ]
+          }
+      }),
+      Session.init()
+  ]
+});
 const container = document.getElementById('root');
 const root = createRoot( container );
 root.render(
   
     <Provider store={store}>
-      <App/> 
+      <SuperTokensWrapper>
+      <BrowserRouter>
+        <App/> 
+      </BrowserRouter>
+      </SuperTokensWrapper>
     </Provider>
   
+  
+
 );
 
 // ReactDOM.render(
