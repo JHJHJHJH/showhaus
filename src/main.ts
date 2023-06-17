@@ -23,6 +23,8 @@ async function bootstrap() {
       process.env.SHOWHOUSE_URL_DEV,
       process.env.SHOWHOUSE_URL_PROD,
       'https://www.showhouse.app',
+      'https://www.showhouse.app/',
+      'https://showhouse.app/',
     ],
     preflightContinue: false,
     methods: 'GET, PUT, POST, DELETE, PATCH, OPTIONS',
