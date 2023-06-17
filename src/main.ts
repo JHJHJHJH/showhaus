@@ -20,17 +20,17 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.useGlobalPipes(pipe);
   app.useGlobalFilters(new SupertokensExceptionFilter());
-  app.enableCors({
-    origin: '*',
-    preflightContinue: true,
-    methods: 'GET, PUT, POST, DELETE',
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      ...supertokens.getAllCORSHeaders(),
-    ],
-    credentials: true,
-  });
+  // app.enableCors({
+  //   origin: '*',
+  //   preflightContinue: true,
+  //   methods: 'GET, PUT, POST, DELETE',
+  //   allowedHeaders: [
+  //     'Content-Type',
+  //     'Authorization',
+  //     ...supertokens.getAllCORSHeaders(),
+  //   ],
+  //   credentials: true,
+  // });
   console.log(`App running on <${process.env.NODE_ENV}>....`);
   console.log(`Listening to PORT ${port}....`);
   await app.listen(port);
