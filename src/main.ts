@@ -11,7 +11,9 @@ async function bootstrap() {
   // console.log(`Port: ${process.env.POSTGRES_PORT} `);
   // console.log(`URA API KEY: ${process.env.URA_API_KEY} `);
   // console.log(`PG DB: ${process.env.POSTGRES_DB} `);
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    cors: true,
+  });
   // app.setGlobalPrefix('v1/api');
   const port = process.env.PORT || 8080;
   const pipe = new ValidationPipe({ whitelist: true });
