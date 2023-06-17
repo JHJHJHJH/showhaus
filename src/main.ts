@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import config from './config/configuration';
 import supertokens from 'supertokens-node';
 import { SupertokensExceptionFilter } from './auth/auth.filter';
+
 async function bootstrap() {
   // console.log('Nest bootstrap started...');
   // console.log(`Environment: ${process.env.NODE_ENV} `);
@@ -18,14 +19,23 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.useGlobalPipes(pipe);
   app.useGlobalFilters(new SupertokensExceptionFilter());
+  const whitelist = [
+    process.env.SHOWHOUSE_URL_DEV,
+    process.env.SHOWHOUSE_URL_PROD,
+    'https://www.showhouse.app',
+    'https://www.showhouse.app/',
+    'https://showhouse.app/',
+  ];
   app.enableCors({
-    origin: [
-      process.env.SHOWHOUSE_URL_DEV,
-      process.env.SHOWHOUSE_URL_PROD,
-      'https://www.showhouse.app',
-      'https://www.showhouse.app/',
-      'https://showhouse.app/',
-    ],
+    origin: function (origin, callback) {
+      if (whitelist.indexOf(origin) !== -1) {
+        console.log('allowed cors for:', origin);
+        callback(null, true);
+      } else {
+        console.log('blocked cors for:', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     preflightContinue: false,
     methods: 'GET, PUT, POST, DELETE, PATCH, OPTIONS',
     allowedHeaders: [
