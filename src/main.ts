@@ -19,9 +19,9 @@ async function bootstrap() {
   app.useGlobalPipes(pipe);
   app.useGlobalFilters(new SupertokensExceptionFilter());
   app.enableCors({
-    origin: '*',
+    origin: [process.env.SHOWHOUSE_URL_DEV, process.env.SHOWHOUSE_URL_PROD],
     preflightContinue: true,
-    methods: 'GET, PUT, POST, DELETE, OPTIONS',
+    methods: 'GET, PUT, POST, DELETE, PATCH, OPTIONS',
     allowedHeaders: [
       'Content-Type',
       'Authorization',
