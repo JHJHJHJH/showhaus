@@ -13,10 +13,11 @@ import ThirdParty, {Github, Google, Facebook, Apple} from "supertokens-auth-reac
 import Session from "supertokens-auth-react/recipe/session";
 
 SuperTokens.init({
-  enableDebugLogs: process.env.NODE_ENV === 'production' ? false : true,
+  // enableDebugLogs: process.env.NODE_ENV === 'production' ? false : true,
+  enableDebugLogs: false,
   appInfo: {
       appName: "showhouse",
-      apiDomain: `${process.env.REACT_APP_SHOWHOUSE_API_URL}`,
+      apiDomain: `${process.env.REACT_APP_SHOWHOUSE_API_URL}/`,
       websiteDomain: `${process.env.REACT_APP_SHOWHOUSE_URL}`,
       apiBasePath: "/auth",
       websiteBasePath: "/auth"
