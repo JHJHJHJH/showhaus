@@ -19,7 +19,11 @@ async function bootstrap() {
   app.useGlobalPipes(pipe);
   app.useGlobalFilters(new SupertokensExceptionFilter());
   app.enableCors({
-    origin: [process.env.SHOWHOUSE_URL_DEV, process.env.SHOWHOUSE_URL_PROD],
+    origin: [
+      process.env.SHOWHOUSE_URL_DEV,
+      process.env.SHOWHOUSE_URL_PROD,
+      'https://www.showhouse.app',
+    ],
     preflightContinue: false,
     methods: 'GET, PUT, POST, DELETE, PATCH, OPTIONS',
     allowedHeaders: [
@@ -31,7 +35,7 @@ async function bootstrap() {
   });
   console.log(
     '🚀 ~ file: main.ts:33 ~ bootstrap ~ process.env.SHOWHOUSE_URL_DEV:',
-    process.env.SHOWHOUSE_URL_DEV,
+    process.env.SHOWHOUSE_URL_PROD,
   );
   console.log(`App running on <${process.env.NODE_ENV}>....`);
   console.log(`Listening to PORT ${port}....`);
