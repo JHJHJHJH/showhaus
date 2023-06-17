@@ -17,7 +17,7 @@ async function bootstrap() {
   // app.setGlobalPrefix('v1/api');
   const port = process.env.PORT || 8080;
   const pipe = new ValidationPipe({ whitelist: true });
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api/');
   app.useGlobalPipes(pipe);
   app.useGlobalFilters(new SupertokensExceptionFilter());
   // app.enableCors({
