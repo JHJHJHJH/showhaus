@@ -17,9 +17,10 @@ async function bootstrap() {
   const pipe = new ValidationPipe({ whitelist: true });
   app.setGlobalPrefix('api');
   app.useGlobalPipes(pipe);
+  app.useGlobalFilters(new SupertokensExceptionFilter());
   app.enableCors({
     origin: [process.env.SHOWHOUSE_URL_PROD, process.env.SHOWHOUSE_URL_DEV],
-    preflightContinue: false,
+    preflightContinue: true,
     methods: 'GET, PUT, POST, DELETE',
     allowedHeaders: [
       'Content-Type',
@@ -28,8 +29,6 @@ async function bootstrap() {
     ],
     credentials: true,
   });
-
-  app.useGlobalFilters(new SupertokensExceptionFilter());
   console.log(`App running on <${process.env.NODE_ENV}>....`);
   console.log(`Listening to PORT ${port}....`);
   await app.listen(port);
