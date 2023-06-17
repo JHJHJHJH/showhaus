@@ -20,7 +20,7 @@ async function bootstrap() {
   app.useGlobalFilters(new SupertokensExceptionFilter());
   app.enableCors({
     origin: [process.env.SHOWHOUSE_URL_DEV, process.env.SHOWHOUSE_URL_PROD],
-    preflightContinue: true,
+    preflightContinue: false,
     methods: 'GET, PUT, POST, DELETE, PATCH, OPTIONS',
     allowedHeaders: [
       'content-type',
@@ -29,6 +29,10 @@ async function bootstrap() {
     ],
     credentials: true,
   });
+  console.log(
+    '🚀 ~ file: main.ts:33 ~ bootstrap ~ process.env.SHOWHOUSE_URL_DEV:',
+    process.env.SHOWHOUSE_URL_DEV,
+  );
   console.log(`App running on <${process.env.NODE_ENV}>....`);
   console.log(`Listening to PORT ${port}....`);
   await app.listen(port);
