@@ -23,8 +23,8 @@ async function bootstrap() {
     preflightContinue: true,
     methods: 'GET, PUT, POST, DELETE, PATCH, OPTIONS',
     allowedHeaders: [
-      'Content-Type',
-      'Authorization',
+      'content-type',
+      'authorization',
       ...supertokens.getAllCORSHeaders(),
     ],
     credentials: true,
