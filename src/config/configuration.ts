@@ -15,4 +15,12 @@ export default () => ({
       : process.env.SUPERTOKENS_API_KEY_DEV,
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+  SHOWHOUSE_API_URL:
+    process.env.NODE_ENV === 'production'
+      ? process.env.SHOWHOUSE_API_URL_PROD
+      : process.env.SHOWHOUSE_API_URL_DEV,
+  SHOWHOUSE_URL:
+    process.env.NODE_ENV === 'production'
+      ? process.env.SHOWHOUSE_URL_PROD
+      : process.env.SHOWHOUSE_URL_DEV,
 });

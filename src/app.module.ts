@@ -40,8 +40,8 @@ import { AuthModule } from './auth/auth.module';
       appInfo: {
         // Learn more about this on https://supertokens.com/docs/thirdparty/appinfo
         appName: 'showhouse',
-        apiDomain: 'http://localhost:8080/api',
-        websiteDomain: 'http://localhost:8080',
+        apiDomain: config().SHOWHOUSE_API_URL,
+        websiteDomain: config().SHOWHOUSE_URL,
         apiBasePath: '/auth',
         websiteBasePath: '/auth',
       },
