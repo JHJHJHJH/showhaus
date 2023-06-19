@@ -25,7 +25,9 @@ SuperTokens.init({
   recipeList: [
       ThirdParty.init({
           getRedirectionURL: async (context) => {
+            console.log("🚀 ~ file: index.js:28 ~ getRedirectionURL: ~ context:", context)
             if (context.action === "SUCCESS") {
+                
                 if (context.redirectToPath !== undefined) {
                     // we are navigating back to where the user was before they authenticated
                     return context.redirectToPath;
