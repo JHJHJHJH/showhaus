@@ -20,23 +20,22 @@ async function bootstrap() {
   app.useGlobalPipes(pipe);
   app.useGlobalFilters(new SupertokensExceptionFilter());
   const whitelist = [
-    process.env.SHOWHOUSE_URL_DEV,
-    process.env.SHOWHOUSE_URL_PROD,
+    'http://localhost:3000',
     'https://www.showhouse.app',
     'https://www.showhouse.app/',
     'https://showhouse.app/',
+    'https://showhouse.app',
   ];
   app.enableCors({
-    // origin: function (origin, callback) {
-    //   if (whitelist.indexOf(origin) !== -1) {
-    //     console.log('allowed cors for:', origin);
-    //     callback(null, true);
-    //   } else {
-    //     console.log('blocked cors for:', origin);
-    //     callback(new Error('Not allowed by CORS'));
-    //   }
-    // },
-    origin: /showhouse\.app$/,
+    origin: function (origin, callback) {
+      if (whitelist.indexOf(origin) !== -1) {
+        console.log('allowed cors for:', origin);
+        callback(null, true);
+      } else {
+        console.log('blocked cors for:', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     preflightContinue: false,
     methods: 'GET, PUT, POST, DELETE, PATCH, OPTIONS',
     allowedHeaders: [
