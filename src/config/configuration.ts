@@ -7,11 +7,11 @@ export default () => ({
   URA_API_KEY: process.env.URA_API_KEY,
   SUPERTOKENS_URI:
     process.env.NODE_ENV === 'production'
-      ? process.env.SUPERTOKENS_URI_PROD
+      ? process.env.SUPERTOKENS_URI_DEV
       : process.env.SUPERTOKENS_URI_DEV,
   SUPERTOKENS_API_KEY:
     process.env.NODE_ENV === 'production'
-      ? process.env.SUPERTOKENS_API_KEY_PROD
+      ? process.env.SUPERTOKENS_API_KEY_DEV
       : process.env.SUPERTOKENS_API_KEY_DEV,
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
