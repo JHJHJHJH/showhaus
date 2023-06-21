@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import config from './config/configuration';
 import supertokens from 'supertokens-node';
 import { SupertokensExceptionFilter } from './auth/auth.filter';
+import { RoleService } from './role/role.service';
 
 async function bootstrap() {
   // console.log('Nest bootstrap started...');
@@ -44,5 +45,7 @@ async function bootstrap() {
   console.log(`App running on <${process.env.NODE_ENV}>....`);
   console.log(`Listening to PORT ${port}....`);
   await app.listen(port);
+  const roleService = app.get(RoleService);
+  roleService.createDefaultRoles();
 }
 bootstrap();

@@ -16,20 +16,26 @@ export class RoleService {
     const freeResponse = await UserRoles.createNewRoleOrAddPermissions('free', [
       'read',
     ]);
-    this.logger.log(
-      '<free> role created with <read> permision(s)',
-      freeResponse,
-    );
+    if (freeResponse.createdNewRole === false) {
+      this.logger.log(' The role already exists');
+    } else {
+      this.logger.log(
+        '<free> role created with <read> permision(s)',
+        freeResponse,
+      );
+    }
 
     const paidResponse = await UserRoles.createNewRoleOrAddPermissions('paid', [
       'read',
-      'write',
     ]);
-
-    this.logger.log(
-      '<paid> role created with <read, write> permision(s):',
-      paidResponse,
-    );
+    if (paidResponse.createdNewRole === false) {
+      this.logger.log(' The role already exists');
+    } else {
+      this.logger.log(
+        '<paid> role created with <read, write> permision(s):',
+        paidResponse,
+      );
+    }
   }
 
   async addRoleToUser(userId: string, role: string) {
