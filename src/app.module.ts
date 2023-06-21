@@ -8,6 +8,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import config from './config/configuration';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { AuthModule } from './auth/auth.module';
+import { RoleModule } from './role/role.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { AuthModule } from './auth/auth.module';
     ScheduleModule.forRoot(),
     UraScraperModule,
     AuthModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
