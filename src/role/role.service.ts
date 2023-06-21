@@ -16,19 +16,22 @@ export class RoleService {
     const freeResponse = await UserRoles.createNewRoleOrAddPermissions('free', [
       'read',
     ]);
-    console.log(
-      '🚀 ~ file: app.controller.ts:41 ~ AppController ~ createRoles ~ response:',
+    this.logger.log(
+      '<free> role created with <read> permision(s)',
       freeResponse,
     );
 
     const paidResponse = await UserRoles.createNewRoleOrAddPermissions('paid', [
       'read',
+      'write',
     ]);
-    console.log(
-      '🚀 ~ file: app.controller.ts:45 ~ AppController ~ createRoles ~ response2:',
+
+    this.logger.log(
+      '<paid> role created with <read, write> permision(s):',
       paidResponse,
     );
   }
+
   async addRoleToUser(userId: string, role: string) {
     const response = await UserRoles.addRoleToUser(userId, role);
     this.logger.debug(response);
