@@ -12,7 +12,7 @@ export default function MenuComponent(){
     return (
         <div className="p-4">
             <div className="mb-3 flex items-center justify-between">
-                <div className="font-bold">Menu</div>
+                <div className="font-bold">What's nearby ?</div>
                 <div className="group relative">
                     <button
                         type="button"
