@@ -84,7 +84,7 @@ export default function MapContainer(){
                     ref = {map}
                     id="map" //dictates name of useMap object
                     style={{ width: '100%', height: '100%' }}
-                    mapStyle="mapbox://styles/mapbox/streets-v11"
+                    mapStyle="mapbox://styles/mapbox/light-v11"
                     mapboxAccessToken={process.env.REACT_APP_MAPBOX_API_KEY}
                     initialViewState= {{
                         longitude: mapViewState.longitude,
