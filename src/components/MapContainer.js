@@ -28,6 +28,29 @@ export default function MapContainer(){
 
     const dispatch = useDispatch();
     const map = React.useRef();
+    const mapContainer = React.useRef();
+
+    React.useEffect(() => {
+        if (!mapContainer.current) {
+            return undefined;
+        }
+
+        const resizeMap = () => {
+            map.current?.resize?.();
+            map.current?.getMap?.()?.resize?.();
+        };
+
+        if (!window.ResizeObserver) {
+            window.addEventListener('resize', resizeMap);
+            return () => window.removeEventListener('resize', resizeMap);
+        }
+
+        const resizeObserver = new window.ResizeObserver(resizeMap);
+        resizeObserver.observe(mapContainer.current);
+        resizeMap();
+
+        return () => resizeObserver.disconnect();
+    }, []);
 
     const maxBounds = (m) => {
         const b = new LngLatBounds( [ m.maxBounds.minLon,  m.maxBounds.minLat], [ m.maxBounds.maxLon,  m.maxBounds.maxLat ] )
@@ -77,7 +100,7 @@ export default function MapContainer(){
     }
 
     return (
-        <>
+        <div ref={mapContainer} className="relative h-full w-full">
             <MapProvider>
 
                 {/* <PositionMarker lat={mapViewState.latitude.toFixed(4)} lng={  mapViewState.longitude.toFixed(4) } zoom={ mapViewState.zoom.toFixed(4)}/> */}
@@ -128,7 +151,7 @@ export default function MapContainer(){
                 {/* <ControlPanel/> */}
 
             </MapProvider>
-        </>
+        </div>
 
     );
 }

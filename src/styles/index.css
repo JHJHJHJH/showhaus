@@ -16,6 +16,16 @@ code {
     monospace;
 }
 
+.transaction-popup .mapboxgl-popup-content {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+.transaction-popup .mapboxgl-popup-tip {
+  display: none;
+}
+
 /*
 .mapbox-logo{ 
   display: none; 

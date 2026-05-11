@@ -15,12 +15,12 @@ export default function Home() {
                     
                 </div>
             </div>
-            <div className="grid row-span-11 h-full grid-cols-4 grid-flow-row gap-0 z-0">
-                <div className="col-span-3 bg-blue-300">
+            <div className="row-span-11 flex min-h-0 h-full gap-0 z-0">
+                <div className="min-w-0 flex-1 bg-blue-300">
                     <MapContainer/>
                     <TransactionsDrawer/>
                 </div>
-                <div className="col-span-1 bg-slate-100 drop-shadow-xl">
+                <div className="h-full shrink-0 bg-slate-100 drop-shadow-xl">
                     <MenuComponent/>
                 </div>
             </div>      
