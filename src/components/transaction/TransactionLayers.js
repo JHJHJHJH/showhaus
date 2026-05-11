@@ -280,7 +280,14 @@ export default function TransactionLayers(){
     return(
         <>
         {/* <DeckGLOverlay layers={[ gridlayer ]}/>; */}
-        <Source id="found-transactions"  type="geojson" data={transactionsFoundGeojson} cluster={true} clusterRadius={80}>
+        <Source
+            id="found-transactions"
+            type="geojson"
+            data={transactionsFoundGeojson}
+            cluster={true}
+            clusterRadius={80}
+            clusterMaxZoom={13}
+        >
             {/* <Layer {...foundTransactionsStyle} /> */}
             <Layer {...clusterTextStyle}  />
             
