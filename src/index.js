@@ -8,56 +8,15 @@ import { Provider } from 'react-redux'
 import store from './store.js';
 import { BrowserRouter } from "react-router-dom"
 import {createRoot} from 'react-dom/client';
-import SuperTokens, { SuperTokensWrapper } from "supertokens-auth-react";
-import ThirdParty, {Github, Google, Facebook, Apple} from "supertokens-auth-react/recipe/thirdparty";
-import Session from "supertokens-auth-react/recipe/session";
 
-SuperTokens.init({
-  // enableDebugLogs: process.env.NODE_ENV === 'production' ? false : true,
-  enableDebugLogs: false,
-  appInfo: {
-      appName: "showhouse",
-      apiDomain: process.env.NODE_ENV === 'production' ? `${process.env.REACT_APP_SHOWHOUSE_URL}` : `http://localhost:8080`,
-      websiteDomain: process.env.NODE_ENV === 'production' ? `${process.env.REACT_APP_SHOWHOUSE_URL}` : `${process.env.REACT_APP_SHOWHOUSE_URL_DEV}`,
-      apiBasePath: "/api/auth",
-      websiteBasePath: "/auth"
-  },
-  recipeList: [
-      ThirdParty.init({
-          // getRedirectionURL: async (context) => {
-          //   console.log("🚀 ~ file: index.js:28 ~ getRedirectionURL: ~ context:", context)
-          //   if (context.action === "SUCCESS") {
-                
-          //       if (context.redirectToPath !== undefined) {
-          //           // we are navigating back to where the user was before they authenticated
-          //           return context.redirectToPath;
-          //       }
-          //       return "/";
-          //   }
-          //   return undefined;
-          // },
-          signInAndUpFeature: {
-              providers: [
-                  // Github.init(),
-                  Google.init(),
-                  // Facebook.init(),
-                  // Apple.init(),`
-              ]
-          }
-      }),
-      Session.init()
-  ]
-});
 const container = document.getElementById('root');
 const root = createRoot( container );
 root.render(
   
     <Provider store={store}>
-      <SuperTokensWrapper>
       <BrowserRouter>
         <App/> 
       </BrowserRouter>
-      </SuperTokensWrapper>
     </Provider>
   
   

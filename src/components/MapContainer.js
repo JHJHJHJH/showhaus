@@ -4,7 +4,7 @@ import { updateLocation } from '../reducers/searchRadiusSlice';
 import { useSelector, useDispatch } from 'react-redux'
 import { updateViewState } from '../reducers/mapViewStateSlice';
 import { MapProvider, Marker, NavigationControl} from 'react-map-gl';
-import { LngLatBounds } from 'mapbox-gl';
+import mapboxgl, { LngLatBounds } from 'mapbox-gl';
 import GeocoderControl from './map-ui/GeocoderControl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import MrtLayers from './layers/MrtLayers';
@@ -14,6 +14,13 @@ import TransactionLayers from './transaction/TransactionLayers';
 import SMRT_ICON from '../resources/smrt-icon.svg'
 import SearchRadiusLayer from './layers/SearchRadiusLayer';
 import { TransactionPopup } from './transaction/TransactionPopup';
+
+// The following is required to stop mapbox-gl from throwing an error in some environments
+// when using it with Webpack 5 / react-scripts 5.
+// @ts-ignore
+// eslint-disable-next-line import/no-webpack-loader-syntax
+mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
+
 export default function MapContainer(){
     const searchRadiusState = useSelector((state) => state.searchRadiusState );
     const mapViewState = useSelector((state) => state.mapViewState );
@@ -76,10 +83,8 @@ export default function MapContainer(){
                 <Map
                     ref = {map}
                     id="map" //dictates name of useMap object
-                    // style={{position: 'relative', width: '100%', height: '100%' }}
-                    width ="100%"
-                    height="100%"
-                    mapStyle="mapbox://styles/han-aectech/ckzo28onn00k914p8bmr9hs03"
+                    style={{ width: '100%', height: '100%' }}
+                    mapStyle="mapbox://styles/mapbox/streets-v11"
                     mapboxAccessToken={process.env.REACT_APP_MAPBOX_API_KEY}
                     initialViewState= {{
                         longitude: mapViewState.longitude,

@@ -1,7 +1,6 @@
 import MapContainer from "../components/MapContainer";
 import TransactionsDrawer from "../components/TransactionsDrawer";
 import MenuComponent from "../components/menu/MenuComponent";
-import SignInAndUp from "../components/menu/SignInAndUp";
 import logo192 from '../resources/showhaus-banner-nobg.png'
 
 export default function Home() {
@@ -12,7 +11,6 @@ export default function Home() {
                 <div className="grid grid-cols-10 align-bottom">
                     <img className="col-span-9 bottom" src={logo192} alt="showhaus" width={220} height={80}/>
                     <div className="col-span-1 justify-self-end m-0">
-                        <SignInAndUp/>
                     </div>
                     
                 </div>
