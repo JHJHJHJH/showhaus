@@ -3,6 +3,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import { FiSettings } from "react-icons/fi";
 import { updateRadius } from "../../reducers/searchRadiusSlice";
 import NearbyMrt from "./NearbyMrt";
+import NearbyProjects from "./NearbyProjects";
 import NearbySchools from "./NearbySchools";
 import PropertyTypes from "./PropertyTypes";
 import SchoolTypes from "./SchoolTypes";
@@ -50,6 +51,7 @@ export default function MenuComponent(){
 
             <NearbyMrt/>
             <NearbySchools/>
+            <NearbyProjects/>
         </div>
         
     )
