@@ -3,7 +3,9 @@ import {useDispatch, useSelector} from 'react-redux';
 import { FiSettings } from "react-icons/fi";
 import { updateRadius } from "../../reducers/searchRadiusSlice";
 import NearbyMrt from "./NearbyMrt";
+import NearbySchools from "./NearbySchools";
 import PropertyTypes from "./PropertyTypes";
+import SchoolTypes from "./SchoolTypes";
 
 export default function MenuComponent(){
     const searchRadiusState = useSelector((state) => state.searchRadiusState );
@@ -12,7 +14,7 @@ export default function MenuComponent(){
     return (
         <div className="p-4">
             <div className="mb-3 flex items-center justify-between">
-                <div className="font-bold">What's nearby ?</div>
+                <div className="text-xl font-bold">📍 What's nearby ?</div>
                 <div className="group relative">
                     <button
                         type="button"
@@ -40,12 +42,14 @@ export default function MenuComponent(){
                             />
                             {searchRadiusState.radius}
                         </div>
+                        <SchoolTypes/>
                         <PropertyTypes/>
                     </div>
                 </div>
             </div>
 
             <NearbyMrt/>
+            <NearbySchools/>
         </div>
         
     )

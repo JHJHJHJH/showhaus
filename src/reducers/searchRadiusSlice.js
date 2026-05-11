@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { point,buffer } from '@turf/turf';
+import { DEFAULT_SCHOOL_TYPE_FILTERS } from '../utils/schoolData';
 export const searchRadiusStateSlice = createSlice({
   name: 'searchRadiusState',
   initialState: {
@@ -11,6 +12,8 @@ export const searchRadiusStateSlice = createSlice({
     opacity: 0.15,
     searchRadius: {},
     mrtStations: [],
+    schoolsInRadius: [],
+    schoolTypes: DEFAULT_SCHOOL_TYPE_FILTERS,
     propertyTypes: []
   },
   reducers: {
@@ -31,6 +34,12 @@ export const searchRadiusStateSlice = createSlice({
       const stationNames = featureCollection['features'].map(( feat )=>parseStationNames( feat['properties']['STN_NAME'] ))
       state.mrtStations = [ ...new Set(stationNames)];
       // state.mrtCodes = featureCollection['features'].map(( feat )=> feat['properties']['STN_CODE'] )
+    },
+    updateSchoolsInRadius: (state, action )=> {
+      state.schoolsInRadius = action.payload;
+    },
+    updateSchoolTypes: (state, action )=> {
+      state.schoolTypes = action.payload;
     }
   },
 })
@@ -66,7 +75,7 @@ function toPascalCase(str) {
   return str.replace(/(\w)(\w*)/g, function(g0,g1,g2){return g1.toUpperCase() + g2.toLowerCase();});
 }
 // Action creators are generated for each case reducer function
-export const { updateLocation, updateRadius, updateMrtInRadius, updatePropertyTypes } = searchRadiusStateSlice.actions
+export const { updateLocation, updateRadius, updateMrtInRadius, updatePropertyTypes, updateSchoolsInRadius, updateSchoolTypes } = searchRadiusStateSlice.actions
 
 const searchRadiusStateReducer = searchRadiusStateSlice.reducer;
 export default searchRadiusStateReducer

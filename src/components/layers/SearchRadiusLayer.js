@@ -1,9 +1,15 @@
 import React, {useEffect, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Source, Layer } from "react-map-gl";
+import { booleanPointInPolygon } from '@turf/turf';
+import { updateSchoolsInRadius } from "../../reducers/searchRadiusSlice";
+import { getCheckedSchoolTypes, getSchoolsGeojson, normalizeSchool } from "../../utils/schoolData";
+
+const SCHOOLS_GEOJSON = getSchoolsGeojson();
 
 export default function SearchRadiusLayer(){
 
+    const dispatch = useDispatch();
     const searchRadiusState = useSelector((state) => state.searchRadiusState );
 
     const [radiusGeojson, SetRadiusGeojson] = useState(null);
@@ -38,7 +44,15 @@ export default function SearchRadiusLayer(){
         async function update(){
             try {
                 if( searchRadiusState.location.latitude !== 0 && searchRadiusState.location.longitude !== 0 ){
-                    SetRadiusGeojson( searchRadiusState.searchRadius );             
+                    SetRadiusGeojson( searchRadiusState.searchRadius );
+                    const checkedSchoolTypes = getCheckedSchoolTypes(searchRadiusState.schoolTypes);
+
+                    const schoolsInRadius = SCHOOLS_GEOJSON.features
+                        .filter((feature) => booleanPointInPolygon(feature, searchRadiusState.searchRadius))
+                        .filter((feature) => checkedSchoolTypes.includes(feature.properties.school_type))
+                        .map((feature) => normalizeSchool(feature.properties));
+
+                    dispatch(updateSchoolsInRadius(schoolsInRadius));
                 }                
             } catch (e) {
                 console.error(e);
@@ -47,7 +61,7 @@ export default function SearchRadiusLayer(){
 
         update();
 
-    }, [searchRadiusState.location, searchRadiusState.radius] );  // eslint-disable-line react-hooks/exhaustive-deps
+    }, [searchRadiusState.location, searchRadiusState.radius, searchRadiusState.schoolTypes] );  // eslint-disable-line react-hooks/exhaustive-deps
 
 
     return(
