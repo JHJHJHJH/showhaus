@@ -7,8 +7,6 @@ import { UraScraperModule } from './ura-scraper/ura-scraper.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import config from './config/configuration';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
-import { AuthModule } from './auth/auth.module';
-import { RoleModule } from './role/role.module';
 
 @Module({
   imports: [
@@ -34,23 +32,8 @@ import { RoleModule } from './role/role.module';
         };
       },
     }),
-    AuthModule.forRoot({
-      // https://try.supertokens.com is for demo purposes. Replace this with the address of your core instance (sign up on supertokens.com), or self host a core.
-      connectionURI: config().SUPERTOKENS_URI,
-      apiKey: config().SUPERTOKENS_API_KEY,
-      appInfo: {
-        // Learn more about this on https://supertokens.com/docs/thirdparty/appinfo
-        appName: 'showhouse',
-        apiDomain: config().SHOWHOUSE_URL,
-        websiteDomain: config().SHOWHOUSE_URL,
-        apiBasePath: '/api/auth',
-        websiteBasePath: '/auth',
-      },
-    }),
     ScheduleModule.forRoot(),
     UraScraperModule,
-    AuthModule,
-    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,10 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import config from './config/configuration';
-import supertokens from 'supertokens-node';
-import { SupertokensExceptionFilter } from './auth/auth.filter';
-import { RoleService } from './role/role.service';
 
 async function bootstrap() {
   // console.log('Nest bootstrap started...');
@@ -19,7 +15,6 @@ async function bootstrap() {
   const pipe = new ValidationPipe({ whitelist: true });
   app.setGlobalPrefix('api');
   app.useGlobalPipes(pipe);
-  app.useGlobalFilters(new SupertokensExceptionFilter());
   const whitelist = [
     'http://localhost:3000',
     'https://www.showhouse.app',
@@ -38,14 +33,11 @@ async function bootstrap() {
       'Content-Type',
       'Accept',
       'Authorization',
-      ...supertokens.getAllCORSHeaders(),
     ],
     credentials: true,
   });
   console.log(`App running on <${process.env.NODE_ENV}>....`);
   console.log(`Listening to PORT ${port}....`);
   await app.listen(port);
-  const roleService = app.get(RoleService);
-  roleService.createDefaultRoles();
 }
 bootstrap();

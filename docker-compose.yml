@@ -14,10 +14,13 @@ services:
     command: npm run start:dev
     env_file:
       - .env
+    environment:
+      POSTGRES_HOST: postgres_db
     networks:
       - webnet
     depends_on:
-      - postgres_db
+      postgres_db:
+        condition: service_healthy
   postgres_db:
     container_name: postgres_db
     image: postgis/postgis:14-3.3
@@ -27,6 +30,11 @@ services:
       - .env
     environment:
       PG_DATA: /var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 5s
+      timeout: 5s
+      retries: 10
     ports:
       - 5432:5432
     volumes:
