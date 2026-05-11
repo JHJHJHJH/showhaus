@@ -1,0 +1,18 @@
+meta {
+  name: Get Locations
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/location
+  body: none
+  auth: none
+}
+
+query {
+  minLon: 103.6
+  minLat: 1.2
+  maxLon: 104.0
+  maxLat: 1.5
+}

@@ -1,0 +1,17 @@
+meta {
+  name: Scrape URA
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/scrape
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "batch": 1
+  }
+}

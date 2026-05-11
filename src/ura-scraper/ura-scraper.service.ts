@@ -143,7 +143,7 @@ export class UraScraperService {
           AccessKey: key,
         },
       };
-      const url = 'https://www.ura.gov.sg/uraDataService/insertNewToken.action';
+      const url = 'https://eservice.ura.gov.sg/uraDataService/insertNewToken/v1';
 
       const response = await firstValueFrom(this.httpService.get(url, config));
 
@@ -165,7 +165,7 @@ export class UraScraperService {
           Token: token,
         },
       };
-      const url = `https://www.ura.gov.sg/uraDataService/invokeUraDS?service=PMI_Resi_Transaction&batch=${batch}`;
+      const url = `https://eservice.ura.gov.sg/uraDataService/invokeUraDS/v1?service=PMI_Resi_Transaction&batch=${batch}`;
 
       const response = await firstValueFrom(this.httpService.get(url, config));
 
