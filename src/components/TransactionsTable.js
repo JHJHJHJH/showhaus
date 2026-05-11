@@ -1,87 +1,90 @@
-import * as React from 'react';
-import { useEffect, useState } from "react";
+import * as React from "react";
+import { useSelector } from "react-redux";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./ui/table";
 
-import DataGrid from 'react-data-grid';
-import { useSelector } from 'react-redux';
-import 'react-data-grid/lib/styles.css';
-// import { Toolbar, Data } from "react-data-grid-addons";
+const columns = [
+  { key: "project", label: "Project", className: "min-w-[14rem]" },
+  { key: "street", label: "Street", className: "min-w-[12rem]" },
+  { key: "price_psf", label: "$/psf", className: "text-right" },
+  { key: "floor_range", label: "Storey", className: "text-center" },
+  { key: "area", label: "Area (sqm)", className: "text-right" },
+  { key: "price", label: "Price", className: "text-right" },
+  { key: "contract_date", label: "Date", className: "text-center" },
+  { key: "property_type", label: "Type", className: "min-w-[8rem]" },
+  { key: "type_of_sale", label: "Sale", className: "min-w-[8rem]" },
+];
 
-// const selectors = Data.Selectors;
+function formatNumber(value) {
+  if (value === null || value === undefined || value === "") {
+    return "—";
+  }
 
-// function getRows(rows, filters) {
-//   return selectors.getRows({ rows, filters });
-// }
+  const number = Number(value);
+  if (Number.isNaN(number)) {
+    return value;
+  }
 
-// const handleFilterChange = filter => filters => {
-//   const newFilters = { ...filters };
-//   if (filter.filterTerm) {
-//     newFilters[filter.column.key] = filter;
-//   } else {
-//     delete newFilters[filter.column.key];
-//   }
-//   return newFilters;
-// };
+  return number.toLocaleString();
+}
 
-export default function TransactionsTable(){
-    const transactionState = useSelector((state) => state.transactionState );
-    const [rows, SetRows] = useState([]);
-    
-    useEffect(() => {
-      async function update(){
-          try { 
-            
-            const data = transactionState.transactions;
-            // console.log(data);
-            SetRows( data );
-          } catch (e) {
-              console.error(e);
-          }
-      }
+function renderCell(columnKey, value) {
+  if (columnKey === "price" || columnKey === "price_psf" || columnKey === "area") {
+    return formatNumber(value);
+  }
 
-      update();
+  return value || "—";
+}
 
-    }, [transactionState] );
+export default function TransactionsTable() {
+  const transactions = useSelector(
+    (state) => state.transactionState.transactions || []
+  );
 
-    const columns = [
-      { key: 'project', name: 'Project', width : 250, cellClass:"whitespace-pre-wrap text-xs" },
-      { key: 'street', name: 'Street', width : 200, cellClass:"whitespace-pre-wrap text-xs"  },
-      { key: 'price_psf', name: '$/psf', width : 50,  cellClass:"text-center whitespace-pre-wrap text-xs" },
-      { key: 'floor_range', name: 'Storey', width : 50, cellClass:"text-center whitespace-pre-wrap text-xs"  },
-      { key: 'area', name: 'Area(sqm)' ,width : 100, cellClass:"text-center whitespace-pre-wrap text-xs" },
-      { key: 'price', name: 'Price($)' ,width : 50, cellClass:"text-center whitespace-pre-wrap text-xs" },
-      { key: 'contract_date', name: 'Date' , width : 50, cellClass:"text-center whitespace-pre-wrap text-xs" },
-      { key: 'property_type', name: 'Type',width : 50, cellClass:"whitespace-pre-wrap text-xs"  },
-      { key: 'type_of_sale', name: 'Sale',width : 50, cellClass:"whitespace-pre-wrap text-xs"  },
-      // { key: 'id', name: 'Id', width : 50,cellClass:"text-center whitespace-pre-wrap text-xs" },
-    ];
-    // const columns = [
-    //   { name: 'id', label: 'Id' },
-    //   { name: 'project', label: 'Project' },
-    //   { name: 'street', label: 'Street' },
-    //   { name: 'price', label: 'Price' },
-    //   { name: 'price_psf', label: 'Price(psf)' },
-    //   { name: 'area', label: 'Area' },
-    //   { name: 'type_of_sale', label: 'Sale' },
-    //   { name: 'property_type', label: 'Type' },
-    //   { name: 'floor_range', label: 'Storey' },
-    //   { name: 'contract_date', label: 'Date' },
-    // ];
-
-    // const [filters, setFilters] = useState({});
-    // const filteredRows = getRows(rows, filters);
-    return (
-        // <DataGrid 
-        //   columns={columns} 
-        //   rowGetter={i => filteredRows[i]}
-        //   rowsCount={filteredRows.length}
-        //   minHeight={500}
-        //   toolbar={<Toolbar enableFilter={true} />}
-        //   onAddFilter={filter => setFilters(handleFilterChange(filter))}
-        //   onClearFilters={() => setFilters({})}
-        // />
-      <DataGrid
-        columns={columns}
-        rows = {rows}
-      />
-    );
+  return (
+    <div className="h-full overflow-auto">
+      <Table>
+        <TableHeader className="sticky top-0 z-10 bg-slate-50/95 backdrop-blur">
+          <TableRow className="hover:bg-slate-50/95">
+            {columns.map((column) => (
+              <TableHead key={column.key} className={column.className}>
+                {column.label}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {transactions.length > 0 ? (
+            transactions.map((row, index) => (
+              <TableRow key={row.id || `${row.project || "transaction"}-${index}`}>
+                {columns.map((column) => (
+                  <TableCell
+                    key={column.key}
+                    className={`${column.className} whitespace-pre-wrap text-xs`}
+                  >
+                    {renderCell(column.key, row[column.key])}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                className="h-28 text-center text-sm text-slate-500"
+                colSpan={columns.length}
+              >
+                No transactions available.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
 }
