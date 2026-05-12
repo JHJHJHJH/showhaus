@@ -2,7 +2,8 @@ import React, {useEffect, useState} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Source, Layer } from "react-map-gl";
 import { booleanPointInPolygon } from '@turf/turf';
-import { updateSchoolsInRadius } from "../../reducers/searchRadiusSlice";
+import { updateLandUsesInRadius, updateSchoolsInRadius } from "../../reducers/searchRadiusSlice";
+import { getLandUsesInRadius } from "../../utils/landUseData";
 import { getCheckedSchoolTypes, getSchoolsGeojson, normalizeSchool } from "../../utils/schoolData";
 
 const SCHOOLS_GEOJSON = getSchoolsGeojson();
@@ -41,6 +42,8 @@ export default function SearchRadiusLayer(){
     //update radius geojson when user change 
     //marker location AND radius settings
     useEffect(() => {
+        let isCancelled = false;
+
         async function update(){
             try {
                 if( searchRadiusState.location.latitude !== 0 && searchRadiusState.location.longitude !== 0 ){
@@ -51,8 +54,14 @@ export default function SearchRadiusLayer(){
                         .filter((feature) => booleanPointInPolygon(feature, searchRadiusState.searchRadius))
                         .filter((feature) => checkedSchoolTypes.includes(feature.properties.school_type))
                         .map((feature) => normalizeSchool(feature.properties));
+                    const landUsesInRadius = await getLandUsesInRadius(searchRadiusState.searchRadius);
+
+                    if(isCancelled){
+                        return;
+                    }
 
                     dispatch(updateSchoolsInRadius(schoolsInRadius));
+                    dispatch(updateLandUsesInRadius(landUsesInRadius));
                 }                
             } catch (e) {
                 console.error(e);
@@ -60,6 +69,10 @@ export default function SearchRadiusLayer(){
         }
 
         update();
+
+        return () => {
+            isCancelled = true;
+        };
 
     }, [searchRadiusState.location, searchRadiusState.radius, searchRadiusState.schoolTypes] );  // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -14,6 +14,7 @@ import TransactionLayers from './transaction/TransactionLayers';
 import SMRT_ICON from '../resources/smrt-icon.svg'
 import SearchRadiusLayer from './layers/SearchRadiusLayer';
 import SchoolLayer from './layers/SchoolLayer';
+import LandUseLayer from './layers/LandUseLayer';
 import { TransactionPopup } from './transaction/TransactionPopup';
 
 // The following is required to stop mapbox-gl from throwing an error in some environments
@@ -186,6 +187,7 @@ export default function MapContainer(){
                     />
                     <TransactionLayers/>
                     <SearchRadiusLayer/>
+                    <LandUseLayer/>
                     <SchoolLayer/>
                     <MrtLayers/>
                     <TransactionLayers/>

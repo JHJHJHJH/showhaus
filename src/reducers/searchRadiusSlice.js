@@ -13,6 +13,7 @@ export const searchRadiusStateSlice = createSlice({
     searchRadius: {},
     mrtStations: [],
     schoolsInRadius: [],
+    landUsesInRadius: [],
     schoolTypes: DEFAULT_SCHOOL_TYPE_FILTERS,
     propertyTypes: []
   },
@@ -37,6 +38,9 @@ export const searchRadiusStateSlice = createSlice({
     },
     updateSchoolsInRadius: (state, action )=> {
       state.schoolsInRadius = action.payload;
+    },
+    updateLandUsesInRadius: (state, action )=> {
+      state.landUsesInRadius = action.payload;
     },
     updateSchoolTypes: (state, action )=> {
       state.schoolTypes = action.payload;
@@ -75,7 +79,7 @@ function toPascalCase(str) {
   return str.replace(/(\w)(\w*)/g, function(g0,g1,g2){return g1.toUpperCase() + g2.toLowerCase();});
 }
 // Action creators are generated for each case reducer function
-export const { updateLocation, updateRadius, updateMrtInRadius, updatePropertyTypes, updateSchoolsInRadius, updateSchoolTypes } = searchRadiusStateSlice.actions
+export const { updateLocation, updateRadius, updateMrtInRadius, updatePropertyTypes, updateSchoolsInRadius, updateLandUsesInRadius, updateSchoolTypes } = searchRadiusStateSlice.actions
 
 const searchRadiusStateReducer = searchRadiusStateSlice.reducer;
 export default searchRadiusStateReducer

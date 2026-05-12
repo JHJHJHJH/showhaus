@@ -5,6 +5,7 @@ import { updateRadius } from "../../reducers/searchRadiusSlice";
 import NearbyMrt from "./NearbyMrt";
 import NearbyProjects from "./NearbyProjects";
 import NearbySchools from "./NearbySchools";
+import NearbyLandUses from "./NearbyLandUses";
 import PropertyTypes from "./PropertyTypes";
 import SchoolTypes from "./SchoolTypes";
 import {
@@ -64,6 +65,7 @@ export default function MenuComponent(){
 
                     <NearbyMrt/>
                     <NearbySchools/>
+                    <NearbyLandUses/>
                     <NearbyProjects/>
                 </div>
             </ResizablePanel>
