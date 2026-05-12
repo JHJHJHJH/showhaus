@@ -15,6 +15,8 @@ import {
 } from "../ui/resizable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+
 export default function MenuComponent({ onCollapse }){
     const searchRadiusState = useSelector((state) => state.searchRadiusState );
     const dispatch = useDispatch();
@@ -27,14 +29,17 @@ export default function MenuComponent({ onCollapse }){
             maxSize="50vw"
         >
             <ResizableHandle />
-            <ResizablePanel className="overflow-y-auto">
-                <div className="p-4">
-                    <div className="mb-3 flex items-center justify-between">
-                        <div className="text-xl font-bold">Explore</div>
+            <ResizablePanel className="overflow-y-auto bg-slate-50/80 backdrop-blur-md">
+                <div className="p-6">
+                    <div className="mb-6 flex items-center justify-between">
+                        <div>
+                            <div className="text-2xl font-black tracking-tight text-slate-800">Explore</div>
+                            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Nearby Analysis</div>
+                        </div>
                         <div className="flex items-center gap-2">
                             <button
                                 type="button"
-                                className="rounded-full border border-slate-300 p-2 text-slate-600 transition hover:bg-slate-100"
+                                className="rounded-full border border-slate-200 bg-white p-2.5 text-slate-500 shadow-sm transition-all hover:bg-slate-50 hover:text-slate-900 hover:shadow-md"
                                 aria-label="Collapse nearby menu"
                                 title="Collapse nearby menu"
                                 onClick={onCollapse}
@@ -61,38 +66,57 @@ export default function MenuComponent({ onCollapse }){
                         </TabsList>
 
                         <TabsContent value="analysis">
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="flex items-center gap-2 text-base">
+                                        <span>📊</span>
+                                        <span>Analysis</span>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="py-4 text-center text-sm text-slate-500 italic">
+                                        Detailed area analysis and trends coming soon.
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </TabsContent>
 
-                        <TabsContent value="nearby" className="space-y-3">
+                        <TabsContent value="nearby" className="space-y-4">
                             <NearbyMrt/>
                             <NearbySchools/>
                             <NearbyProjects/>
                             <NearbyLandUses/>
                         </TabsContent>
 
-                        <TabsContent value="settings">
-                            <div className="space-y-4 rounded-md border border-slate-200 bg-white p-4">
-                                <div className="text-sm">
-                                    <label className="font-medium text-slate-700" htmlFor="radiusRange">Radius (km)</label>
-                                    <div className="mt-2 flex items-center gap-3">
-                                        <input
-                                            className="min-w-0 flex-1"
-                                            type="range"
-                                            min={0.1}
-                                            max={5}
-                                            step={0.1}
-                                            value={searchRadiusState.radius}
-                                            onChange={(e) => dispatch(updateRadius(e.target.value))}
-                                            id="radiusRange"
-                                        />
-                                        <span className="w-10 text-right text-sm font-semibold text-slate-700">
-                                            {searchRadiusState.radius}
-                                        </span>
+                        <TabsContent value="settings" className="space-y-3">
+                            <Card>
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="flex items-center gap-2 text-base">
+                                        <span>📏</span>
+                                        <span>Search Radius</span>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-sm">
+                                        <label className="font-medium text-slate-700" htmlFor="radiusRange">Radius: {searchRadiusState.radius} km</label>
+                                        <div className="mt-2 flex items-center gap-3">
+                                            <input
+                                                className="min-w-0 flex-1 accent-slate-700"
+                                                type="range"
+                                                min={0.1}
+                                                max={5}
+                                                step={0.1}
+                                                value={searchRadiusState.radius}
+                                                onChange={(e) => dispatch(updateRadius(e.target.value))}
+                                                id="radiusRange"
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                                <SchoolTypes/>
-                                <PropertyTypes/>
-                            </div>
+                                </CardContent>
+                            </Card>
+
+                            <SchoolTypes/>
+                            <PropertyTypes/>
                         </TabsContent>
                     </Tabs>
                 </div>

@@ -1,6 +1,6 @@
 import React from "react";
 import TransactionsTable from "./TransactionsTable";
-import { RiArrowUpSFill, RiCloseLine } from "react-icons/ri";
+import { RiCloseLine, RiTableLine } from "react-icons/ri";
 import {
   Drawer,
   DrawerClose,
@@ -15,19 +15,17 @@ export default function TransactionsDrawer() {
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <div className="pointer-events-none fixed bottom-4 right-4 z-30">
-        <DrawerTrigger asChild>
-          <button
-            aria-label="Open transactions drawer"
-            className="pointer-events-auto flex items-center gap-3 rounded-full border border-slate-200 bg-white/95 px-4 py-3 text-sm font-semibold text-slate-900 shadow-lg shadow-slate-900/10 backdrop-blur transition hover:bg-slate-50"
-          >
-            <span>Transactions</span>
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-700">
-              <RiArrowUpSFill className="h-6 w-6" />
-            </span>
-          </button>
-        </DrawerTrigger>
-      </div>
+      <DrawerTrigger asChild>
+        <button
+          aria-label="Open transactions drawer"
+          className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-md transition-all hover:bg-white hover:shadow-lg"
+        >
+          <span>Transactions Table</span>
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 text-slate-700">
+            <RiTableLine className="h-5 w-5" />
+          </span>
+        </button>
+      </DrawerTrigger>
 
       <DrawerContent className="h-[min(78vh,40rem)]">
         <DrawerHeader>
@@ -48,7 +46,7 @@ export default function TransactionsDrawer() {
         </DrawerHeader>
 
         <div className="min-h-0 flex-1 px-4 pb-4">
-          <div className="h-full overflow-auto rounded-2xl border border-slate-200 bg-white">
+          <div className="h-full overflow-auto rounded-xl border border-slate-200 bg-white shadow-inner">
             <TransactionsTable />
           </div>
         </div>

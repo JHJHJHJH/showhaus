@@ -7,7 +7,10 @@ function cx(...classes) {
 const Card = React.forwardRef(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cx("rounded-md border border-slate-200 bg-white text-slate-950 shadow-sm", className)}
+    className={cx(
+      "rounded-xl border border-slate-200 bg-slate-50/50 text-slate-950 shadow-md transition-shadow hover:shadow-lg",
+      className
+    )}
     {...props}
   />
 ));

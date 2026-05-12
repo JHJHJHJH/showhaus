@@ -1,6 +1,5 @@
 import { useState } from "react";
 import MapContainer from "../components/MapContainer";
-import TransactionsDrawer from "../components/TransactionsDrawer";
 import MenuComponent from "../components/menu/MenuComponent";
 import logo192 from '../resources/showhaus-banner-nobg.png'
 
@@ -20,7 +19,6 @@ export default function Home() {
             <div className="row-span-11 flex min-h-0 h-full gap-0 z-0">
                 <div className="min-w-0 flex-1 bg-blue-300">
                     <MapContainer onMapDoubleClick={() => setIsMenuVisible(true)}/>
-                    <TransactionsDrawer/>
                 </div>
                 {isMenuVisible ? (
                     <div className="h-full shrink-0 bg-white border-l border-slate-200">

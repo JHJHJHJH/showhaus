@@ -1,6 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { FiHome } from "react-icons/fi";
 
 function toPascalCase(value = ""){
     return value
@@ -36,20 +37,32 @@ export default function NearbyProjects(){
 
     return(
         <Card className="nearby-projects">
-            <CardHeader>
-                <CardTitle>🏢 Projects</CardTitle>
+            <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-base">
+                    <span>🏢</span>
+                    <span>Nearby Projects</span>
+                </CardTitle>
             </CardHeader>
             <CardContent>
-                {projects.map((project) => (
-                    <div className="py-1 text-sm" key={`${project.project}-${project.street || ""}`}>
-                        <div>
-                            {project.project}
-                            {project.street ? (
-                                <span className="ml-1 text-xs text-slate-500">{toPascalCase(project.street)}</span>
-                            ) : null}
-                        </div>
+                {projects.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                        {projects.map((project) => (
+                            <div className="flex items-start gap-2 py-1 text-sm text-slate-700" key={`${project.project}-${project.street || ""}`}>
+                                <FiHome className="mt-1 h-3 w-3 shrink-0 text-slate-400" />
+                                <div className="min-w-0 leading-tight">
+                                    <div className="truncate font-medium" title={project.project}>{project.project}</div>
+                                    {project.street ? (
+                                        <div className="truncate text-[10px] uppercase tracking-wider text-slate-400" title={toPascalCase(project.street)}>{toPascalCase(project.street)}</div>
+                                    ) : null}
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                ))}
+                ) : (
+                    <div className="py-2 text-center text-xs text-slate-500 italic">
+                        No projects found in radius
+                    </div>
+                )}
             </CardContent>
         </Card>
     );
