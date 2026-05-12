@@ -24,6 +24,7 @@ export function TransactionPopup() {
     const [streetName, setStreetName] = useState('');
     const [numOfTransactions, setNumOfTransactions] = useState('');
     const [locationId, setLocationId] = useState('');
+    const [latestTx, setLatestTx] = useState({});
     const [highestTx, setHighestTx]= useState({});
     const [percentile90Tx, setPercentile90Tx]= useState({});
     const [medianTx, setMedianTx]= useState({});
@@ -58,6 +59,7 @@ export function TransactionPopup() {
 
             const numOfTransactions = transactions.length;
             const distribution = transactionsDistribution(transactions);
+            setLatestTx(distribution["latestTransaction"]);
             setHighestTx(distribution["highestTransaction"]);
             setPercentile90Tx(distribution["percentile90Transaction"]);
             setLowestTx(distribution["lowestTransaction"]);
@@ -99,8 +101,13 @@ export function TransactionPopup() {
                     >
                         <RiCloseLine className="h-4 w-4" />
                     </button>
-                    <div className="pr-6 text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
-                        Transaction summary
+                    <div className="flex items-center justify-between pr-10">
+                        <div className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500">
+                            Transaction summary
+                        </div>
+                        <div className="text-[10px] font-medium text-slate-400">
+                            ID: {renderValue(locationId)}
+                        </div>
                     </div>
                     <div className="mt-1 pr-6 text-base font-semibold leading-snug">
                         {renderValue(projectName)}
@@ -121,10 +128,10 @@ export function TransactionPopup() {
                     </div>
                     <div>
                         <div className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
-                            Location
+                            Last Transacted
                         </div>
-                        <div className="mt-1 truncate text-sm font-medium text-slate-700">
-                            {renderValue(locationId)}
+                        <div className="mt-1 truncate text-sm font-semibold text-slate-900">
+                            {renderValue(latestTx.price)} <span className="text-xs font-normal text-slate-500">({renderValue(latestTx.contract_date)})</span>
                         </div>
                     </div>
                 </div>
