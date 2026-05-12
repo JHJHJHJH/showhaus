@@ -29,6 +29,11 @@ export default function MapContainer(){
     const dispatch = useDispatch();
     const map = React.useRef();
     const mapContainer = React.useRef();
+    const searchRadiusStateRef = React.useRef(searchRadiusState);
+
+    React.useEffect(() => {
+        searchRadiusStateRef.current = searchRadiusState;
+    }, [searchRadiusState]);
 
     React.useEffect(() => {
         if (!mapContainer.current) {
@@ -57,6 +62,40 @@ export default function MapContainer(){
         return b;
     }
 
+    const searchRadiusBounds = React.useCallback((lngLat, radiusInKm) => {
+        const latDelta = radiusInKm / 110.574;
+        const latRadians = lngLat.lat * Math.PI / 180;
+        const lngDelta = radiusInKm / (111.320 * Math.max(Math.cos(latRadians), 0.01));
+
+        return new LngLatBounds(
+            [lngLat.lng - lngDelta, lngLat.lat - latDelta],
+            [lngLat.lng + lngDelta, lngLat.lat + latDelta]
+        );
+    }, []);
+
+    const fitBoundsPadding = React.useCallback(() => {
+        const bounds = mapContainer.current?.getBoundingClientRect();
+        const shortestSide = Math.min(bounds?.width || 0, bounds?.height || 0);
+        const padding = Math.max(40, Math.min(96, Math.round(shortestSide * 0.12)));
+
+        return { top: padding, bottom: padding, left: padding, right: padding };
+    }, []);
+
+    const fitMapToSearchRadius = React.useCallback((location, radius, duration = 350) => {
+        if (!map.current || location.latitude === 0 || location.longitude === 0) {
+            return;
+        }
+
+        map.current.fitBounds(
+            searchRadiusBounds({ lng: location.longitude, lat: location.latitude }, radius),
+            { padding: fitBoundsPadding(), duration }
+        );
+    }, [fitBoundsPadding, searchRadiusBounds]);
+
+    React.useEffect(() => {
+        fitMapToSearchRadius(searchRadiusState.location, searchRadiusState.radius);
+    }, [fitMapToSearchRadius, searchRadiusState.location, searchRadiusState.radius]);
+
     const handleOnMove = (evt, map) => {        
         dispatch(updateViewState(evt.viewState)) ;
     }
@@ -70,6 +109,11 @@ export default function MapContainer(){
         var coordinates = event.lngLat;
         //console.log('Marker | Lng:', coordinates.lng, 'Lat:', coordinates.lat);
         dispatch(updateLocation({ "latitude": coordinates.lat, "longitude" : coordinates.lng })) ;
+        fitMapToSearchRadius(
+            { "latitude": coordinates.lat, "longitude" : coordinates.lng },
+            searchRadiusStateRef.current.radius,
+            700
+        );
     }
 
     const handleLoad = async (e) => {
@@ -118,6 +162,7 @@ export default function MapContainer(){
                     maxBounds={ maxBounds(mapViewState) }
                     onLoad={handleLoad}
                     onMoveEnd = { evt => handleOnMove(evt, map) }
+                    doubleClickZoom={false}
                 >
                     
                     {/* <DrawControl

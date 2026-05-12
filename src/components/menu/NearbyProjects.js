@@ -1,6 +1,15 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
+function toPascalCase(value = ""){
+    return value
+        .toLowerCase()
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+}
+
 export default function NearbyProjects(){
     const transactions = useSelector((state) => state.transactionState.transactions || []);
 
@@ -32,7 +41,9 @@ export default function NearbyProjects(){
                 <div className="m-1.5 text-sm" key={`${project.project}-${project.street || ""}`}>
                     <div>
                         {project.project}
-                        {project.street ? ` | ${project.street}` : ""}
+                        {project.street ? (
+                            <span className="ml-1 text-xs text-slate-500">{toPascalCase(project.street)}</span>
+                        ) : null}
                     </div>
                 </div>
             ))}
