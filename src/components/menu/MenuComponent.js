@@ -20,7 +20,7 @@ export default function MenuComponent(){
     return (
         <ResizablePanelGroup
             className="z-20"
-            defaultSize={360}
+            defaultSize="40vw"
             minSize={280}
             maxSize="50vw"
         >
