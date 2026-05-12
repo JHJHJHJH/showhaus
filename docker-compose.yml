@@ -47,8 +47,10 @@ services:
     ports:
       - "5050:80"
     depends_on:
-      db:
+      postgres_db:
         condition: service_healthy
+    networks:
+      - webnet
   postgres_db:
     container_name: postgres_db
     image: postgis/postgis:17-3.5-alpine
