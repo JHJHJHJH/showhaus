@@ -38,7 +38,13 @@ const ResizablePanelGroup = React.forwardRef(
     },
     ref
   ) => {
-    const [size, setSize] = React.useState(defaultSize);
+    const [size, setSize] = React.useState(() => {
+      if (typeof window === "undefined") {
+        return defaultSize;
+      }
+
+      return resolveSize(defaultSize, window.innerWidth);
+    });
     const groupRef = React.useRef(null);
 
     React.useImperativeHandle(ref, () => groupRef.current);

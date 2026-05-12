@@ -30,10 +30,10 @@ export default function NearbyProjects(){
 
             {projects.map((project) => (
                 <div className="m-1.5 text-sm" key={`${project.project}-${project.street || ""}`}>
-                    <div>{project.project}</div>
-                    {project.street ? (
-                        <div className="text-xs text-slate-500">{project.street}</div>
-                    ) : null}
+                    <div>
+                        {project.project}
+                        {project.street ? ` | ${project.street}` : ""}
+                    </div>
                 </div>
             ))}
         </div>
