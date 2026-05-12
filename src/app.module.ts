@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { LanduseScraperModule } from './landuse-scraper/landuse-scraper.module';
 import { UraScraperModule } from './ura-scraper/ura-scraper.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import config from './config/configuration';
@@ -33,6 +34,7 @@ import { LoggerMiddleware } from './middlewares/logger.middleware';
       },
     }),
     ScheduleModule.forRoot(),
+    LanduseScraperModule,
     UraScraperModule,
   ],
   controllers: [AppController],
