@@ -1,6 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { formatLandUseType, getLandUseTypeColor, LAND_USE_TYPE_ORDER } from "../../utils/landUseData";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 export default function NearbyLandUses(){
     const landUsesInRadius = useSelector((state) => state.searchRadiusState.landUsesInRadius);
@@ -36,23 +37,26 @@ export default function NearbyLandUses(){
     });
 
     return(
-        <div className="my-4 nearby-land-uses">
-            <label className="font-bold">🗺️ Land Use</label>
-
-            {landUseGroups.map((landUse) => (
-                <div className="m-1.5 flex items-start gap-2 text-sm" key={landUse.land_use_type}>
-                    <span
-                        className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: getLandUseTypeColor(landUse.land_use_type) }}
-                        title={formatLandUseType(landUse.land_use_type)}
-                        aria-label={formatLandUseType(landUse.land_use_type)}
-                    />
-                    <div>
-                        {formatLandUseType(landUse.land_use_type)}
-                        <span className="ml-1 text-xs text-slate-500">{landUse.count}</span>
+        <Card className="nearby-land-uses">
+            <CardHeader>
+                <CardTitle>🗺️ Land Use</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-x-3 gap-y-2">
+                {landUseGroups.map((landUse) => (
+                    <div className="flex min-w-0 items-start gap-2 text-sm" key={landUse.land_use_type}>
+                        <span
+                            className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"
+                            style={{ backgroundColor: getLandUseTypeColor(landUse.land_use_type) }}
+                            title={formatLandUseType(landUse.land_use_type)}
+                            aria-label={formatLandUseType(landUse.land_use_type)}
+                        />
+                        <div className="min-w-0">
+                            <span className="break-words">{formatLandUseType(landUse.land_use_type)}</span>
+                            <span className="ml-1 text-xs text-slate-500">{landUse.count}</span>
+                        </div>
                     </div>
-                </div>
-            ))}
-        </div>
+                ))}
+            </CardContent>
+        </Card>
     );
 }

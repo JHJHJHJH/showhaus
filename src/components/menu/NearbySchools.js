@@ -1,6 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { formatSchoolType, getSchoolKey, getSchoolTypeColor, SCHOOL_TYPE_ORDER } from "../../utils/schoolData";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 export default function NearbySchools(){
     const schoolsInRadius = useSelector((state) => state.searchRadiusState.schoolsInRadius);
@@ -25,20 +26,23 @@ export default function NearbySchools(){
     });
 
     return(
-        <div className="my-4 nearby-schools">
-            <label className="font-bold">🏫 Schools</label>
-
-            {sortedSchools.map((school) => (
-                <div className="m-1.5 flex items-start gap-2 text-sm" key={getSchoolKey(school)}>
-                    <span
-                        className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: getSchoolTypeColor(school.school_type) }}
-                        title={formatSchoolType(school.school_type)}
-                        aria-label={formatSchoolType(school.school_type)}
-                    />
-                    <div>{school.name}</div>
-                </div>
-            ))}
-        </div>
+        <Card className="nearby-schools">
+            <CardHeader>
+                <CardTitle>🏫 Schools</CardTitle>
+            </CardHeader>
+            <CardContent>
+                {sortedSchools.map((school) => (
+                    <div className="flex items-start gap-2 py-1 text-sm" key={getSchoolKey(school)}>
+                        <span
+                            className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"
+                            style={{ backgroundColor: getSchoolTypeColor(school.school_type) }}
+                            title={formatSchoolType(school.school_type)}
+                            aria-label={formatSchoolType(school.school_type)}
+                        />
+                        <div>{school.name}</div>
+                    </div>
+                ))}
+            </CardContent>
+        </Card>
     );
 }

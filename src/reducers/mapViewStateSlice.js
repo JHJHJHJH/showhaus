@@ -3,14 +3,14 @@ import { createSlice } from '@reduxjs/toolkit'
 export const mapViewStateSlice = createSlice({
   name: 'mapViewState',
   initialState: {
-    longitude: 103.81,
-    latitude:  1.3513 ,
-    zoom: 10.77,
+    longitude: 103.8198,
+    latitude:  1.343 ,
+    zoom: 10.5,
     maxBounds : { 
         minLon: 103.57,
         minLat: 1.193904,
-        maxLon: 104.05,
-        maxLat: 1.474612 
+        maxLon: 104.1,
+        maxLat: 1.4749 
     },
     status: 'idle',
     error : null 

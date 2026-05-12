@@ -23,7 +23,7 @@ import { TransactionPopup } from './transaction/TransactionPopup';
 // eslint-disable-next-line import/no-webpack-loader-syntax
 mapboxgl.workerClass = require('worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker').default;
 
-export default function MapContainer(){
+export default function MapContainer({ onMapDoubleClick }){
     const searchRadiusState = useSelector((state) => state.searchRadiusState );
     const mapViewState = useSelector((state) => state.mapViewState );
 
@@ -31,10 +31,15 @@ export default function MapContainer(){
     const map = React.useRef();
     const mapContainer = React.useRef();
     const searchRadiusStateRef = React.useRef(searchRadiusState);
+    const onMapDoubleClickRef = React.useRef(onMapDoubleClick);
 
     React.useEffect(() => {
         searchRadiusStateRef.current = searchRadiusState;
     }, [searchRadiusState]);
+
+    React.useEffect(() => {
+        onMapDoubleClickRef.current = onMapDoubleClick;
+    }, [onMapDoubleClick]);
 
     React.useEffect(() => {
         if (!mapContainer.current) {
@@ -93,8 +98,12 @@ export default function MapContainer(){
         );
     }, [fitBoundsPadding, searchRadiusBounds]);
 
+    const nextAnimationDurationRef = React.useRef(null);
+
     React.useEffect(() => {
-        fitMapToSearchRadius(searchRadiusState.location, searchRadiusState.radius);
+        const duration = nextAnimationDurationRef.current ?? 350;
+        fitMapToSearchRadius(searchRadiusState.location, searchRadiusState.radius, duration);
+        nextAnimationDurationRef.current = null;
     }, [fitMapToSearchRadius, searchRadiusState.location, searchRadiusState.radius]);
 
     const handleOnMove = (evt, map) => {        
@@ -109,12 +118,9 @@ export default function MapContainer(){
     function add_marker (event) {
         var coordinates = event.lngLat;
         //console.log('Marker | Lng:', coordinates.lng, 'Lat:', coordinates.lat);
+        onMapDoubleClickRef.current?.();
+        nextAnimationDurationRef.current = 3000;
         dispatch(updateLocation({ "latitude": coordinates.lat, "longitude" : coordinates.lng })) ;
-        fitMapToSearchRadius(
-            { "latitude": coordinates.lat, "longitude" : coordinates.lng },
-            searchRadiusStateRef.current.radius,
-            700
-        );
     }
 
     const handleLoad = async (e) => {
@@ -177,7 +183,6 @@ export default function MapContainer(){
 
                     {/* PRICE POPUP  */}
                     <TransactionPopup/>
-                    
                     {/* TRANSACTION MARKER */}
                     <Marker longitude={ searchRadiusState.location.longitude } 
                             latitude={ searchRadiusState.location.latitude }/>
@@ -185,11 +190,11 @@ export default function MapContainer(){
                         mapboxAccessToken={process.env.REACT_APP_MAPBOX_API_KEY} 
                         position="top-left"
                     />
-                    <TransactionLayers/>
-                    <SearchRadiusLayer/>
+                    
                     <LandUseLayer/>
-                    <SchoolLayer/>
+                    <SearchRadiusLayer/>
                     <MrtLayers/>
+                    <SchoolLayer/>
                     <TransactionLayers/>
                     {/* <MarkerLayer/> */}
                     <NavigationControl/>

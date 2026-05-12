@@ -1,5 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 function toPascalCase(value = ""){
     return value
@@ -34,19 +35,22 @@ export default function NearbyProjects(){
     ));
 
     return(
-        <div className="my-4 nearby-projects">
-            <label className="font-bold">🏢 Projects</label>
-
-            {projects.map((project) => (
-                <div className="m-1.5 text-sm" key={`${project.project}-${project.street || ""}`}>
-                    <div>
-                        {project.project}
-                        {project.street ? (
-                            <span className="ml-1 text-xs text-slate-500">{toPascalCase(project.street)}</span>
-                        ) : null}
+        <Card className="nearby-projects">
+            <CardHeader>
+                <CardTitle>🏢 Projects</CardTitle>
+            </CardHeader>
+            <CardContent>
+                {projects.map((project) => (
+                    <div className="py-1 text-sm" key={`${project.project}-${project.street || ""}`}>
+                        <div>
+                            {project.project}
+                            {project.street ? (
+                                <span className="ml-1 text-xs text-slate-500">{toPascalCase(project.street)}</span>
+                            ) : null}
+                        </div>
                     </div>
-                </div>
-            ))}
-        </div>
+                ))}
+            </CardContent>
+        </Card>
     );
 }

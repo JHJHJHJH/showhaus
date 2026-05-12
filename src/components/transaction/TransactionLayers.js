@@ -45,28 +45,28 @@ export default function TransactionLayers(){
         paint: {
             // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
             // with three steps to implement three types of circles:
-            //   * Blue, 20px circles when point count is less than 100
-            //   * Yellow, 30px circles when point count is between 100 and 750
-            //   * Pink, 40px circles when point count is greater than or equal to 750
+            //   * Blue, 12px circles when transaction count is less than 70
+            //   * Yellow, 22px circles when transaction count is between 70 and 400
+            //   * Pink, 32px circles when transaction count is greater than or equal to 400
             'circle-color': [
                 'step',
                 ['get', 'noOfTransactions'],
                 '#51bbd6',
                 70,
                 '#f1f075',
-                400,
+                350,
                 '#f28cb1'
             ],
             'circle-radius': [
                 'step',
                 ['get', 'noOfTransactions'],
-                20,
+                15,
                 70,
-                30,
+                24,
                 400,
-                40
+                35
             ],
-            'circle-opacity': 0.7
+            'circle-opacity': 0.9
         }
     };
     // const gridlayer = new GridLayer({
@@ -286,7 +286,7 @@ export default function TransactionLayers(){
             data={transactionsFoundGeojson}
             cluster={true}
             clusterRadius={80}
-            clusterMaxZoom={13}
+            clusterMaxZoom={14}
         >
             {/* <Layer {...foundTransactionsStyle} /> */}
             <Layer {...clusterTextStyle}  />

@@ -4,12 +4,12 @@ import { DEFAULT_SCHOOL_TYPE_FILTERS } from '../utils/schoolData';
 export const searchRadiusStateSlice = createSlice({
   name: 'searchRadiusState',
   initialState: {
-    radius: 0.4,
+    radius: 0.2,
     location: {
         "longitude" : 0,
         "latitude" : 0
     },
-    opacity: 0.15,
+    opacity: 0.1,
     searchRadius: {},
     mrtStations: [],
     schoolsInRadius: [],
