@@ -1,6 +1,6 @@
 import { Logger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { LocationEntity } from './location.entity';
 import { ILocation } from './location.interface';
 

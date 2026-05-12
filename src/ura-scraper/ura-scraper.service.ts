@@ -90,9 +90,8 @@ export class UraScraperService {
         //console.log(converted_location);
 
         //if does not exist, create location
-        const location_db = await this.locationService.findLocationByParam(
-          converted_location,
-        );
+        const location_db =
+          await this.locationService.findLocationByParam(converted_location);
         //if location exists
         if (location_db.length > 0) {
           // this.logger.log(
@@ -110,8 +109,7 @@ export class UraScraperService {
             //if exist
             if (transaction_db.length === 0) {
               transaction.locationId = location_db[0].id;
-              const new_transaction =
-                await this.transactionService.createTransaction(transaction);
+              await this.transactionService.createTransaction(transaction);
 
               //Add count for logging
               newTransactionsCount += 1;
@@ -120,9 +118,8 @@ export class UraScraperService {
         } else {
           //this.logger.log('no location el found in db');
           this.logger.log(converted_location.project);
-          const location_db = await this.locationService.createLocation(
-            converted_location,
-          );
+          const location_db =
+            await this.locationService.createLocation(converted_location);
 
           //Add count for logging
           newLocationsCount += 1;
@@ -143,7 +140,8 @@ export class UraScraperService {
           AccessKey: key,
         },
       };
-      const url = 'https://eservice.ura.gov.sg/uraDataService/insertNewToken/v1';
+      const url =
+        'https://eservice.ura.gov.sg/uraDataService/insertNewToken/v1';
 
       const response = await firstValueFrom(this.httpService.get(url, config));
 

@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { Geometry, Point, Position } from 'geojson';
+import { Point } from 'geojson';
 import { TransactionEntity } from '../transaction/transaction.entity';
 import { Expose, Transform, Type } from 'class-transformer';
 import * as proj4 from 'proj4';

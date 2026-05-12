@@ -3,7 +3,6 @@ import {
   Body,
   Post,
   Get,
-  Param,
   Query,
   UseInterceptors,
 } from '@nestjs/common';
@@ -12,7 +11,6 @@ import { ResponseMessage } from '../decorators/message.decorator';
 import { TransformInterceptor } from '../interceptors/transform.interceptor';
 import { LOCATION_POST, LOCATIONS_GET } from '../constants/response.constants';
 import { CreateLocationDto } from './dtos/create-location.dto';
-import { GetLocationBoundingBoxDto } from './dtos/get-location-boundingbox.dto';
 import { LocationEntity } from './location.entity';
 import { LocationService } from './location.service';
 @Controller('location')

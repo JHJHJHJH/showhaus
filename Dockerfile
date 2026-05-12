@@ -1,31 +1,31 @@
-FROM node:18-alpine As development
+FROM node:20-alpine As development
 
 WORKDIR /usr/src/app/backend
 
-COPY package*.json ./
+COPY package.json yarn.lock ./
 
-RUN npm install --only=development
+RUN yarn install
 
 COPY . .
 
 # Expose port to access server
 EXPOSE 8080
 
-RUN npm run build
+RUN yarn build
 
-FROM node:18-alpine As production
+FROM node:20-alpine As production
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
 WORKDIR /usr/src/app/backend
 
-COPY package*.json ./
+COPY package.json yarn.lock ./
 
-RUN npm install --only=production
+RUN yarn install --production --frozen-lockfile
 
 COPY . .
 
 COPY --from=development /usr/src/app/backend/dist ./dist
 
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]

@@ -1,6 +1,5 @@
 import { Logger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LocationEntity } from 'src/location/location.entity';
 import { Repository } from 'typeorm';
 import { TransactionEntity } from './transaction.entity';
 import { ITransaction } from './transaction.interface';

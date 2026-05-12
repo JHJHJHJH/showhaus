@@ -4,10 +4,9 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Unique,
 } from 'typeorm';
 import { LocationEntity } from '../location/location.entity';
-import { Type, Exclude, Expose, Transform } from 'class-transformer';
+import { Transform } from 'class-transformer';
 
 @Entity({ name: 'transaction' })
 export class TransactionEntity {
@@ -73,8 +72,4 @@ const parseTypeOfSale = (val: string): string => {
   } else {
     return '';
   }
-};
-
-const parseDistrict = (val: string): string => {
-  return '';
 };

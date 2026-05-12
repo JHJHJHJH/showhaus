@@ -16,9 +16,10 @@ export interface Response<T> {
   error: string;
 }
 @Injectable()
-export class TransformInterceptor<T>
-  implements NestInterceptor<T, Response<T>>
-{
+export class TransformInterceptor<T> implements NestInterceptor<
+  T,
+  Response<T>
+> {
   constructor(private reflector: Reflector) {}
 
   intercept(
