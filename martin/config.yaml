@@ -1,0 +1,24 @@
+listen_addresses: 0.0.0.0:3333
+postgres:
+  connection_string: ${MARTIN_DATABASE_URL}
+  auto_publish: false
+  default_srid: 4326
+  tables:
+    landuse:
+      layer_id: landuse
+      schema: public
+      table: landuse_active_feature
+      srid: 4326
+      geometry_column: geometry
+      id_column: id
+      geometry_type: GEOMETRY
+      properties:
+        id: int4
+        object_id: text
+        lu_desc: text
+        gpr: text
+        inc_crc: text
+        fmel_upd_d_raw: text
+        shape_area: float8
+        shape_len: float8
+        upstream_last_updated_at: timestamp

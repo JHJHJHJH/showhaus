@@ -64,6 +64,7 @@ export class LanduseFeatureEntity {
   @Column({
     name: 'geometry',
     type: 'geometry',
+    spatialFeatureType: 'Geometry',
     srid: 4326,
   })
   geometry: Geometry;

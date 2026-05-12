@@ -14,9 +14,28 @@ services:
       - .env
     environment:
       POSTGRES_HOST: postgres_db
+      MARTIN_BASE_URL: http://martin:3333
     networks:
       - webnet
     depends_on:
+      postgres_db:
+        condition: service_healthy
+    martin:
+    container_name: martin
+    image: ghcr.io/maplibre/martin:1.9.0
+    command: ['--config', '/config.yaml', '--webui', 'enable-for-all']
+    restart: unless-stopped
+    ports:
+      - 3333:3333
+    volumes:
+      - ./martin/config.yaml:/config.yaml:ro
+    environment:
+      MARTIN_DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:${POSTGRES_PORT:-5432}/${POSTGRES_DB}
+    networks:
+      - webnet
+    depends_on:
+      main:
+        condition: service_started
       postgres_db:
         condition: service_healthy
   postgres_db:
