@@ -15,20 +15,16 @@ export default function TransactionsDrawer() {
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-3">
+      <div className="pointer-events-none fixed bottom-4 right-4 z-30">
         <DrawerTrigger asChild>
-          <button className="pointer-events-auto flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white/95 px-4 py-3 text-left shadow-lg shadow-slate-900/10 backdrop-blur">
-            <div>
-              <div className="text-sm font-medium uppercase tracking-[0.2em] text-slate-500">
-                Data
-              </div>
-              <div className="text-lg font-semibold text-slate-900">
-                Transactions
-              </div>
-            </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700">
+          <button
+            aria-label="Open transactions drawer"
+            className="pointer-events-auto flex items-center gap-3 rounded-full border border-slate-200 bg-white/95 px-4 py-3 text-sm font-semibold text-slate-900 shadow-lg shadow-slate-900/10 backdrop-blur transition hover:bg-slate-50"
+          >
+            <span>Transactions</span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-700">
               <RiArrowUpSFill className="h-6 w-6" />
-            </div>
+            </span>
           </button>
         </DrawerTrigger>
       </div>

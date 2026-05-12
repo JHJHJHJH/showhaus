@@ -196,6 +196,9 @@ export default function MapContainer(){
                 {/* <ControlPanel/> */}
 
             </MapProvider>
+            <div className="pointer-events-none absolute bottom-5 left-1/2 z-20 -translate-x-1/2 rounded-full border border-slate-200 bg-white/95 px-4 py-2 text-center text-xs font-semibold text-slate-800 shadow-lg shadow-slate-900/10 backdrop-blur sm:text-sm">
+                📍 Dbl-click on the map to explore!
+            </div>
         </div>
 
     );
