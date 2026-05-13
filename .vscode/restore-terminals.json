@@ -1,0 +1,30 @@
+{
+  "artificialDelayMilliseconds": 700,
+  "keepExistingTerminalsOpen": false,
+  "runOnStartup": true,
+  "terminals": [
+    {
+      "splitTerminals": [
+        {
+          "name": "codex",
+          "commands": ["codex"]
+        },
+        {
+          "name": "gemini",
+          "commands": ["gemini"]
+        }
+      ]
+    },
+    {
+      "splitTerminals": [
+        {
+          "name": "app",
+          "commands": [
+            "yarn start"
+          ],
+          "shouldRunCommands": true
+        }
+      ]
+    }
+  ]
+}
