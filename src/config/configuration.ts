@@ -1,5 +1,5 @@
 export default () => ({
-  POSTGRES_PORT: parseInt(process.env.POSTGRES_PORT) || 5432,
+  POSTGRES_PORT: parseInt(process.env.POSTGRES_PORT) || 5433,
   POSTGRES_HOST: process.env.POSTGRES_HOST,
   POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD,
   POSTGRES_USER: process.env.POSTGRES_USER,
@@ -7,7 +7,7 @@ export default () => ({
   MARTIN_BASE_URL: process.env.MARTIN_BASE_URL || 'http://localhost:3333',
   MARTIN_DATABASE_URL:
     process.env.MARTIN_DATABASE_URL ||
-    `postgresql://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT || 5432}/${process.env.POSTGRES_DB}`,
+    `postgresql://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT || 5433}/${process.env.POSTGRES_DB}`,
   URA_API_KEY: process.env.URA_API_KEY,
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,

@@ -6,12 +6,16 @@
     {
       "splitTerminals": [
         {
-          "name": "codex",
-          "commands": ["codex"]
-        },
-        {
           "name": "gemini",
           "commands": ["gemini"]
+        }
+      ]
+    },
+        {
+      "splitTerminals": [
+        {
+          "name": "codex",
+          "commands": ["codex"]
         }
       ]
     },
@@ -20,7 +24,8 @@
         {
           "name": "docker ",
           "commands": [
-            "docker compose up"
+            "docker compose up -d",
+            "docker compose logs -f main"
           ],
           "shouldRunCommands": true
         }
