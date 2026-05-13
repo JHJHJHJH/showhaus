@@ -10,6 +10,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.useGlobalPipes(pipe);
   const whitelist = [
+    'http://localhost:3210',
     'http://localhost:3000',
     'https://www.showhouse.app',
     'https://www.showhouse.app/',
