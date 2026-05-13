@@ -3,12 +3,16 @@
   "keepExistingTerminalsOpen": false,
   "runOnStartup": true,
   "terminals": [
-    {
+      {
       "splitTerminals": [
         {
           "name": "codex",
           "commands": ["codex"]
-        },
+        }
+      ]
+    },
+    {
+      "splitTerminals": [
         {
           "name": "gemini",
           "commands": ["gemini"]
