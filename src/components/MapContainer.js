@@ -92,6 +92,9 @@ export default function MapContainer({ onMapDoubleClick }){
             return;
         }
 
+        // Force a resize to ensure the map knows its new dimensions (e.g. after menu opens)
+        map.current.resize();
+
         map.current.fitBounds(
             searchRadiusBounds({ lng: location.longitude, lat: location.latitude }, radius),
             { padding: fitBoundsPadding(), duration }
@@ -204,7 +207,7 @@ export default function MapContainer({ onMapDoubleClick }){
 
             </MapProvider>
             <div className="pointer-events-none absolute bottom-5 left-1/2 z-20 -translate-x-1/2 rounded-full border border-slate-200 bg-white/95 px-4 py-2 text-center text-xs font-semibold text-slate-800 shadow-lg shadow-slate-900/10 backdrop-blur sm:text-sm">
-                📍 Dbl-click on the map to explore!
+                📍 Dbl-click on a parcel to explore!
             </div>
         </div>
 

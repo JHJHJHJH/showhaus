@@ -1,4 +1,4 @@
-import { booleanIntersects } from '@turf/turf';
+import { booleanIntersects, booleanPointInPolygon, point } from '@turf/turf';
 import masterPlanLandUse from '../resources/MasterPlan2025LandUseLayer.geojson';
 
 export const LAND_USE_TYPE_ORDER = [
@@ -93,7 +93,8 @@ export function normalizeLandUse(landUse){
         land_use_key: String(landUse.OBJECTID),
         land_use_type: landUse.LU_DESC || 'UNKNOWN',
         land_use_text: landUse.LU_TEXT,
-        gpr: landUse.GPR
+        gpr: landUse.GPR,
+        area: landUse['SHAPE.AREA']
     };
 }
 
@@ -109,6 +110,21 @@ export async function getLandUsesInRadius(searchRadius){
         .filter((indexedFeature) => bboxIntersects(indexedFeature.bbox, searchBbox))
         .filter((indexedFeature) => booleanIntersects(indexedFeature.feature, searchRadius))
         .map((indexedFeature) => indexedFeature.feature.properties);
+}
+
+export async function getLandUseAtLocation(location){
+    if(!location || location.latitude === 0 || location.longitude === 0){
+        return null;
+    }
+
+    const landUseData = await loadLandUseData();
+    const selectedPoint = point([location.longitude, location.latitude]);
+
+    const selectedFeature = landUseData.index
+        .filter((indexedFeature) => bboxContainsPoint(indexedFeature.bbox, selectedPoint.geometry.coordinates))
+        .find((indexedFeature) => booleanPointInPolygon(selectedPoint, indexedFeature.feature));
+
+    return selectedFeature?.feature.properties || null;
 }
 
 export async function getLandUseGeojsonForKeys(landUseKeys){
@@ -190,6 +206,11 @@ function walkCoordinates(coordinates, bbox){
 
 function bboxIntersects(a, b){
     return a[0] <= b[2] && a[2] >= b[0] && a[1] <= b[3] && a[3] >= b[1];
+}
+
+function bboxContainsPoint(bbox, coordinates){
+    const [longitude, latitude] = coordinates;
+    return longitude >= bbox[0] && longitude <= bbox[2] && latitude >= bbox[1] && latitude <= bbox[3];
 }
 
 function toTitleCase(str) {

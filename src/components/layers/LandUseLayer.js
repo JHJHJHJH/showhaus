@@ -1,7 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Source, Layer } from "react-map-gl";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Source, Layer, useMap } from "react-map-gl";
 import { useSelector } from "react-redux";
 import { getLandUseGeojsonForKeys, getLandUseKey, getLandUseTypeColor } from "../../utils/landUseData";
+
+const LAND_USE_SOURCE_ID = 'master-plan-2025-land-use-source';
+const LAND_USE_FILL_LAYER_ID = 'master-plan-2025-land-use-fill';
+const LAND_USE_HIGHLIGHT_FILL_LAYER_ID = 'master-plan-2025-land-use-highlight-fill';
+const LAND_USE_HIGHLIGHT_LINE_LAYER_ID = 'master-plan-2025-land-use-highlight-line';
 
 const EMPTY_GEOJSON = {
     type: 'FeatureCollection',
@@ -9,9 +14,12 @@ const EMPTY_GEOJSON = {
 };
 
 export default function LandUseLayer(){
+    const { current: map } = useMap();
     const landUsesInRadius = useSelector((state) => state.searchRadiusState.landUsesInRadius);
 
     const [landUsesInRadiusGeojson, setLandUsesInRadiusGeojson] = useState(EMPTY_GEOJSON);
+    const [hoveredLandUseKey, setHoveredLandUseKey] = useState(null);
+    const hoveredLandUseKeyRef = useRef(null);
 
     const landUseKeys = useMemo(() => (
         landUsesInRadius.map((landUse) => getLandUseKey(landUse))
@@ -39,8 +47,46 @@ export default function LandUseLayer(){
         };
     }, [landUseKeys]);
 
+    useEffect(() => {
+        hoveredLandUseKeyRef.current = hoveredLandUseKey;
+    }, [hoveredLandUseKey]);
+
+    useEffect(() => {
+        if(!map){
+            return undefined;
+        }
+
+        const handleHover = (event) => {
+            const nextHoveredLandUseKey = event.features?.[0]?.properties?.land_use_key || null;
+
+            if(nextHoveredLandUseKey !== hoveredLandUseKeyRef.current){
+                setHoveredLandUseKey(nextHoveredLandUseKey);
+            }
+        };
+
+        const handleMouseEnter = () => {
+            map.getCanvas().style.cursor = 'pointer';
+        };
+
+        const handleMouseLeave = () => {
+            map.getCanvas().style.cursor = '';
+            setHoveredLandUseKey(null);
+        };
+
+        map.on('mouseenter', LAND_USE_FILL_LAYER_ID, handleMouseEnter);
+        map.on('mousemove', LAND_USE_FILL_LAYER_ID, handleHover);
+        map.on('mouseleave', LAND_USE_FILL_LAYER_ID, handleMouseLeave);
+
+        return () => {
+            map.off('mouseenter', LAND_USE_FILL_LAYER_ID, handleMouseEnter);
+            map.off('mousemove', LAND_USE_FILL_LAYER_ID, handleHover);
+            map.off('mouseleave', LAND_USE_FILL_LAYER_ID, handleMouseLeave);
+            map.getCanvas().style.cursor = '';
+        };
+    }, [map]);
+
     const landUseFillStyle = {
-        id: 'master-plan-2025-land-use-fill',
+        id: LAND_USE_FILL_LAYER_ID,
         type: 'fill',
         paint: {
             'fill-color': [
@@ -95,6 +141,31 @@ export default function LandUseLayer(){
         }
     };
 
+    const landUseHighlightFilter = hoveredLandUseKey
+        ? ['==', ['get', 'land_use_key'], hoveredLandUseKey]
+        : ['==', ['get', 'land_use_key'], ''];
+
+    const landUseHighlightFillStyle = {
+        id: LAND_USE_HIGHLIGHT_FILL_LAYER_ID,
+        type: 'fill',
+        filter: landUseHighlightFilter,
+        paint: {
+            'fill-color': '#F8FAFC',
+            'fill-opacity': ['interpolate', ['linear'], ['zoom'], 10, 0.28, 15, 0.45]
+        }
+    };
+
+    const landUseHighlightLineStyle = {
+        id: LAND_USE_HIGHLIGHT_LINE_LAYER_ID,
+        type: 'line',
+        filter: landUseHighlightFilter,
+        paint: {
+            'line-color': '#0F172A',
+            'line-opacity': 0.3,
+            'line-width': ['interpolate', ['linear'], ['zoom'], 10, 1.2, 16, 2.5]
+        }
+    };
+
     const landUseLabelStyle = {
         id: 'master-plan-2025-land-use-label',
         type: 'symbol',
@@ -112,9 +183,11 @@ export default function LandUseLayer(){
     };
 
     return(
-        <Source id="master-plan-2025-land-use-source" type="geojson" data={landUsesInRadiusGeojson}>
+        <Source id={LAND_USE_SOURCE_ID} type="geojson" data={landUsesInRadiusGeojson}>
             <Layer {...landUseFillStyle} />
             <Layer {...landUseLineStyle} />
+            <Layer {...landUseHighlightFillStyle} />
+            <Layer {...landUseHighlightLineStyle} />
             <Layer {...landUseLabelStyle} />
         </Source>
     );

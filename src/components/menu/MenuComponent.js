@@ -8,14 +8,13 @@ import NearbySchools from "./NearbySchools";
 import NearbyLandUses from "./NearbyLandUses";
 import PropertyTypes from "./PropertyTypes";
 import SchoolTypes from "./SchoolTypes";
+import AnalysisPanel from "./AnalysisPanel";
 import {
     ResizableHandle,
     ResizablePanel,
     ResizablePanelGroup,
 } from "../ui/resizable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 export default function MenuComponent({ onCollapse }){
     const searchRadiusState = useSelector((state) => state.searchRadiusState );
@@ -24,19 +23,35 @@ export default function MenuComponent({ onCollapse }){
     return (
         <ResizablePanelGroup
             className="z-20"
-            defaultSize="35vw"
+            defaultSize="50vw"
             minSize={280}
-            maxSize="50vw"
+            maxSize="65vw"
         >
             <ResizableHandle />
             <ResizablePanel className="overflow-y-auto bg-slate-50/80 backdrop-blur-md">
                 <div className="p-6">
-                    <div className="mb-6 flex items-center justify-between">
+                    <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
                         <div>
                             <div className="text-2xl font-black tracking-tight text-slate-800">Explore</div>
                             <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Nearby Analysis</div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-1 items-center justify-end gap-2">
+                            <div className="min-w-[140px] max-w-[190px] flex-1 text-sm">
+                                <label className="flex items-center justify-between gap-3 font-medium text-slate-700" htmlFor="radiusRange">
+                                    <span>Radius</span>
+                                    <span className="font-mono text-slate-900">{searchRadiusState.radius} km</span>
+                                </label>
+                                <input
+                                    className="mt-1 w-full accent-slate-700"
+                                    type="range"
+                                    min={0.1}
+                                    max={5}
+                                    step={0.1}
+                                    value={searchRadiusState.radius}
+                                    onChange={(e) => dispatch(updateRadius(e.target.value))}
+                                    id="radiusRange"
+                                />
+                            </div>
                             <button
                                 type="button"
                                 className="rounded-full border border-slate-200 bg-white p-2.5 text-slate-500 shadow-sm transition-all hover:bg-slate-50 hover:text-slate-900 hover:shadow-md"
@@ -49,37 +64,21 @@ export default function MenuComponent({ onCollapse }){
                         </div>
                     </div>
 
-                    <Tabs defaultValue="analysis">
+                    <Tabs defaultValue="nearby">
                         <TabsList className="!grid w-full grid-cols-3">
-                            <TabsTrigger value="analysis">
-                                <FiBarChart2 className="h-4 w-4" aria-hidden="true" />
-                                Analysis
-                            </TabsTrigger>
                             <TabsTrigger value="nearby">
                                 <FiMapPin className="h-4 w-4" aria-hidden="true" />
                                 Nearby
+                            </TabsTrigger>
+                            <TabsTrigger value="analysis">
+                                <FiBarChart2 className="h-4 w-4" aria-hidden="true" />
+                                Analysis
                             </TabsTrigger>
                             <TabsTrigger value="settings">
                                 <FiSettings className="h-4 w-4" aria-hidden="true" />
                                 Settings
                             </TabsTrigger>
                         </TabsList>
-
-                        <TabsContent value="analysis">
-                            <Card>
-                                <CardHeader className="pb-2">
-                                    <CardTitle className="flex items-center gap-2 text-base">
-                                        <span>📊</span>
-                                        <span>Analysis</span>
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="py-4 text-center text-sm text-slate-500 italic">
-                                        Detailed area analysis and trends coming soon.
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </TabsContent>
 
                         <TabsContent value="nearby" className="space-y-4">
                             <NearbyMrt/>
@@ -88,33 +87,11 @@ export default function MenuComponent({ onCollapse }){
                             <NearbyLandUses/>
                         </TabsContent>
 
-                        <TabsContent value="settings" className="space-y-3">
-                            <Card>
-                                <CardHeader className="pb-2">
-                                    <CardTitle className="flex items-center gap-2 text-base">
-                                        <span>📏</span>
-                                        <span>Search Radius</span>
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="text-sm">
-                                        <label className="font-medium text-slate-700" htmlFor="radiusRange">Radius: {searchRadiusState.radius} km</label>
-                                        <div className="mt-2 flex items-center gap-3">
-                                            <input
-                                                className="min-w-0 flex-1 accent-slate-700"
-                                                type="range"
-                                                min={0.1}
-                                                max={5}
-                                                step={0.1}
-                                                value={searchRadiusState.radius}
-                                                onChange={(e) => dispatch(updateRadius(e.target.value))}
-                                                id="radiusRange"
-                                            />
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                        <TabsContent value="analysis">
+                            <AnalysisPanel />
+                        </TabsContent>
 
+                        <TabsContent value="settings" className="space-y-3">
                             <SchoolTypes/>
                             <PropertyTypes/>
                         </TabsContent>

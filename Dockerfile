@@ -7,7 +7,7 @@ COPY yarn.lock ./
 COPY ./ ./
 
 # Expose port to access server
-EXPOSE 3000
+EXPOSE 3210
 
 RUN yarn
 

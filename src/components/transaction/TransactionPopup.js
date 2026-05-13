@@ -16,6 +16,18 @@ function renderValue(value) {
     return value === undefined || value === null || value === "" ? "-" : value;
 }
 
+function parseTransactions(value) {
+    if (Array.isArray(value)) {
+        return value;
+    }
+
+    if (!value) {
+        return [];
+    }
+
+    return JSON.parse(value);
+}
+
 export function TransactionPopup() {
     const { map } = useMap();
 
@@ -37,13 +49,15 @@ export function TransactionPopup() {
         }
 
         const handleMapClick = (event) => {
-            if (!map.getLayer("clusters")) {
+            const transactionLayerIds = ["clusters", "transaction-points", "cluster-source-transaction-points"].filter((layerId) => map.getLayer(layerId));
+
+            if (transactionLayerIds.length === 0) {
                 setShowPopup(false);
                 return;
             }
 
             const clickedClusters = map.queryRenderedFeatures(event.point, {
-                layers: ["clusters"],
+                layers: transactionLayerIds,
             });
 
             if (clickedClusters.length === 0) {
@@ -51,11 +65,12 @@ export function TransactionPopup() {
             }
         };
 
-        const handleClusterClick = (event) => {
-            const transactions = JSON.parse(event.features[0].properties.transactions);
-            const projectName = event.features[0].properties.project;
-            const streetName = event.features[0].properties.street;
-            const locationId = event.features[0].properties.location_id;
+        const handleTransactionClick = (event) => {
+            const feature = event.features[0];
+            const transactions = parseTransactions(feature.properties.transactions);
+            const projectName = feature.properties.project;
+            const streetName = feature.properties.street;
+            const locationId = feature.properties.location_id;
 
             const numOfTransactions = transactions.length;
             const distribution = transactionsDistribution(transactions);
@@ -70,14 +85,43 @@ export function TransactionPopup() {
             setStreetName(streetName);
             setNumOfTransactions(numOfTransactions);
             setShowPopup(true);
+
+            map.easeTo({
+                center: feature.geometry.coordinates,
+                offset: [130, 0],
+                duration: 500
+            });
+        };
+
+        const handleClusterClick = (event) => {
+            const feature = event.features[0];
+            const source = map.getSource("found-transactions");
+
+            setShowPopup(false);
+
+            source.getClusterExpansionZoom(feature.properties.cluster_id, (error, zoom) => {
+                if (error) {
+                    return;
+                }
+
+                map.easeTo({
+                    center: feature.geometry.coordinates,
+                    zoom,
+                    duration: 500
+                });
+            });
         };
 
         map.on('click', handleMapClick);
         map.on('click', 'clusters', handleClusterClick);
+        map.on('click', 'transaction-points', handleTransactionClick);
+        map.on('click', 'cluster-source-transaction-points', handleTransactionClick);
 
         return () => {
             map.off('click', handleMapClick);
             map.off('click', 'clusters', handleClusterClick);
+            map.off('click', 'transaction-points', handleTransactionClick);
+            map.off('click', 'cluster-source-transaction-points', handleTransactionClick);
         };
     }, [map]);
 

@@ -6,13 +6,15 @@ import axios from "axios";
 import { updateTransactionsInRadius } from   "../../reducers/transactionSlice";
 import { updatePropertyTypes } from "../../reducers/searchRadiusSlice";
 
+const EMPTY_GEOJSON = {"type": "FeatureCollection", "features": [] };
+
 export default function TransactionLayers(){
 
     const dispatch = useDispatch();
     const mapViewState = useSelector((state) => state.mapViewState );
     const searchRadiusState = useSelector((state) => state.searchRadiusState );
 
-    const [transactionsFoundGeojson, SetTransactionsFoundGeojson] = useState(null);
+    const [transactionsFoundGeojson, SetTransactionsFoundGeojson] = useState(EMPTY_GEOJSON);
     const [transactionsGeojson, SetTransactionsGeojson] = useState(null);
     const [transactionMeanPrice, SetTransactionMeanPrice]= useState(0)
     const [collectionHighestPrice, SetCollectionHighestPrice]= useState(1)
@@ -30,9 +32,9 @@ export default function TransactionLayers(){
     const clusterTextStyle = {
         id: 'cluster-count',
         type: 'symbol',
-        filter: ['has', 'noOfTransactions'],
+        filter: ['has', 'point_count'],
         layout: {
-            'text-field': ['get', 'noOfTransactions'],
+            'text-field': ['get', 'point_count_abbreviated'],
             'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
             'text-size': 12
         }
@@ -41,13 +43,54 @@ export default function TransactionLayers(){
     const clusterStyle = {
         id: 'clusters',
         type: 'circle',
-        filter: ['has', 'noOfTransactions'],
+        filter: ['has', 'point_count'],
         paint: {
             // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
             // with three steps to implement three types of circles:
             //   * Blue, 12px circles when transaction count is less than 70
             //   * Yellow, 22px circles when transaction count is between 70 and 400
             //   * Pink, 32px circles when transaction count is greater than or equal to 400
+            'circle-color': [
+                'step',
+                ['get', 'point_count'],
+                '#51bbd6',
+                70,
+                '#f1f075',
+                350,
+                '#f28cb1'
+            ],
+            'circle-radius': [
+                'step',
+                ['get', 'point_count'],
+                15,
+                70,
+                24,
+                400,
+                35
+            ],
+            'circle-opacity': 0.9
+        }
+    };
+
+    const transactionTextStyle = {
+        id: 'transaction-count',
+        type: 'symbol',
+        minzoom: 15,
+        layout: {
+            'text-field': ['get', 'noOfTransactions'],
+            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 12
+        },
+        paint: {
+            'text-color': '#0f172a'
+        }
+    };
+
+    const transactionPointStyle = {
+        id: 'transaction-points',
+        type: 'circle',
+        minzoom: 15,
+        paint: {
             'circle-color': [
                 'step',
                 ['get', 'noOfTransactions'],
@@ -66,8 +109,27 @@ export default function TransactionLayers(){
                 400,
                 35
             ],
-            'circle-opacity': 0.9
+            'circle-opacity': 0.9,
+            'circle-stroke-color': '#ffffff',
+            'circle-stroke-width': 2
         }
+    };
+
+    const clusterSourceTransactionTextStyle = {
+        id: 'cluster-source-transaction-count',
+        type: 'symbol',
+        filter: ['!', ['has', 'point_count']],
+        maxzoom: 15,
+        layout: transactionTextStyle.layout,
+        paint: transactionTextStyle.paint
+    };
+
+    const clusterSourceTransactionPointStyle = {
+        id: 'cluster-source-transaction-points',
+        type: 'circle',
+        filter: ['!', ['has', 'point_count']],
+        maxzoom: 15,
+        paint: transactionPointStyle.paint
     };
     // const gridlayer = new GridLayer({
     //     id: 'new-grid-layer',
@@ -88,8 +150,7 @@ export default function TransactionLayers(){
     useEffect(() => {
         async function init(){
             try {
-                const emptyData = {"type": "FeatureCollection", "features": [] };                
-                SetTransactionsFoundGeojson(emptyData);
+                SetTransactionsFoundGeojson(EMPTY_GEOJSON);
             } catch (e) {
                 console.error(e);
             }
@@ -163,7 +224,7 @@ export default function TransactionLayers(){
             for(const i in data['features']){
                 const feat = data['features'][i];
   
-                var transactions =  feat['properties']['transactions'];
+                var transactions =  feat['properties']['transactions'] || [];
                 // console.log(transactions[0]['price'])
                 // if (transactions.length > 0 ){
                 let sum = 0;
@@ -239,7 +300,21 @@ export default function TransactionLayers(){
 
             for (let i = 0; i < transactionFeatures.length; i++) {
                 let feature = transactionFeatures[i];
-                if( checkedPropertyTypes.includes(feature["properties"]["transactions"][0]["property_type"])){
+                const transactions = feature["properties"]["transactions"] || [];
+                if( transactions.length === 0 ){
+                    continue;
+                }
+
+                if( checkedPropertyTypes.length === 0 ){
+                    filteredFeatureCollection['features'].push(feature);
+                    continue;
+                }
+
+                const hasCheckedTransactionType = transactions.some((transaction) => (
+                    checkedPropertyTypes.includes(transaction["property_type"])
+                ));
+
+                if( hasCheckedTransactionType ){
                     filteredFeatureCollection['features'].push(feature);
                 }
             }
@@ -257,12 +332,10 @@ export default function TransactionLayers(){
                     
                     //filter selected propertyTypes
                     const filteredTransactions = filterTransactions( foundTransactions );
-                    
-                    SetTransactionsFoundGeojson(filteredTransactions);
-                    
-                    dispatch( updateTransactionsInRadius(filteredTransactions ));
 
                     updateTransactionData(filteredTransactions);
+                    SetTransactionsFoundGeojson(filteredTransactions);
+                    dispatch( updateTransactionsInRadius(filteredTransactions ));
                     // console.log(foundTransactions);
                 }
 
@@ -286,13 +359,21 @@ export default function TransactionLayers(){
             data={transactionsFoundGeojson}
             cluster={true}
             clusterRadius={80}
-            clusterMaxZoom={14}
+            clusterMaxZoom={18}
         >
             {/* <Layer {...foundTransactionsStyle} /> */}
-            <Layer {...clusterTextStyle}  />
-            
-            <Layer {...clusterStyle} beforeId={"cluster-count"}/>
-            
+            <Layer {...clusterStyle} />
+            <Layer {...clusterTextStyle} />
+            <Layer {...clusterSourceTransactionPointStyle} />
+            <Layer {...clusterSourceTransactionTextStyle} />
+        </Source>
+        <Source
+            id="transaction-points-source"
+            type="geojson"
+            data={transactionsFoundGeojson}
+        >
+            <Layer {...transactionPointStyle} />
+            <Layer {...transactionTextStyle} />
         </Source>
         
         {/* <DeckGL viewState={{
