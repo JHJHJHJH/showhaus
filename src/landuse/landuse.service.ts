@@ -25,13 +25,49 @@ export class LanduseService {
     });
   }
 
-  createProcessingDatasetVersion(metadata: ILanduseDatasetMetadata) {
+  async createProcessingDatasetVersion(metadata: ILanduseDatasetMetadata) {
+    const upstreamLastUpdatedAt = new Date(metadata.lastUpdatedAt);
+    const existingVersion = await this.datasetVersionRepository.findOne({
+      where: {
+        datasetId: metadata.datasetId,
+        upstreamLastUpdatedAt,
+      },
+    });
+
+    if (existingVersion != null) {
+      await this.dataSource.transaction(async (manager) => {
+        await manager.delete(LanduseFeatureEntity, {
+          datasetVersionId: existingVersion.id,
+        });
+
+        await manager.update(
+          LanduseDatasetVersionEntity,
+          { id: existingVersion.id },
+          {
+            datasetName: metadata.name ?? '',
+            format: metadata.format ?? '',
+            rawMetadata: metadata,
+            featureCount: 0,
+            status: 'processing',
+            isActive: false,
+            startedAt: new Date(),
+            completedAt: null,
+            errorMessage: '',
+          },
+        );
+      });
+
+      return this.datasetVersionRepository.findOneOrFail({
+        where: { id: existingVersion.id },
+      });
+    }
+
     return this.datasetVersionRepository.save(
       this.datasetVersionRepository.create({
         datasetId: metadata.datasetId,
         datasetName: metadata.name ?? '',
         format: metadata.format ?? '',
-        upstreamLastUpdatedAt: new Date(metadata.lastUpdatedAt),
+        upstreamLastUpdatedAt,
         rawMetadata: metadata,
         status: 'processing',
         isActive: false,

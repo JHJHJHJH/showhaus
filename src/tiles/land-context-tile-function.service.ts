@@ -69,17 +69,40 @@ export class LandContextTileFunctionService implements OnApplicationBootstrap {
             WHERE feature.geometry && bounds.geom_4326
           ) tile
           WHERE tile.geom IS NOT NULL
+        ),
+        school_mvt AS (
+          SELECT ST_AsMVT(tile, 'school', 4096, 'geom') AS mvt
+          FROM (
+            SELECT
+              id,
+              name,
+              school_type,
+              address,
+              postal,
+              ST_AsMVTGeom(
+                ST_Transform(geometry, 3857),
+                bounds.geom_3857,
+                4096,
+                64,
+                true
+              ) AS geom
+            FROM public.school
+            CROSS JOIN bounds
+            WHERE geometry && bounds.geom_4326
+          ) tile
+          WHERE tile.geom IS NOT NULL
         )
         SELECT
           COALESCE((SELECT mvt FROM landuse_mvt), ''::bytea) ||
-          COALESCE((SELECT mvt FROM ura_private_resi_mvt), ''::bytea)
+          COALESCE((SELECT mvt FROM ura_private_resi_mvt), ''::bytea) ||
+          COALESCE((SELECT mvt FROM school_mvt), ''::bytea)
       $$ LANGUAGE sql STABLE STRICT PARALLEL SAFE;
     `);
 
     await this.dataSource.query(`
       COMMENT ON FUNCTION public.land_context(integer, integer, integer) IS $tilejson$
       {
-        "description": "Land context tiles containing active land use and URA private residential layers.",
+        "description": "Land context tiles containing active land use, URA private residential, and school layers.",
         "vector_layers": [
           {
             "id": "landuse",
@@ -111,6 +134,16 @@ export class LandContextTileFunctionService implements OnApplicationBootstrap {
               "price_p90": "float8",
               "latest_contract_date": "text",
               "latest_price": "int4"
+            }
+          },
+          {
+            "id": "school",
+            "fields": {
+              "id": "int4",
+              "name": "text",
+              "school_type": "text",
+              "address": "text",
+              "postal": "text"
             }
           }
         ]

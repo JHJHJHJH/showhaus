@@ -9,7 +9,7 @@ import {
 import { Point } from 'geojson';
 import { TransactionEntity } from '../transaction/transaction.entity';
 import { Expose, Transform, Type } from 'class-transformer';
-import proj4 from 'proj4';
+import proj4 = require('proj4');
 
 @Entity({ name: 'ura_private_resi' })
 @Unique(['project', 'street', 'x', 'y'])

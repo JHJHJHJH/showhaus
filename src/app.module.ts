@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LanduseScraperModule } from './landuse-scraper/landuse-scraper.module';
 import { UraScraperModule } from './ura-scraper/ura-scraper.module';
+import { SchoolScraperModule } from './school-scraper/school-scraper.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import config from './config/configuration';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
@@ -38,6 +39,7 @@ import { TilesModule } from './tiles/tiles.module';
     LanduseScraperModule,
     TilesModule,
     UraScraperModule,
+    SchoolScraperModule,
   ],
   controllers: [AppController],
   providers: [AppService],
