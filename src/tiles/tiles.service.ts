@@ -46,6 +46,7 @@ export class TilesService {
         this.getMartinUrl(`${martinSource}/${z}/${x}/${y}`),
         {
           responseType: 'stream',
+          decompress: false,
           headers: {
             Accept:
               'application/vnd.mapbox-vector-tile, application/x-protobuf, */*',

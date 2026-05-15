@@ -116,6 +116,7 @@ describe('TilesService', () => {
       'http://martin:3333/land-context/12/3230/2031',
       {
         responseType: 'stream',
+        decompress: false,
         headers: {
           Accept:
             'application/vnd.mapbox-vector-tile, application/x-protobuf, */*',
