@@ -17,9 +17,12 @@ export class TransactionService {
     return this.transactionRepository.save(transaction);
   }
 
-  async findTransactionByParam(transaction: ITransaction, locationId: number) {
+  async findTransactionByParam(
+    transaction: ITransaction,
+    uraPrivateResiId: number,
+  ) {
     const condition = {
-      locationId: locationId,
+      uraPrivateResiId: uraPrivateResiId,
       price: transaction.price,
       floorRange: transaction.floorRange,
       area: transaction.area,

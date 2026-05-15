@@ -1,6 +1,6 @@
 import { IsNumber } from 'class-validator';
 
-export class GetLocationBoundingBoxDto {
+export class GetUraPrivateResiBoundingBoxDto {
   @IsNumber()
   minLon: number;
   @IsNumber()

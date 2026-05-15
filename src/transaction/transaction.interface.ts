@@ -9,5 +9,5 @@ export interface ITransaction {
   district: string;
   typeOfArea: string;
   tenure: string;
-  locationId: number;
+  uraPrivateResiId: number;
 }

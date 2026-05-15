@@ -202,7 +202,10 @@ export class LanduseScraperService {
     }
   }
 
-  mapFeature(feature: IGeoJsonFeature, featureIndex: number): ILanduseFeatureInput {
+  mapFeature(
+    feature: IGeoJsonFeature,
+    featureIndex: number,
+  ): ILanduseFeatureInput {
     if (feature.geometry == null) {
       throw new Error(`Feature ${featureIndex} is missing geometry`);
     }
@@ -220,7 +223,10 @@ export class LanduseScraperService {
 
     return {
       objectId: this.readString(
-        properties.OBJECTID ?? properties.objectid ?? feature.id ?? featureIndex,
+        properties.OBJECTID ??
+          properties.objectid ??
+          feature.id ??
+          featureIndex,
       ),
       luDesc: this.readString(properties.LU_DESC ?? properties.lu_desc),
       gpr: this.readString(properties.GPR ?? properties.gpr),

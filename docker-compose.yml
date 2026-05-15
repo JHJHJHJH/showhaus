@@ -18,6 +18,11 @@ services:
       MARTIN_BASE_URL: http://martin:3333
     networks:
       - webnet
+    healthcheck:
+      test: ['CMD-SHELL', 'wget --spider http://127.0.0.1:8080/api || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 20
     depends_on:
       postgres_db:
         condition: service_healthy
@@ -41,7 +46,7 @@ services:
       - webnet
     depends_on:
       main:
-        condition: service_started
+        condition: service_healthy
       postgres_db:
         condition: service_healthy
   pgadmin:

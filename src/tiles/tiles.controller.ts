@@ -10,25 +10,27 @@ import {
 import { Request, Response } from 'express';
 import { TilesService } from './tiles.service';
 
-@Controller('tiles/landuse')
+@Controller('tiles')
 export class TilesController {
   constructor(private readonly tilesService: TilesService) {}
 
-  @Get()
-  getLanduseTileJson(@Req() request: Request) {
-    return this.tilesService.getLanduseTileJson(
+  @Get(':source')
+  getTileJson(@Param('source') source: string, @Req() request: Request) {
+    return this.tilesService.getTileJson(
+      source,
       this.buildPublicTileUrlTemplate(request),
     );
   }
 
-  @Get(':z/:x/:y')
-  async getLanduseTile(
+  @Get(':source/:z/:x/:y')
+  async getTile(
+    @Param('source') source: string,
     @Param('z', ParseIntPipe) z: number,
     @Param('x', ParseIntPipe) x: number,
     @Param('y', ParseIntPipe) y: number,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const tile = await this.tilesService.getLanduseTile(z, x, y);
+    const tile = await this.tilesService.getTile(source, z, x, y);
 
     const contentType =
       this.readHeaderValue(tile.headers['content-type']) ??

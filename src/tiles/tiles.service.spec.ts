@@ -21,17 +21,24 @@ describe('TilesService', () => {
     );
   });
 
-  it('rewrites Martin TileJSON tile URLs to the public API route', async () => {
+  it('rewrites land-context Martin TileJSON tile URLs to the public API route', async () => {
     httpService.get.mockReturnValue(
       of({
         data: {
           tilejson: '3.0.0',
-          tiles: ['http://martin:3333/landuse/{z}/{x}/{y}'],
+          name: 'land-context',
+          tiles: ['http://martin:3333/land-context/{z}/{x}/{y}'],
           vector_layers: [
             {
               id: 'landuse',
               fields: {
                 object_id: 'text',
+              },
+            },
+            {
+              id: 'ura-private-resi',
+              fields: {
+                project: 'text',
               },
             },
           ],
@@ -40,12 +47,14 @@ describe('TilesService', () => {
     );
 
     await expect(
-      service.getLanduseTileJson(
-        'https://api.showhouse.app/api/tiles/landuse/{z}/{x}/{y}',
+      service.getTileJson(
+        'land-context',
+        'https://api.showhouse.app/api/tiles/land-context/{z}/{x}/{y}',
       ),
     ).resolves.toEqual({
       tilejson: '3.0.0',
-      tiles: ['https://api.showhouse.app/api/tiles/landuse/{z}/{x}/{y}'],
+      name: 'land-context',
+      tiles: ['https://api.showhouse.app/api/tiles/land-context/{z}/{x}/{y}'],
       vector_layers: [
         {
           id: 'landuse',
@@ -53,10 +62,31 @@ describe('TilesService', () => {
             object_id: 'text',
           },
         },
+        {
+          id: 'ura-private-resi',
+          fields: {
+            project: 'text',
+          },
+        },
       ],
     });
 
-    expect(httpService.get).toHaveBeenCalledWith('http://martin:3333/landuse');
+    expect(httpService.get).toHaveBeenCalledWith(
+      'http://martin:3333/land-context',
+    );
+  });
+
+  it('rejects unknown tile sources', async () => {
+    for (const source of ['landuse', 'ura-private-resi', 'roads']) {
+      await expect(
+        service.getTileJson(
+          source,
+          `https://api.showhouse.app/api/tiles/${source}/{z}/{x}/{y}`,
+        ),
+      ).rejects.toThrow(`Unsupported tile source: ${source}`);
+    }
+
+    expect(httpService.get).not.toHaveBeenCalled();
   });
 
   it('passes through the Martin MVT stream and response headers', async () => {
@@ -72,7 +102,9 @@ describe('TilesService', () => {
       }),
     );
 
-    await expect(service.getLanduseTile(12, 3230, 2031)).resolves.toEqual({
+    await expect(
+      service.getTile('land-context', 12, 3230, 2031),
+    ).resolves.toEqual({
       stream,
       headers: {
         'content-type': 'application/x-protobuf',
@@ -81,7 +113,7 @@ describe('TilesService', () => {
     });
 
     expect(httpService.get).toHaveBeenCalledWith(
-      'http://martin:3333/landuse/12/3230/2031',
+      'http://martin:3333/land-context/12/3230/2031',
       {
         responseType: 'stream',
         headers: {

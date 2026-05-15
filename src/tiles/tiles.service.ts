@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Readable } from 'stream';
 import { firstValueFrom } from 'rxjs';
@@ -7,28 +7,43 @@ import { IProxiedTile, ITileJson } from './tiles.interface';
 
 @Injectable()
 export class TilesService {
-  private readonly sourceId = 'landuse';
+  private readonly martinSources = new Map<string, string>([
+    ['land-context', 'land-context'],
+  ]);
 
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) {}
 
-  async getLanduseTileJson(tileUrlTemplate: string): Promise<ITileJson> {
+  async getTileJson(
+    source: string,
+    tileUrlTemplate: string,
+  ): Promise<ITileJson> {
+    const martinSource = this.getMartinSource(source);
+
     const response = await firstValueFrom(
-      this.httpService.get<ITileJson>(this.getMartinUrl(this.sourceId)),
+      this.httpService.get<ITileJson>(this.getMartinUrl(martinSource)),
     );
 
     return {
       ...response.data,
+      name: source,
       tiles: [tileUrlTemplate],
     };
   }
 
-  async getLanduseTile(z: number, x: number, y: number): Promise<IProxiedTile> {
+  async getTile(
+    source: string,
+    z: number,
+    x: number,
+    y: number,
+  ): Promise<IProxiedTile> {
+    const martinSource = this.getMartinSource(source);
+
     const response = await firstValueFrom(
       this.httpService.get<Readable>(
-        this.getMartinUrl(`${this.sourceId}/${z}/${x}/${y}`),
+        this.getMartinUrl(`${martinSource}/${z}/${x}/${y}`),
         {
           responseType: 'stream',
           headers: {
@@ -43,6 +58,16 @@ export class TilesService {
       stream: response.data,
       headers: response.headers,
     };
+  }
+
+  private getMartinSource(source: string): string {
+    const martinSource = this.martinSources.get(source);
+
+    if (martinSource == null) {
+      throw new BadRequestException(`Unsupported tile source: ${source}`);
+    }
+
+    return martinSource;
   }
 
   private getMartinUrl(path: string): string {

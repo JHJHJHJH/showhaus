@@ -9,11 +9,11 @@ import {
 import { Point } from 'geojson';
 import { TransactionEntity } from '../transaction/transaction.entity';
 import { Expose, Transform, Type } from 'class-transformer';
-import * as proj4 from 'proj4';
+import proj4 from 'proj4';
 
-@Entity({ name: 'location' })
+@Entity({ name: 'ura_private_resi' })
 @Unique(['project', 'street', 'x', 'y'])
-export class LocationEntity {
+export class UraPrivateResiEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -35,7 +35,7 @@ export class LocationEntity {
 
   @Expose({ name: 'transaction' })
   @Type(() => TransactionEntity)
-  @OneToMany(() => TransactionEntity, (tx) => tx.location, {
+  @OneToMany(() => TransactionEntity, (tx) => tx.uraPrivateResi, {
     cascade: ['insert', 'update'],
   })
   transactions: TransactionEntity[];

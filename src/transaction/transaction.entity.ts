@@ -1,14 +1,17 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { LocationEntity } from '../location/location.entity';
+import { UraPrivateResiEntity } from '../ura-private-resi/ura-private-resi.entity';
 import { Transform } from 'class-transformer';
 
 @Entity({ name: 'transaction' })
+@Index(['uraPrivateResiId'])
+@Index(['uraPrivateResiId', 'price', 'floorRange', 'area'])
 export class TransactionEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -54,12 +57,12 @@ export class TransactionEntity {
   @Column({ name: 'tenure', default: 0 })
   tenure: string;
 
-  @ManyToOne(() => LocationEntity, (loc) => loc.transactions)
-  @JoinColumn({ name: 'location_id' })
-  location: LocationEntity;
+  @ManyToOne(() => UraPrivateResiEntity, (loc) => loc.transactions)
+  @JoinColumn({ name: 'ura_private_resi_id' })
+  uraPrivateResi: UraPrivateResiEntity;
 
-  @Column({ name: 'location_id', default: 0, nullable: true })
-  locationId: number;
+  @Column({ name: 'ura_private_resi_id', default: 0, nullable: true })
+  uraPrivateResiId: number;
 }
 
 const parseTypeOfSale = (val: string): string => {

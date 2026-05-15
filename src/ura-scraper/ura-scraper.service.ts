@@ -1,8 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Logger, Injectable } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
-import { LocationEntity } from '../location/location.entity';
-import { LocationService } from '../location/location.service';
+import { UraPrivateResiEntity } from '../ura-private-resi/ura-private-resi.entity';
+import { UraPrivateResiService } from '../ura-private-resi/ura-private-resi.service';
 import { GetToken } from './dtos/get-token.dto';
 import { Cron } from '@nestjs/schedule';
 import { TransactionService } from '../transaction/transaction.service';
@@ -14,7 +14,7 @@ export class UraScraperService {
 
   constructor(
     private httpService: HttpService,
-    private locationService: LocationService,
+    private uraPrivateResiService: UraPrivateResiService,
     private transactionService: TransactionService,
     private configService: ConfigService,
   ) {}
@@ -71,44 +71,53 @@ export class UraScraperService {
       return;
     }
 
-    const locations = await this.getAllPrivateResidentialTransactions(
+    const ura_private_resis = await this.getAllPrivateResidentialTransactions(
       batch,
       key,
       token.Result,
     );
 
-    let newLocationsCount = 0;
+    let newUraPrivateResisCount = 0;
     let newTransactionsCount = 0;
     //class-transformer
-    //convert json object to location entity
-    if (locations.Result.length > 0) {
-      for (let i = 0; i < locations.Result.length; i++) {
-        const location = locations.Result[i];
+    //convert json object to ura-private-resi entity
+    if (ura_private_resis.Result.length > 0) {
+      for (let i = 0; i < ura_private_resis.Result.length; i++) {
+        const ura_private_resi = ura_private_resis.Result[i];
 
-        const converted_location = plainToClass(LocationEntity, location);
+        const converted_ura_private_resi = plainToClass(
+          UraPrivateResiEntity,
+          ura_private_resi,
+        );
 
-        //console.log(converted_location);
+        //console.log(converted_ura_private_resi);
 
-        //if does not exist, create location
-        const location_db =
-          await this.locationService.findLocationByParam(converted_location);
-        //if location exists
-        if (location_db.length > 0) {
+        //if does not exist, create ura-private-resi
+        const ura_private_resi_db =
+          await this.uraPrivateResiService.findUraPrivateResiByParam(
+            converted_ura_private_resi,
+          );
+        //if ura-private-resi exists
+        if (ura_private_resi_db.length > 0) {
           // this.logger.log(
-          //   `${location_db.length} existing locations found. Checking for existing transactions...`,
+          //   `${ura_private_resi_db.length} existing ura-private-resis found. Checking for existing transactions...`,
           // );
           //iterate transactions
-          for (let j = 0; j < converted_location.transactions.length; j++) {
-            const transaction = converted_location.transactions[j];
+          for (
+            let j = 0;
+            j < converted_ura_private_resi.transactions.length;
+            j++
+          ) {
+            const transaction = converted_ura_private_resi.transactions[j];
             const transaction_db =
               await this.transactionService.findTransactionByParam(
                 transaction,
-                location_db[0].id,
+                ura_private_resi_db[0].id,
               );
             //if transaction does not exist, create transaction
             //if exist
             if (transaction_db.length === 0) {
-              transaction.locationId = location_db[0].id;
+              transaction.uraPrivateResiId = ura_private_resi_db[0].id;
               await this.transactionService.createTransaction(transaction);
 
               //Add count for logging
@@ -116,18 +125,22 @@ export class UraScraperService {
             }
           }
         } else {
-          //this.logger.log('no location el found in db');
-          this.logger.log(converted_location.project);
-          const location_db =
-            await this.locationService.createLocation(converted_location);
+          //this.logger.log('no ura-private-resi el found in db');
+          this.logger.log(converted_ura_private_resi.project);
+          const ura_private_resi_db =
+            await this.uraPrivateResiService.createUraPrivateResi(
+              converted_ura_private_resi,
+            );
 
           //Add count for logging
-          newLocationsCount += 1;
-          newTransactionsCount += location_db.transactions.length;
+          newUraPrivateResisCount += 1;
+          newTransactionsCount += ura_private_resi_db.transactions.length;
         }
       }
 
-      this.logger.log('New locations added: ' + newLocationsCount);
+      this.logger.log(
+        'New ura-private-resis added: ' + newUraPrivateResisCount,
+      );
       this.logger.log('New Transactions added: ' + newTransactionsCount);
       this.logger.log(`Scrape batch ${batch} complete!`);
     }
@@ -168,7 +181,7 @@ export class UraScraperService {
       const response = await firstValueFrom(this.httpService.get(url, config));
 
       this.logger.log(
-        `Batch ${batch} Locations : ${response.data.Result.length}`,
+        `Batch ${batch} Ura-Private-Resis : ${response.data.Result.length}`,
       );
 
       return response.data;

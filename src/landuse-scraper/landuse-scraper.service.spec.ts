@@ -81,7 +81,9 @@ describe('LanduseScraperService', () => {
 
     await service.syncIfUpdated();
 
-    expect(landuseService.createProcessingDatasetVersion).not.toHaveBeenCalled();
+    expect(
+      landuseService.createProcessingDatasetVersion,
+    ).not.toHaveBeenCalled();
     expect(resolveDownloadUrlSpy).not.toHaveBeenCalled();
   });
 

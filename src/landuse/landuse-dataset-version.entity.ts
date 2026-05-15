@@ -7,10 +7,7 @@ import {
 } from 'typeorm';
 import { LanduseFeatureEntity } from './landuse-feature.entity';
 
-export type LanduseDatasetVersionStatus =
-  | 'processing'
-  | 'succeeded'
-  | 'failed';
+export type LanduseDatasetVersionStatus = 'processing' | 'succeeded' | 'failed';
 
 @Entity({ name: 'landuse_dataset_version' })
 @Index(['datasetId', 'upstreamLastUpdatedAt'], { unique: true })

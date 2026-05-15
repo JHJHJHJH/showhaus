@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UraScraperService } from './ura-scraper.service';
 import { HttpService } from '@nestjs/axios';
-import { LocationService } from '../location/location.service';
+import { UraPrivateResiService } from '../ura-private-resi/ura-private-resi.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { ConfigService } from '@nestjs/config';
 
@@ -19,10 +19,10 @@ describe('UraScraperService', () => {
           },
         },
         {
-          provide: LocationService,
+          provide: UraPrivateResiService,
           useValue: {
-            findLocationByParam: jest.fn(),
-            createLocation: jest.fn(),
+            findUraPrivateResiByParam: jest.fn(),
+            createUraPrivateResi: jest.fn(),
           },
         },
         {

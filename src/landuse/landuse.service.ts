@@ -3,7 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { LanduseDatasetVersionEntity } from './landuse-dataset-version.entity';
 import { LanduseFeatureEntity } from './landuse-feature.entity';
-import { ILanduseDatasetMetadata, ILanduseFeatureInput } from './landuse.interface';
+import {
+  ILanduseDatasetMetadata,
+  ILanduseFeatureInput,
+} from './landuse.interface';
 
 @Injectable()
 export class LanduseService {

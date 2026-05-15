@@ -13,5 +13,5 @@ This directory contains the Bruno collection for the Showhouse API.
 ## Endpoints
 
 - **App**: General app endpoints (Hello, Env, Transformed).
-- **Location**: Endpoints for creating and retrieving locations.
+- **UraPrivateResi**: Endpoints for creating and retrieving ura-private-resis.
 - **Scrape**: Endpoints for triggering URA API scraping.

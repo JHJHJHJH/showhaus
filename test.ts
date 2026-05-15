@@ -1,6 +1,6 @@
 import { plainToClass } from "class-transformer";
 import { TransactionEntity } from "./src/transaction/transaction.entity";
-import { LocationEntity } from "./src/location/location.entity";
+import { UraPrivateResiEntity } from "./src/ura-private-resi/ura-private-resi.entity";
 const obj = {
     "street": "ZEHNDER ROAD",
     "x": "22734.9253",
@@ -126,5 +126,5 @@ const transactions = [
 
 // console.log( realTransaction );
 
-const loc = plainToClass( LocationEntity, obj);
+const loc = plainToClass( UraPrivateResiEntity, obj);
 console.log(loc);

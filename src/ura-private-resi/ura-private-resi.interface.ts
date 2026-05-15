@@ -1,7 +1,7 @@
 import { Point } from 'geojson';
-import { ITransaction } from 'src/transaction/transaction.interface';
+import { ITransaction } from '../transaction/transaction.interface';
 
-export interface ILocation {
+export interface IUraPrivateResi {
   street: string;
   x: number;
   y: number;
