@@ -10,6 +10,7 @@ import { getProjectKey, normalizeProject } from "../../utils/projectData";
 
 const LAND_CONTEXT_SOURCE_ID = "land-context-source";
 const LAND_CONTEXT_RENDER_SOURCE_ID = "land-context-render-source";
+const LAND_CONTEXT_MIN_ZOOM = 2;
 const SHOWHOUSE_API_URL = process.env.REACT_APP_SHOWHOUSE_API_URL || "http://localhost:8080/api";
 const LAND_CONTEXT_TILEJSON_URL = `${SHOWHOUSE_API_URL.replace(/\/$/, "")}/tiles/land-context`;
 export const LAND_CONTEXT_SOURCE_LAYERS = {
@@ -363,7 +364,7 @@ const landUseFillStyle = {
             "WHITE", getLandUseTypeColor("WHITE"),
             getLandUseTypeColor()
         ],
-        "fill-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0.18, 15, 0.38]
+        "fill-opacity": ["interpolate", ["linear"], ["zoom"], LAND_CONTEXT_MIN_ZOOM, 0.18, 15, 0.38]
     }
 };
 
@@ -374,8 +375,8 @@ const landUseLineStyle = {
     filter: LAND_USE_FILTER,
     paint: {
         "line-color": "#475569",
-        "line-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0.08, 15, 0.35],
-        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.2, 16, 1]
+        "line-opacity": ["interpolate", ["linear"], ["zoom"], LAND_CONTEXT_MIN_ZOOM, 0.08, 15, 0.35],
+        "line-width": ["interpolate", ["linear"], ["zoom"], LAND_CONTEXT_MIN_ZOOM, 0.2, 16, 1]
     }
 };
 
@@ -386,7 +387,7 @@ function landUseHighlightFillStyle(filter){
         filter,
         paint: {
             "fill-color": "#F8FAFC",
-            "fill-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0.28, 15, 0.45]
+            "fill-opacity": ["interpolate", ["linear"], ["zoom"], LAND_CONTEXT_MIN_ZOOM, 0.28, 15, 0.45]
         }
     };
 }
@@ -399,7 +400,7 @@ function landUseHighlightLineStyle(filter){
         paint: {
             "line-color": "#0F172A",
             "line-opacity": 0.3,
-            "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1.2, 16, 2.5]
+            "line-width": ["interpolate", ["linear"], ["zoom"], LAND_CONTEXT_MIN_ZOOM, 1.2, 16, 2.5]
         }
     };
 }
@@ -429,7 +430,7 @@ const privateResidentialFillStyle = {
     filter: PRIVATE_RESI_POLYGON_FILTER,
     paint: {
         "fill-color": "#2563EB",
-        "fill-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0.08, 15, 0.24]
+        "fill-opacity": ["interpolate", ["linear"], ["zoom"], LAND_CONTEXT_MIN_ZOOM, 0.08, 15, 0.24]
     }
 };
 
@@ -440,8 +441,8 @@ const privateResidentialLineStyle = {
     filter: PRIVATE_RESI_POLYGON_FILTER,
     paint: {
         "line-color": "#1D4ED8",
-        "line-opacity": ["interpolate", ["linear"], ["zoom"], 10, 0.18, 15, 0.5],
-        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.3, 16, 1.4]
+        "line-opacity": ["interpolate", ["linear"], ["zoom"], LAND_CONTEXT_MIN_ZOOM, 0.18, 15, 0.5],
+        "line-width": ["interpolate", ["linear"], ["zoom"], LAND_CONTEXT_MIN_ZOOM, 0.3, 16, 1.4]
     }
 };
 
@@ -451,7 +452,7 @@ const privateResidentialPointStyle = {
     "source-layer": LAND_CONTEXT_SOURCE_LAYERS.PRIVATE_RESI,
     filter: PRIVATE_RESI_POINT_FILTER,
     paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 2, 16, 7],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], LAND_CONTEXT_MIN_ZOOM, 2, 16, 7],
         "circle-color": "#2563EB",
         "circle-stroke-color": "#FFFFFF",
         "circle-stroke-width": 1.2,
@@ -485,7 +486,7 @@ const schoolPointStyle = {
     "source-layer": LAND_CONTEXT_SOURCE_LAYERS.SCHOOL,
     filter: SCHOOL_FILTER,
     paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 3, 16, 7],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], LAND_CONTEXT_MIN_ZOOM, 3, 16, 7],
         "circle-color": [
             "match",
             ["get", "school_type"],
