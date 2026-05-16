@@ -7,16 +7,22 @@ import { TilesService } from './tiles.service';
 describe('TilesService', () => {
   let service: TilesService;
   let httpService: { get: jest.Mock };
+  let configValues: Record<string, string>;
 
   beforeEach(() => {
     httpService = {
       get: jest.fn(),
     };
+    configValues = {
+      MARTIN_BASE_URL: 'http://martin:3333/',
+      LAND_CONTEXT_TILE_DATASET_VERSION: 'land-v42',
+      TILEJSON_CACHE_TTL_MS: '60000',
+    };
 
     service = new TilesService(
       httpService as unknown as HttpService,
       {
-        get: jest.fn().mockReturnValue('http://martin:3333/'),
+        get: jest.fn((key: string) => configValues[key]),
       } as unknown as ConfigService,
     );
   });
@@ -54,7 +60,9 @@ describe('TilesService', () => {
     ).resolves.toEqual({
       tilejson: '3.0.0',
       name: 'land-context',
-      tiles: ['https://api.showhouse.app/api/tiles/land-context/{z}/{x}/{y}'],
+      tiles: [
+        'https://api.showhouse.app/api/tiles/land-context/{z}/{x}/{y}?v=land-v42',
+      ],
       vector_layers: [
         {
           id: 'landuse',
@@ -74,6 +82,29 @@ describe('TilesService', () => {
     expect(httpService.get).toHaveBeenCalledWith(
       'http://martin:3333/land-context',
     );
+  });
+
+  it('briefly caches raw Martin TileJSON before rewriting public URLs', async () => {
+    httpService.get.mockReturnValue(
+      of({
+        data: {
+          tilejson: '3.0.0',
+          name: 'land-context',
+          tiles: ['http://martin:3333/land-context/{z}/{x}/{y}'],
+        },
+      }),
+    );
+
+    await service.getTileJson(
+      'land-context',
+      'https://api.showhouse.app/api/tiles/land-context/{z}/{x}/{y}',
+    );
+    await service.getTileJson(
+      'land-context',
+      'https://api.showhouse.app/api/tiles/land-context/{z}/{x}/{y}',
+    );
+
+    expect(httpService.get).toHaveBeenCalledTimes(1);
   });
 
   it('rejects unknown tile sources', async () => {

@@ -22,11 +22,7 @@ export class LandContextTileFunctionService implements OnApplicationBootstrap {
               feature.object_id,
               feature.lu_desc,
               feature.gpr,
-              feature.inc_crc,
-              feature.fmel_upd_d_raw,
               feature.shape_area,
-              feature.shape_len,
-              feature.upstream_last_updated_at,
               ST_AsMVTGeom(
                 ST_Transform(ST_CurveToLine(feature.geometry), 3857),
                 bounds.geom_3857,
@@ -40,6 +36,60 @@ export class LandContextTileFunctionService implements OnApplicationBootstrap {
           ) tile
           WHERE tile.geom IS NOT NULL
         ),
+        ura_private_resi_features AS MATERIALIZED (
+          SELECT
+            loc.id AS ura_private_resi_id,
+            loc.project AS project,
+            loc.street AS street,
+            loc.market_segment AS market_segment,
+            loc.geometry::geometry(Point, 4326) AS geometry
+          FROM public.ura_private_resi loc
+          CROSS JOIN bounds
+          WHERE loc.geometry IS NOT NULL
+            AND loc.geometry::geometry && bounds.geom_4326
+        ),
+        tx_stats AS (
+          SELECT
+            tx.ura_private_resi_id AS ura_private_resi_id,
+            COUNT(tx.id)::int AS transaction_count,
+            MIN(tx.price)::int AS price_min,
+            (array_agg(tx.area ORDER BY tx.price ASC, tx.id ASC))[1]::int AS price_min_area,
+            (array_agg(tx.floor_range ORDER BY tx.price ASC, tx.id ASC))[1] AS price_min_floor,
+            MAX(tx.price)::int AS price_max,
+            (array_agg(tx.area ORDER BY tx.price DESC, tx.id DESC))[1]::int AS price_max_area,
+            (array_agg(tx.floor_range ORDER BY tx.price DESC, tx.id DESC))[1] AS price_max_floor,
+            AVG(tx.price)::float8 AS price_avg,
+            percentile_cont(0.1) WITHIN GROUP (ORDER BY tx.price)::float8 AS price_p10,
+            (array_agg(tx.area ORDER BY tx.price ASC, tx.id ASC))[GREATEST(1, CEIL(COUNT(tx.id) * 0.1)::int)]::int AS price_p10_area,
+            (array_agg(tx.floor_range ORDER BY tx.price ASC, tx.id ASC))[GREATEST(1, CEIL(COUNT(tx.id) * 0.1)::int)] AS price_p10_floor,
+            percentile_cont(0.5) WITHIN GROUP (ORDER BY tx.price)::float8 AS price_p50,
+            (array_agg(tx.area ORDER BY tx.price ASC, tx.id ASC))[GREATEST(1, CEIL(COUNT(tx.id) * 0.5)::int)]::int AS price_p50_area,
+            (array_agg(tx.floor_range ORDER BY tx.price ASC, tx.id ASC))[GREATEST(1, CEIL(COUNT(tx.id) * 0.5)::int)] AS price_p50_floor,
+            percentile_cont(0.9) WITHIN GROUP (ORDER BY tx.price)::float8 AS price_p90,
+            (array_agg(tx.area ORDER BY tx.price ASC, tx.id ASC))[GREATEST(1, CEIL(COUNT(tx.id) * 0.9)::int)]::int AS price_p90_area,
+            (array_agg(tx.floor_range ORDER BY tx.price ASC, tx.id ASC))[GREATEST(1, CEIL(COUNT(tx.id) * 0.9)::int)] AS price_p90_floor
+          FROM "transaction" tx
+          INNER JOIN ura_private_resi_features feature
+            ON feature.ura_private_resi_id = tx.ura_private_resi_id
+          GROUP BY tx.ura_private_resi_id
+        ),
+        latest_tx AS (
+          SELECT DISTINCT ON (latest.ura_private_resi_id)
+            latest.ura_private_resi_id AS ura_private_resi_id,
+            latest.contract_date AS contract_date,
+            latest.price AS price
+          FROM "transaction" latest
+          INNER JOIN ura_private_resi_features feature
+            ON feature.ura_private_resi_id = latest.ura_private_resi_id
+          ORDER BY
+            latest.ura_private_resi_id,
+            CASE
+              WHEN latest.contract_date ~ '^[0-9]{4}$'
+              THEN to_date(latest.contract_date, 'MMyy')
+              ELSE NULL
+            END DESC NULLS LAST,
+            latest.id DESC
+        ),
         ura_private_resi_mvt AS (
           SELECT ST_AsMVT(tile, 'ura-private-resi', 4096, 'geom') AS mvt
           FROM (
@@ -48,15 +98,25 @@ export class LandContextTileFunctionService implements OnApplicationBootstrap {
               feature.project,
               feature.street,
               feature.market_segment,
-              feature.transaction_count,
-              feature.price_min,
-              feature.price_max,
-              feature.price_avg,
-              feature.price_p10,
-              feature.price_p50,
-              feature.price_p90,
-              feature.latest_contract_date,
-              feature.latest_price,
+              COALESCE(tx_stats.transaction_count, 0)::int AS transaction_count,
+              tx_stats.price_min,
+              tx_stats.price_min_area,
+              tx_stats.price_min_floor,
+              tx_stats.price_max,
+              tx_stats.price_max_area,
+              tx_stats.price_max_floor,
+              tx_stats.price_avg,
+              tx_stats.price_p10,
+              tx_stats.price_p10_area,
+              tx_stats.price_p10_floor,
+              tx_stats.price_p50,
+              tx_stats.price_p50_area,
+              tx_stats.price_p50_floor,
+              tx_stats.price_p90,
+              tx_stats.price_p90_area,
+              tx_stats.price_p90_floor,
+              latest_tx.contract_date AS latest_contract_date,
+              latest_tx.price AS latest_price,
               ST_AsMVTGeom(
                 ST_Transform(feature.geometry, 3857),
                 bounds.geom_3857,
@@ -64,9 +124,12 @@ export class LandContextTileFunctionService implements OnApplicationBootstrap {
                 64,
                 true
               ) AS geom
-            FROM public.ura_private_resi_tile_feature feature
+            FROM ura_private_resi_features feature
             CROSS JOIN bounds
-            WHERE feature.geometry && bounds.geom_4326
+            LEFT JOIN tx_stats
+              ON tx_stats.ura_private_resi_id = feature.ura_private_resi_id
+            LEFT JOIN latest_tx
+              ON latest_tx.ura_private_resi_id = feature.ura_private_resi_id
           ) tile
           WHERE tile.geom IS NOT NULL
         ),
@@ -111,11 +174,7 @@ export class LandContextTileFunctionService implements OnApplicationBootstrap {
               "object_id": "text",
               "lu_desc": "text",
               "gpr": "text",
-              "inc_crc": "text",
-              "fmel_upd_d_raw": "text",
-              "shape_area": "float8",
-              "shape_len": "float8",
-              "upstream_last_updated_at": "timestamp"
+              "shape_area": "float8"
             }
           },
           {
@@ -127,11 +186,21 @@ export class LandContextTileFunctionService implements OnApplicationBootstrap {
               "market_segment": "text",
               "transaction_count": "int4",
               "price_min": "int4",
+              "price_min_area": "int4",
+              "price_min_floor": "text",
               "price_max": "int4",
+              "price_max_area": "int4",
+              "price_max_floor": "text",
               "price_avg": "float8",
               "price_p10": "float8",
+              "price_p10_area": "int4",
+              "price_p10_floor": "text",
               "price_p50": "float8",
+              "price_p50_area": "int4",
+              "price_p50_floor": "text",
               "price_p90": "float8",
+              "price_p90_area": "int4",
+              "price_p90_floor": "text",
               "latest_contract_date": "text",
               "latest_price": "int4"
             }

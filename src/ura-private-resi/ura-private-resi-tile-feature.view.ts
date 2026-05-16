@@ -9,11 +9,21 @@ import { ViewColumn, ViewEntity } from 'typeorm';
         tx.ura_private_resi_id AS ura_private_resi_id,
         COUNT(tx.id)::int AS transaction_count,
         MIN(tx.price)::int AS price_min,
+        (array_agg(tx.area ORDER BY tx.price ASC, tx.id ASC))[1]::int AS price_min_area,
+        (array_agg(tx.floor_range ORDER BY tx.price ASC, tx.id ASC))[1] AS price_min_floor,
         MAX(tx.price)::int AS price_max,
+        (array_agg(tx.area ORDER BY tx.price DESC, tx.id DESC))[1]::int AS price_max_area,
+        (array_agg(tx.floor_range ORDER BY tx.price DESC, tx.id DESC))[1] AS price_max_floor,
         AVG(tx.price)::float8 AS price_avg,
         percentile_cont(0.1) WITHIN GROUP (ORDER BY tx.price)::float8 AS price_p10,
+        (array_agg(tx.area ORDER BY tx.price ASC, tx.id ASC))[GREATEST(1, CEIL(COUNT(tx.id) * 0.1)::int)]::int AS price_p10_area,
+        (array_agg(tx.floor_range ORDER BY tx.price ASC, tx.id ASC))[GREATEST(1, CEIL(COUNT(tx.id) * 0.1)::int)] AS price_p10_floor,
         percentile_cont(0.5) WITHIN GROUP (ORDER BY tx.price)::float8 AS price_p50,
-        percentile_cont(0.9) WITHIN GROUP (ORDER BY tx.price)::float8 AS price_p90
+        (array_agg(tx.area ORDER BY tx.price ASC, tx.id ASC))[GREATEST(1, CEIL(COUNT(tx.id) * 0.5)::int)]::int AS price_p50_area,
+        (array_agg(tx.floor_range ORDER BY tx.price ASC, tx.id ASC))[GREATEST(1, CEIL(COUNT(tx.id) * 0.5)::int)] AS price_p50_floor,
+        percentile_cont(0.9) WITHIN GROUP (ORDER BY tx.price)::float8 AS price_p90,
+        (array_agg(tx.area ORDER BY tx.price ASC, tx.id ASC))[GREATEST(1, CEIL(COUNT(tx.id) * 0.9)::int)]::int AS price_p90_area,
+        (array_agg(tx.floor_range ORDER BY tx.price ASC, tx.id ASC))[GREATEST(1, CEIL(COUNT(tx.id) * 0.9)::int)] AS price_p90_floor
       FROM "transaction" tx
       GROUP BY tx.ura_private_resi_id
     ),
@@ -39,11 +49,21 @@ import { ViewColumn, ViewEntity } from 'typeorm';
       loc.market_segment AS market_segment,
       COALESCE(tx_stats.transaction_count, 0)::int AS transaction_count,
       tx_stats.price_min AS price_min,
+      tx_stats.price_min_area AS price_min_area,
+      tx_stats.price_min_floor AS price_min_floor,
       tx_stats.price_max AS price_max,
+      tx_stats.price_max_area AS price_max_area,
+      tx_stats.price_max_floor AS price_max_floor,
       tx_stats.price_avg AS price_avg,
       tx_stats.price_p10 AS price_p10,
+      tx_stats.price_p10_area AS price_p10_area,
+      tx_stats.price_p10_floor AS price_p10_floor,
       tx_stats.price_p50 AS price_p50,
+      tx_stats.price_p50_area AS price_p50_area,
+      tx_stats.price_p50_floor AS price_p50_floor,
       tx_stats.price_p90 AS price_p90,
+      tx_stats.price_p90_area AS price_p90_area,
+      tx_stats.price_p90_floor AS price_p90_floor,
       latest_tx.contract_date AS latest_contract_date,
       latest_tx.price AS latest_price,
       loc.geometry::geometry(Point, 4326) AS geometry
@@ -74,8 +94,20 @@ export class UraPrivateResiTileFeatureView {
   @ViewColumn({ name: 'price_min' })
   priceMin: number | null;
 
+  @ViewColumn({ name: 'price_min_area' })
+  priceMinArea: number | null;
+
+  @ViewColumn({ name: 'price_min_floor' })
+  priceMinFloor: string | null;
+
   @ViewColumn({ name: 'price_max' })
   priceMax: number | null;
+
+  @ViewColumn({ name: 'price_max_area' })
+  priceMaxArea: number | null;
+
+  @ViewColumn({ name: 'price_max_floor' })
+  priceMaxFloor: string | null;
 
   @ViewColumn({ name: 'price_avg' })
   priceAvg: number | null;
@@ -83,11 +115,29 @@ export class UraPrivateResiTileFeatureView {
   @ViewColumn({ name: 'price_p10' })
   priceP10: number | null;
 
+  @ViewColumn({ name: 'price_p10_area' })
+  priceP10Area: number | null;
+
+  @ViewColumn({ name: 'price_p10_floor' })
+  priceP10Floor: string | null;
+
   @ViewColumn({ name: 'price_p50' })
   priceP50: number | null;
 
+  @ViewColumn({ name: 'price_p50_area' })
+  priceP50Area: number | null;
+
+  @ViewColumn({ name: 'price_p50_floor' })
+  priceP50Floor: string | null;
+
   @ViewColumn({ name: 'price_p90' })
   priceP90: number | null;
+
+  @ViewColumn({ name: 'price_p90_area' })
+  priceP90Area: number | null;
+
+  @ViewColumn({ name: 'price_p90_floor' })
+  priceP90Floor: string | null;
 
   @ViewColumn({ name: 'latest_contract_date' })
   latestContractDate: string | null;

@@ -30,6 +30,26 @@ describe('LandContextTileFunctionService', () => {
       ),
     );
     expect(dataSource.query).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining('ura_private_resi_features AS MATERIALIZED'),
+    );
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining('INNER JOIN ura_private_resi_features feature'),
+    );
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      1,
+      expect.not.stringContaining('FROM public.ura_private_resi_tile_feature'),
+    );
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      1,
+      expect.not.stringContaining('feature.inc_crc'),
+    );
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      1,
+      expect.not.stringContaining('feature.shape_len'),
+    );
+    expect(dataSource.query).toHaveBeenNthCalledWith(
       2,
       expect.stringContaining(
         'COMMENT ON FUNCTION public.land_context(integer, integer, integer)',
@@ -42,6 +62,22 @@ describe('LandContextTileFunctionService', () => {
     expect(dataSource.query).toHaveBeenNthCalledWith(
       2,
       expect.stringContaining('"id": "ura-private-resi"'),
+    );
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('"price_min_area": "int4"'),
+    );
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('"price_p90_floor": "text"'),
+    );
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      2,
+      expect.not.stringContaining('"inc_crc"'),
+    );
+    expect(dataSource.query).toHaveBeenNthCalledWith(
+      2,
+      expect.not.stringContaining('"shape_len"'),
     );
   });
 });

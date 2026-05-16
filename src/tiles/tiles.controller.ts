@@ -8,14 +8,24 @@ import {
   StreamableFile,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { TilesService } from './tiles.service';
+import {
+  TILEJSON_CACHE_CONTROL,
+  TilesService,
+  VECTOR_TILE_CACHE_CONTROL,
+} from './tiles.service';
 
 @Controller('tiles')
 export class TilesController {
   constructor(private readonly tilesService: TilesService) {}
 
   @Get(':source')
-  getTileJson(@Param('source') source: string, @Req() request: Request) {
+  getTileJson(
+    @Param('source') source: string,
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    response.setHeader('Cache-Control', TILEJSON_CACHE_CONTROL);
+
     return this.tilesService.getTileJson(
       source,
       this.buildPublicTileUrlTemplate(request),
@@ -35,11 +45,14 @@ export class TilesController {
     const contentType =
       this.readHeaderValue(tile.headers['content-type']) ??
       'application/vnd.mapbox-vector-tile';
+    const cacheControl =
+      this.readHeaderValue(tile.headers['cache-control']) ??
+      VECTOR_TILE_CACHE_CONTROL;
 
     response.setHeader('Content-Type', contentType);
+    response.setHeader('Cache-Control', cacheControl);
 
     for (const header of [
-      'cache-control',
       'content-encoding',
       'content-length',
       'etag',
