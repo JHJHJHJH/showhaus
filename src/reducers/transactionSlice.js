@@ -49,7 +49,7 @@ const transactionSlice = createSlice({
                 const feature = features[i];
                 const properties = feature.properties;
                 
-                const transactions = properties.transactions;
+                const transactions = parseTransactions(properties.transactions);
 
                 for (let j = 0; j < transactions.length; j++) {
                     const transaction = transactions[j];
@@ -91,3 +91,20 @@ export const { updateOpacity, updateTransactionsInRadius} = transactionSlice.act
 
 const transactionReducer = transactionSlice.reducer;
 export default transactionReducer;
+
+function parseTransactions(value){
+    if(Array.isArray(value)){
+        return value;
+    }
+
+    if(!value){
+        return [];
+    }
+
+    try {
+        return JSON.parse(value);
+    } catch (e) {
+        console.error(e);
+        return [];
+    }
+}

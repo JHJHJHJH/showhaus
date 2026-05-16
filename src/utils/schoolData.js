@@ -1,5 +1,3 @@
-import schools from '../resources/schools_onemap.json';
-
 export const SCHOOL_TYPE_LABELS = {
     primary: 'Primary',
     secondary: 'Secondary',
@@ -52,25 +50,6 @@ export function normalizeSchool(school){
 
 export function getSchoolKey(school){
     return `${school.school_type}-${school.name}-${school.postal}`;
-}
-
-export function getSchoolsGeojson(){
-    return {
-        type: 'FeatureCollection',
-        features: schools
-            .filter((school) => school.coordinates?.longitude && school.coordinates?.latitude)
-            .map((school) => ({
-                type: 'Feature',
-                properties: normalizeSchool(school),
-                geometry: {
-                    type: 'Point',
-                    coordinates: [
-                        school.coordinates.longitude,
-                        school.coordinates.latitude
-                    ]
-                }
-            }))
-    };
 }
 
 function toTitleCase(str) {

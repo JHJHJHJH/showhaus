@@ -1,24 +1,17 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Source, Layer } from "react-map-gl";
-import { booleanPointInPolygon, featureCollection } from '@turf/turf';
-import axios from "axios";
+import { centroid, featureCollection } from '@turf/turf';
 import { updateTransactionsInRadius } from   "../../reducers/transactionSlice";
-import { updatePropertyTypes } from "../../reducers/searchRadiusSlice";
-
-const EMPTY_GEOJSON = {"type": "FeatureCollection", "features": [] };
 
 export default function TransactionLayers(){
 
     const dispatch = useDispatch();
-    const mapViewState = useSelector((state) => state.mapViewState );
     const searchRadiusState = useSelector((state) => state.searchRadiusState );
-
-    const [transactionsFoundGeojson, SetTransactionsFoundGeojson] = useState(EMPTY_GEOJSON);
-    const [transactionsGeojson, SetTransactionsGeojson] = useState(null);
-    const [transactionMeanPrice, SetTransactionMeanPrice]= useState(0)
-    const [collectionHighestPrice, SetCollectionHighestPrice]= useState(1)
-    const [collectionLowestPrice, SetCollectionLowestPrice]= useState(1)
+    const transactionsFoundGeojson = useMemo(
+        () => featureCollection((searchRadiusState.projectsInRadius || []).map(projectToTransactionFeature).filter(Boolean)),
+        [searchRadiusState.projectsInRadius]
+    );
 
     // const foundTransactionsStyle = {
     //     id: 'found-transactions',
@@ -75,6 +68,7 @@ export default function TransactionLayers(){
     const transactionTextStyle = {
         id: 'transaction-count',
         type: 'symbol',
+        filter: ['!', ['has', 'point_count']],
         minzoom: 15,
         layout: {
             'text-field': ['get', 'noOfTransactions'],
@@ -89,6 +83,7 @@ export default function TransactionLayers(){
     const transactionPointStyle = {
         id: 'transaction-points',
         type: 'circle',
+        filter: ['!', ['has', 'point_count']],
         minzoom: 15,
         paint: {
             'circle-color': [
@@ -115,239 +110,28 @@ export default function TransactionLayers(){
         }
     };
 
-    const clusterSourceTransactionTextStyle = {
-        id: 'cluster-source-transaction-count',
+    const projectNameStyle = {
+        id: 'project-name',
         type: 'symbol',
-        filter: ['!', ['has', 'point_count']],
-        maxzoom: 15,
-        layout: transactionTextStyle.layout,
-        paint: transactionTextStyle.paint
+        minzoom: 12,
+        layout: {
+            'text-field': ['coalesce', ['get', 'projectName'], ['get', 'project']],
+            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 11,
+            'text-anchor': 'top',
+            'text-offset': [0, 1.5],
+            'text-max-width': 10,
+        },
+        paint: {
+            'text-color': '#1e293b',
+            'text-halo-color': '#ffffff',
+            'text-halo-width': 1.5
+        }
     };
 
-    const clusterSourceTransactionPointStyle = {
-        id: 'cluster-source-transaction-points',
-        type: 'circle',
-        filter: ['!', ['has', 'point_count']],
-        maxzoom: 15,
-        paint: transactionPointStyle.paint
-    };
-    // const gridlayer = new GridLayer({
-    //     id: 'new-grid-layer',
-    //     transactionHeatMap,
-    //     pickable: true,
-    //     extruded: true,
-    //     cellSize: 200,
-    //     elevationScale: 4,
-    //     getPosition: d => d.position
-    //   });
-    // const heatmapLayer = new HeatmapLayer({
-    //     id: 'heatmapLayer',
-    //     transactionHeatMap,
-    //     getPosition: d => d.position,
-    //     getWeight: d => d.weight,
-    //     aggregation: 'SUM'
-    //   });
     useEffect(() => {
-        async function init(){
-            try {
-                SetTransactionsFoundGeojson(EMPTY_GEOJSON);
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        //fetch ALL transaction data from API
-        async function fetchData(){
-            try {
-                const response = await axios({
-                    method:'get',
-                    url: `${process.env.REACT_APP_SHOWHOUSE_API_URL}/location`,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    params : { 
-                        minLon: mapViewState.maxBounds.minLon,
-                        minLat: mapViewState.maxBounds.minLat,
-                        maxLon: mapViewState.maxBounds.maxLon,
-                        maxLat: mapViewState.maxBounds.maxLat
-                    }
-                });
-                const propertyTypes = new Set();
-                //filter out prices below minValidPrice
-                const minValidPrice = 100000;
-                const feats = response.data.data.features;
-                
-                for (let i = 0; i < feats.length; i++) {
-                    const feat = feats[i];
-                    const transactions = feat.properties.transactions;
-                    const newTransactions = [];
-                    
-                    for (let j = 0; j < transactions.length; j++) {
-                        const transaction = transactions[j];
-                        propertyTypes.add(transaction["property_type"]);
-                        if(transaction.price < minValidPrice){
-                            // console.log(transaction)
-                            newTransactions.push( transaction);
-                        }
-                    }
-                    if( transactions.length !== newTransactions.length ){
-                        // console.log("Original tx array length = " + transactions.length );
-                        // console.log("New tx array length = " + newTransactions.length );
-                        feat.transactions = newTransactions;
-                        // console.log("New feat array length = " + feat.transactions.length );
-                    }
-                    
-                }
-                
-                dispatch(updatePropertyTypes([...propertyTypes].map((value) => { return {"id": value, "isChecked": true}})));
-                SetTransactionsGeojson(response.data.data);
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        fetchData();
-
-        init();
-
-    }, [] ); // eslint-disable-line react-hooks/exhaustive-deps
-
-    useEffect(() => {
-        function formatPrice(price) {
-            return "$" + price.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
-        }
-        function updateTransactionData( data ){
-
-            let collectionHighest = -1;
-            let collectionLowest = 10000000000;
-            let lowestTx;
-            for(const i in data['features']){
-                const feat = data['features'][i];
-  
-                var transactions =  feat['properties']['transactions'] || [];
-                // console.log(transactions[0]['price'])
-                // if (transactions.length > 0 ){
-                let sum = 0;
-                let highestPrice = -1;
-                let lowestPrice = 10000000;
-                
-                for(const k in transactions){
-                    const tx= transactions[k];
-                    const price = tx['price'];
-                    sum+= price;   
-                    if( price> highestPrice ){
-                        highestPrice = price;
-                    }
-                    if( price < lowestPrice ){
-                        lowestTx = tx;
-                        lowestPrice = price;
-                    }
-                }
-                // var meanPrice = sum/ transactions.length;
-                
-                //default = highest
-                const targetType = 'highest';
-                let targetPrice = highestPrice;
-                // if( targetType === 'lowest'){
-                //     targetPrice = lowestPrice
-                // } else if (targetType === 'mean'){
-                //     targetPrice = meanPrice;
-                // }
-
-
-                if( highestPrice > collectionHighest ){
-                    collectionHighest = highestPrice;
-                }
-                if( lowestPrice < collectionLowest ){
-                    collectionLowest = lowestPrice;
-                }
-                //console.log("largest = " + collectionHighest + " | smallest = " + collectionLowest);
-
-                // feat['properties']['meanPrice'] = meanPrice;
-                feat['properties']['noOfTransactions'] = transactions.length;
-                feat['properties']['highestPrice'] = highestPrice;
-                feat['properties']['lowestPrice'] = lowestPrice;
-            }
-
-            SetCollectionLowestPrice(collectionLowest);
-            SetCollectionHighestPrice(collectionHighest);
-            // console.log( lowestTx );
-            // console.log("Price range: " + formatPrice( collectionLowest) + " ~ " + formatPrice( collectionHighest) );
-            // console.log(collectionHighest)
-        }
-        //filters transactions within circle
-        //sourceGeoJSON : all transactions (Point features)
-        //filterFeature : geojson circle
-        function getFeaturesWithinRadius(sourceGeoJSON, filterFeature) {
-            // Loop through all the features in the source radiusGeojson and return the ones that 
-            // are inside the filter feature (buffered radius) and are confirmed landing sites
-            var joined = sourceGeoJSON.features.filter(function (feature) {
-                return booleanPointInPolygon(feature, filterFeature);
-            });
-        
-            return joined;
-        }
-        function filterTransactions( transactionFeatureCollection ){
-            let filteredFeatureCollection = {'type':'FeatureCollection', 'features':[]};
-            let transactionFeatures = transactionFeatureCollection["features"];
-
-            const checkedPropertyTypes = searchRadiusState.propertyTypes.reduce( (acc, current) => {
-                if (current["isChecked"]) {
-                    acc.push( current["id"]);
-                }
-                return acc;
-            }, []);
-
-            for (let i = 0; i < transactionFeatures.length; i++) {
-                let feature = transactionFeatures[i];
-                const transactions = feature["properties"]["transactions"] || [];
-                if( transactions.length === 0 ){
-                    continue;
-                }
-
-                if( checkedPropertyTypes.length === 0 ){
-                    filteredFeatureCollection['features'].push(feature);
-                    continue;
-                }
-
-                const hasCheckedTransactionType = transactions.some((transaction) => (
-                    checkedPropertyTypes.includes(transaction["property_type"])
-                ));
-
-                if( hasCheckedTransactionType ){
-                    filteredFeatureCollection['features'].push(feature);
-                }
-            }
-            
-            return filteredFeatureCollection;
-            
-        }
-        async function update(){
-            try {
-                if( searchRadiusState.location.latitude !== 0 && searchRadiusState.location.longitude !== 0 && transactionsGeojson != null){
-
-                    var featuresInBuffer = getFeaturesWithinRadius(transactionsGeojson, searchRadiusState.searchRadius);
-
-                    const foundTransactions = featureCollection(featuresInBuffer);
-                    
-                    //filter selected propertyTypes
-                    const filteredTransactions = filterTransactions( foundTransactions );
-
-                    updateTransactionData(filteredTransactions);
-                    SetTransactionsFoundGeojson(filteredTransactions);
-                    dispatch( updateTransactionsInRadius(filteredTransactions ));
-                    // console.log(foundTransactions);
-                }
-
-                
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        update();
-
-    }, [ searchRadiusState.propertyTypes, searchRadiusState.location, searchRadiusState.radius, transactionsGeojson] );  // eslint-disable-line react-hooks/exhaustive-deps
+        dispatch(updateTransactionsInRadius(transactionsFoundGeojson));
+    }, [dispatch, transactionsFoundGeojson]);
 
 
     return(
@@ -360,20 +144,16 @@ export default function TransactionLayers(){
             cluster={true}
             clusterRadius={80}
             clusterMaxZoom={18}
+            clusterProperties={{
+                'projectName': ['max', ['get', 'project']]
+            }}
         >
             {/* <Layer {...foundTransactionsStyle} /> */}
             <Layer {...clusterStyle} />
             <Layer {...clusterTextStyle} />
-            <Layer {...clusterSourceTransactionPointStyle} />
-            <Layer {...clusterSourceTransactionTextStyle} />
-        </Source>
-        <Source
-            id="transaction-points-source"
-            type="geojson"
-            data={transactionsFoundGeojson}
-        >
             <Layer {...transactionPointStyle} />
             <Layer {...transactionTextStyle} />
+            <Layer {...projectNameStyle} />
         </Source>
         
         {/* <DeckGL viewState={{
@@ -384,4 +164,72 @@ export default function TransactionLayers(){
                     layers={[ heatmapLayer ]}/>; */}
         </>
     );
+}
+
+function projectToTransactionFeature(project){
+    const geometry = getProjectPointGeometry(project.geometry);
+
+    if(!geometry){
+        return null;
+    }
+
+    const noOfTransactions = Number(project.transaction_count) || 0;
+    const properties = { ...project };
+    delete properties.geometry;
+
+    return {
+        type: "Feature",
+        geometry,
+        properties: {
+            ...properties,
+            noOfTransactions,
+            transactions: JSON.stringify(projectSummaryTransactions(project)),
+        },
+    };
+}
+
+function getProjectPointGeometry(geometry){
+    if(!geometry){
+        return null;
+    }
+
+    if(geometry.type === "Point"){
+        return geometry;
+    }
+
+    if(geometry.type === "Polygon" || geometry.type === "MultiPolygon"){
+        return centroid({ type: "Feature", geometry, properties: {} }).geometry;
+    }
+
+    return null;
+}
+
+function projectSummaryTransactions(project){
+    return [
+        project.latest_price && {
+            id: `${project.ura_private_resi_id || project.project}-latest`,
+            price: Number(project.latest_price),
+            contract_date: project.latest_contract_date,
+        },
+        project.price_max && {
+            id: `${project.ura_private_resi_id || project.project}-max`,
+            price: Number(project.price_max),
+        },
+        project.price_p90 && {
+            id: `${project.ura_private_resi_id || project.project}-p90`,
+            price: Number(project.price_p90),
+        },
+        project.price_p50 && {
+            id: `${project.ura_private_resi_id || project.project}-p50`,
+            price: Number(project.price_p50),
+        },
+        project.price_p10 && {
+            id: `${project.ura_private_resi_id || project.project}-p10`,
+            price: Number(project.price_p10),
+        },
+        project.price_min && {
+            id: `${project.ura_private_resi_id || project.project}-min`,
+            price: Number(project.price_min),
+        },
+    ].filter((transaction) => transaction && Number.isFinite(transaction.price));
 }

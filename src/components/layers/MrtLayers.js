@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useRef} from "react";
 import MRTLRTStn from '../../resources/rail-line-dense5m.json'
 import RAIL_LINE_BASE from '../../resources/rail-line-base.geojson'
 import { useControl, Source, Layer } from 'react-map-gl';
@@ -10,9 +10,46 @@ import { booleanPointInPolygon, featureCollection } from '@turf/turf';
 import MRT_RAIL_STN from  '../../resources/RAIL_STN.js'
 import { updateMrtInRadius } from "../../reducers/searchRadiusSlice";
 
-function DeckGLOverlay(props) {
-    const overlay = useControl(() => new MapboxOverlay(props));
-    overlay.setProps(props);
+function MrtTripsOverlay({data, theme, loopLength}) {
+    const overlay = useControl(() => new MapboxOverlay({layers: []}));
+    const propsRef = useRef({data, theme, loopLength});
+
+    useEffect(() => {
+        propsRef.current = {data, theme, loopLength};
+    }, [data, theme, loopLength]);
+
+    useEffect(() => {
+        let animationId;
+        let lastFrameTime;
+        let currentTime = 0;
+
+        const animate = (frameTime) => {
+            if(lastFrameTime == null){
+                lastFrameTime = frameTime;
+            }
+
+            const elapsedFrames = (frameTime - lastFrameTime) / (1000 / 60);
+            lastFrameTime = frameTime;
+            currentTime = (currentTime + elapsedFrames) % propsRef.current.loopLength;
+
+            overlay.setProps({
+                layers: propsRef.current.data ? [
+                    createTripsLayer({
+                        data: propsRef.current.data,
+                        theme: propsRef.current.theme,
+                        currentTime,
+                    })
+                ] : [],
+            });
+
+            animationId = window.requestAnimationFrame(animate);
+        };
+
+        animationId = window.requestAnimationFrame(animate);
+
+        return () => window.cancelAnimationFrame(animationId);
+    }, [overlay]);
+
     return null;
 }
 
@@ -48,23 +85,7 @@ const DEFAULT_THEME = {
 export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
     
     const dispatch = useDispatch();
-    const [time, setTime] = useState(0);
-    const [animation] = useState({});
-
-    const [mrtTripsData, SetMrtTripsData] = useState(null);
-
-    const animate = () => {
-        const animationSpeed = 1; 
-        
-        setTime(t => (t + animationSpeed) % loopLength);
-        
-        animation.id = window.requestAnimationFrame(animate);
-    };
-
-    useEffect(() => {
-        animation.id = window.requestAnimationFrame(animate);
-        return () => window.cancelAnimationFrame(animation.id);
-    }, [animation]);
+    const mrtTripsData = useMemo(() => generateTripsData(MRTLRTStn, loopLength), [loopLength]);
 
     const stnIconStyle = {
         id: 'rail_stn_icon',
@@ -110,117 +131,6 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
             "text-offset": [0, -4]
         }
     };
-    const tripsLayer = new TripsLayer({
-        id: 'mrt-layer',
-        data : mrtTripsData,
-        getPath: d => d.path,
-        // deduct start timestamp from each data point to avoid overflow
-        getTimestamps: d => d.timestamps,
-        effects : theme.effects,
-        getColor: d => d.color,
-        opacity: 0.5,
-        widthMinPixels: 2,
-        lineCapRounded: true,
-        fadeTrail: true,
-        trailLength: 150,
-        currentTime: time,
-        depthTest: false
-    });
-
-    function mapMrtColors( line ){
-        let rgb = [0,0,0];
-        switch(line){
-            case 'NS':
-                rgb = [228,53,48];
-                break;
-            case 'TE':
-                rgb = [159,94,29];
-                break;
-            case 'EW':
-            case 'CG':
-                rgb = [12,153,67];
-                break;
-            case 'NE':
-                rgb = [161,45,182];
-                break;
-            case 'CE':
-            case 'CC':
-                rgb = [255,162,35];
-                break;
-            case 'DT':
-                rgb = [5,89,185];
-                break;
-            
-            case 'PT':
-            case 'ST':
-            case 'SW':
-            case 'BP':
-            case 'PE':
-            case 'PW':
-            case 'SE':
-                rgb = [142,155,144]
-                break;
-            default:
-                throw new Error('MRT Line not supported');
-        }
-        return rgb;
-    }
-    useEffect(() => { 
-        function generateTripsData( railLines ){
-
-            var tripsData = []
-            const features = railLines['features'];
-            for( const k in features ){
-                const feature = features[k];
-
-                let coordinates = {};
-                if( feature['geometry']['type'] === 'LineString'){
-                    coordinates = feature['geometry']['coordinates']
-                }
-                else if ( feature['geometry']['type'] === 'MultiLineString'){
-                    coordinates = feature['geometry']['coordinates'][0]
-                }
-              
-                var railLine = feature['properties']['RAIL_LINE'];
-                var points = [];
-                var timestamp = [];
-
-                for (let i = 0; i < coordinates.length; i++) {
-                    const index = i;
-                    const coord = coordinates[index];
-    
-                    points.push(coord);
-                    timestamp.push( i * loopLength/coordinates.length  );
-                }
-
-                const pathObj = {
-                    "path" : points,
-                    "timestamps" : timestamp,
-                    "color" : mapMrtColors(railLine)
-                }
-
-                tripsData.push( pathObj );
-                
-            }
-        
-            return tripsData;
-        }
-        
-        async function init(){
-            try {
-                const tripsData = generateTripsData( MRTLRTStn );
-            
-                SetMrtTripsData(tripsData);
-
-            } catch (e) {
-                console.error(e);
-            }
-        }
-
-        init();
-
-    }, [] );
-
     const searchRadiusState = useSelector((state) => state.searchRadiusState );
 
     useEffect(() => {
@@ -267,7 +177,103 @@ export default function MrtLayers( {theme = DEFAULT_THEME, loopLength = 800 } ){
             <Source id="rail_line"  type="geojson" data={RAIL_LINE_BASE} >
                 <Layer {...baseMrtStyle} />
             </Source>
-            <DeckGLOverlay layers={[ tripsLayer ]}/>;
+            <MrtTripsOverlay data={mrtTripsData} theme={theme} loopLength={loopLength} />
         </>
     );
+}
+
+function createTripsLayer({data, theme, currentTime}){
+    return new TripsLayer({
+        id: 'mrt-layer',
+        data,
+        getPath: d => d.path,
+        getTimestamps: d => d.timestamps,
+        effects : theme.effects,
+        getColor: d => d.color,
+        opacity: 0.5,
+        widthMinPixels: 2,
+        lineCapRounded: true,
+        fadeTrail: true,
+        trailLength: 150,
+        currentTime,
+        depthTest: false
+    });
+}
+
+function generateTripsData( railLines, loopLength ){
+    var tripsData = []
+    const features = railLines['features'];
+    for( const k in features ){
+        const feature = features[k];
+
+        let coordinates = {};
+        if( feature['geometry']['type'] === 'LineString'){
+            coordinates = feature['geometry']['coordinates']
+        }
+        else if ( feature['geometry']['type'] === 'MultiLineString'){
+            coordinates = feature['geometry']['coordinates'][0]
+        }
+        
+        var railLine = feature['properties']['RAIL_LINE'];
+        var points = [];
+        var timestamp = [];
+
+        for (let i = 0; i < coordinates.length; i++) {
+            const index = i;
+            const coord = coordinates[index];
+
+            points.push(coord);
+            timestamp.push( i * loopLength/coordinates.length  );
+        }
+
+        const pathObj = {
+            "path" : points,
+            "timestamps" : timestamp,
+            "color" : mapMrtColors(railLine)
+        }
+
+        tripsData.push( pathObj );
+        
+    }
+
+    return tripsData;
+}
+
+function mapMrtColors( line ){
+    let rgb = [0,0,0];
+    switch(line){
+        case 'NS':
+            rgb = [228,53,48];
+            break;
+        case 'TE':
+            rgb = [159,94,29];
+            break;
+        case 'EW':
+        case 'CG':
+            rgb = [12,153,67];
+            break;
+        case 'NE':
+            rgb = [161,45,182];
+            break;
+        case 'CE':
+        case 'CC':
+            rgb = [255,162,35];
+            break;
+        case 'DT':
+            rgb = [5,89,185];
+            break;
+        
+        case 'PT':
+        case 'ST':
+        case 'SW':
+        case 'BP':
+        case 'PE':
+        case 'PW':
+        case 'SE':
+            rgb = [142,155,144]
+            break;
+        default:
+            throw new Error('MRT Line not supported');
+    }
+    return rgb;
 }

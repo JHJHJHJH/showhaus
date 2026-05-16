@@ -13,12 +13,12 @@ function toPascalCase(value = ""){
 }
 
 export default function NearbyProjects(){
-    const transactions = useSelector((state) => state.transactionState.transactions || []);
+    const projectsInRadius = useSelector((state) => state.searchRadiusState.projectsInRadius || []);
 
     const projects = Array.from(
-        transactions.reduce((acc, transaction) => {
-            const project = transaction.project;
-            const street = transaction.street;
+        projectsInRadius.reduce((acc, projectData) => {
+            const project = projectData.project;
+            const street = projectData.street;
 
             if(!project){
                 return acc;
@@ -26,7 +26,7 @@ export default function NearbyProjects(){
 
             const key = `${project}|${street || ""}`;
             if(!acc.has(key)){
-                acc.set(key, { project, street });
+                acc.set(key, { ...projectData, project, street });
             }
 
             return acc;

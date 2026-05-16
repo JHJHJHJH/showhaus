@@ -13,8 +13,6 @@ import TransactionLayers from './transaction/TransactionLayers';
 // import PositionMarker from './PositionMarker';
 import SMRT_ICON from '../resources/smrt-icon.svg'
 import SearchRadiusLayer from './layers/SearchRadiusLayer';
-import SchoolLayer from './layers/SchoolLayer';
-import LandUseLayer from './layers/LandUseLayer';
 import { TransactionPopup } from './transaction/TransactionPopup';
 
 // The following is required to stop mapbox-gl from throwing an error in some environments
@@ -122,15 +120,12 @@ export default function MapContainer({ onMapDoubleClick }){
         var coordinates = event.lngLat;
         //console.log('Marker | Lng:', coordinates.lng, 'Lat:', coordinates.lat);
         onMapDoubleClickRef.current?.();
-        nextAnimationDurationRef.current = 3000;
+        nextAnimationDurationRef.current = 500;
         dispatch(updateLocation({ "latitude": coordinates.lat, "longitude" : coordinates.lng })) ;
     }
 
     const handleLoad = async (e) => {
         if( map.current != null ){
-            //ASSIGN CLICK EVENTS
-            map.current.on('dblclick', add_marker );
-
             map.current.addImage('smrt-icon', image, { sdf: true });
 
             // map.current.on('click', (event) => {
@@ -172,6 +167,7 @@ export default function MapContainer({ onMapDoubleClick }){
                     maxBounds={ maxBounds(mapViewState) }
                     onLoad={handleLoad}
                     onMoveEnd = { evt => handleOnMove(evt, map) }
+                    onDblClick={add_marker}
                     doubleClickZoom={false}
                 >
                     
@@ -194,10 +190,8 @@ export default function MapContainer({ onMapDoubleClick }){
                         position="top-left"
                     />
                     
-                    <LandUseLayer/>
                     <SearchRadiusLayer/>
                     <MrtLayers/>
-                    <SchoolLayer/>
                     <TransactionLayers/>
                     {/* <MarkerLayer/> */}
                     <NavigationControl/>

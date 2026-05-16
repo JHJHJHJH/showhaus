@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { RiCloseLine } from "react-icons/ri";
 import { useMap } from "react-map-gl";
 import {
@@ -12,8 +13,60 @@ import {
 import TransactionsDrawer from "../TransactionsDrawer";
 import { transactionsDistribution } from "./TransactionUtils";
 
+const TRANSACTION_LAYER_IDS = ["clusters", "transaction-points"];
+const TRANSACTION_POINT_LAYER_IDS = ["transaction-points"];
+const PRIVATE_RESI_LAYER_IDS = [
+    "land-context-private-resi-fill",
+    "land-context-private-resi-line",
+    "land-context-private-resi-points",
+    "land-context-private-resi-labels",
+];
+
 function renderValue(value) {
     return value === undefined || value === null || value === "" ? "-" : value;
+}
+
+function formatPriceValue(value) {
+    const price = Number(value);
+
+    if (!Number.isFinite(price)) {
+        return value;
+    }
+
+    return "$" + price.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
+}
+
+function summaryTransaction(price, contractDate, area, floor) {
+    return price === undefined || price === null || price === ""
+        ? {}
+        : {
+            price: formatPriceValue(price),
+            contract_date: contractDate,
+            area,
+            floor_range: floor,
+        };
+}
+
+function hasSummaryTransactionData(properties = {}) {
+    return (
+        properties.latest_price !== undefined ||
+        properties.price_max !== undefined ||
+        properties.price_p90 !== undefined ||
+        properties.price_p50 !== undefined ||
+        properties.price_p10 !== undefined ||
+        properties.price_min !== undefined
+    );
+}
+
+function getSummaryDistribution(properties = {}) {
+    return {
+        latestTransaction: summaryTransaction(properties.latest_price, properties.latest_contract_date),
+        highestTransaction: summaryTransaction(properties.price_max, undefined, properties.price_max_area, properties.price_max_floor),
+        percentile90Transaction: summaryTransaction(properties.price_p90, undefined, properties.price_p90_area, properties.price_p90_floor),
+        medianTransaction: summaryTransaction(properties.price_p50, undefined, properties.price_p50_area, properties.price_p50_floor),
+        percentile10Transaction: summaryTransaction(properties.price_p10, undefined, properties.price_p10_area, properties.price_p10_floor),
+        lowestTransaction: summaryTransaction(properties.price_min, undefined, properties.price_min_area, properties.price_min_floor),
+    };
 }
 
 function parseTransactions(value) {
@@ -28,8 +81,49 @@ function parseTransactions(value) {
     return JSON.parse(value);
 }
 
+function projectKey(value) {
+    return String(value || "").trim().toLowerCase();
+}
+
+function getFeatureCenter(feature, event) {
+    if (feature.geometry?.type === "Point") {
+        return feature.geometry.coordinates;
+    }
+
+    return event.lngLat ? event.lngLat.toArray() : undefined;
+}
+
+function getTransactionsForPrivateResidentialFeature(feature, transactionRows) {
+    if (hasSummaryTransactionData(feature.properties)) {
+        return [];
+    }
+
+    const project = projectKey(feature.properties.project);
+    const street = projectKey(feature.properties.street);
+
+    if (!project) {
+        return [];
+    }
+
+    return transactionRows
+        .filter((transaction) => (
+            projectKey(transaction.project) === project &&
+            (!street || projectKey(transaction.street) === street)
+        ))
+        .map((transaction) => ({
+            id: transaction.id,
+            price: transaction.price,
+            area: transaction.area,
+            type_of_sale: transaction.type_of_sale,
+            property_type: transaction.property_type,
+            floor_range: transaction.floor_range,
+            contract_date: transaction.contract_date,
+        }));
+}
+
 export function TransactionPopup() {
     const { map } = useMap();
+    const transactionRows = useSelector((state) => state.transactionState.transactions || []);
 
     const [showPopup, setShowPopup] = useState(false);
     const [projectName, setProjectName] = useState('');
@@ -48,32 +142,15 @@ export function TransactionPopup() {
             return undefined;
         }
 
-        const handleMapClick = (event) => {
-            const transactionLayerIds = ["clusters", "transaction-points", "cluster-source-transaction-points"].filter((layerId) => map.getLayer(layerId));
-
-            if (transactionLayerIds.length === 0) {
-                setShowPopup(false);
-                return;
-            }
-
-            const clickedClusters = map.queryRenderedFeatures(event.point, {
-                layers: transactionLayerIds,
-            });
-
-            if (clickedClusters.length === 0) {
-                setShowPopup(false);
-            }
-        };
-
-        const handleTransactionClick = (event) => {
-            const feature = event.features[0];
-            const transactions = parseTransactions(feature.properties.transactions);
+        const showTransactionPopup = (event, feature, transactions) => {
             const projectName = feature.properties.project;
             const streetName = feature.properties.street;
-            const locationId = feature.properties.location_id;
+            const locationId = feature.properties.location_id || feature.properties.ura_private_resi_id;
 
-            const numOfTransactions = transactions.length;
-            const distribution = transactionsDistribution(transactions);
+            const numOfTransactions = feature.properties.noOfTransactions || feature.properties.transaction_count || transactions.length;
+            const distribution = hasSummaryTransactionData(feature.properties)
+                ? getSummaryDistribution(feature.properties)
+                : transactionsDistribution(transactions);
             setLatestTx(distribution["latestTransaction"]);
             setHighestTx(distribution["highestTransaction"]);
             setPercentile90Tx(distribution["percentile90Transaction"]);
@@ -86,16 +163,25 @@ export function TransactionPopup() {
             setNumOfTransactions(numOfTransactions);
             setShowPopup(true);
 
+            const center = getFeatureCenter(feature, event);
+
+            if (!center) {
+                return;
+            }
+
             map.easeTo({
-                center: feature.geometry.coordinates,
+                center,
                 offset: [130, 0],
                 duration: 500
             });
         };
 
-        const handleClusterClick = (event) => {
-            const feature = event.features[0];
+        const expandCluster = (feature) => {
             const source = map.getSource("found-transactions");
+
+            if (!source) {
+                return;
+            }
 
             setShowPopup(false);
 
@@ -112,18 +198,55 @@ export function TransactionPopup() {
             });
         };
 
+        const handleMapClick = (event) => {
+            const transactionLayerIds = [...TRANSACTION_LAYER_IDS, ...PRIVATE_RESI_LAYER_IDS]
+                .filter((layerId) => map.getLayer(layerId));
+
+            if (transactionLayerIds.length === 0) {
+                setShowPopup(false);
+                return;
+            }
+
+            const clickedClusters = map.queryRenderedFeatures(event.point, {
+                layers: transactionLayerIds,
+            });
+
+            const clickedCluster = clickedClusters.find((feature) => feature.layer?.id === "clusters");
+            const clickedTransactionFeature = clickedClusters.find((feature) => (
+                feature.layer?.id && TRANSACTION_POINT_LAYER_IDS.includes(feature.layer.id)
+            ));
+            const clickedPrivateResidentialFeature = clickedClusters.find((feature) => (
+                feature.layer?.id && PRIVATE_RESI_LAYER_IDS.includes(feature.layer.id)
+            ));
+
+            if (clickedCluster) {
+                expandCluster(clickedCluster);
+                return;
+            }
+
+            if (clickedTransactionFeature) {
+                const transactions = parseTransactions(clickedTransactionFeature.properties.transactions);
+                showTransactionPopup(event, clickedTransactionFeature, transactions);
+                return;
+            }
+
+            if (clickedPrivateResidentialFeature) {
+                const transactions = getTransactionsForPrivateResidentialFeature(clickedPrivateResidentialFeature, transactionRows);
+                showTransactionPopup(event, clickedPrivateResidentialFeature, transactions);
+                return;
+            }
+
+            if (clickedClusters.length === 0) {
+                setShowPopup(false);
+            }
+        };
+
         map.on('click', handleMapClick);
-        map.on('click', 'clusters', handleClusterClick);
-        map.on('click', 'transaction-points', handleTransactionClick);
-        map.on('click', 'cluster-source-transaction-points', handleTransactionClick);
 
         return () => {
             map.off('click', handleMapClick);
-            map.off('click', 'clusters', handleClusterClick);
-            map.off('click', 'transaction-points', handleTransactionClick);
-            map.off('click', 'cluster-source-transaction-points', handleTransactionClick);
         };
-    }, [map]);
+    }, [map, transactionRows]);
 
     const rows = [
         { label: "Highest", transaction: highestTx },

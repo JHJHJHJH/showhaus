@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { point,buffer } from '@turf/turf';
+import { point, circle } from '@turf/turf';
 import { DEFAULT_SCHOOL_TYPE_FILTERS } from '../utils/schoolData';
 export const searchRadiusStateSlice = createSlice({
   name: 'searchRadiusState',
@@ -13,8 +13,10 @@ export const searchRadiusStateSlice = createSlice({
     searchRadius: {},
     mrtStations: [],
     schoolsInRadius: [],
+    projectsInRadius: [],
     landUsesInRadius: [],
     selectedLandUse: null,
+    landContextReloadKey: null,
     schoolTypes: DEFAULT_SCHOOL_TYPE_FILTERS,
     propertyTypes: []
   },
@@ -40,11 +42,27 @@ export const searchRadiusStateSlice = createSlice({
     updateSchoolsInRadius: (state, action )=> {
       state.schoolsInRadius = action.payload;
     },
+    updateProjectsInRadius: (state, action )=> {
+      state.projectsInRadius = action.payload;
+    },
     updateLandUsesInRadius: (state, action )=> {
       state.landUsesInRadius = action.payload;
     },
     updateSelectedLandUse: (state, action )=> {
       state.selectedLandUse = action.payload;
+    },
+    updateLandContextResults: (state, action )=> {
+      state.landUsesInRadius = action.payload.landUses || [];
+      state.projectsInRadius = action.payload.projects || [];
+      state.schoolsInRadius = action.payload.schools || [];
+      state.selectedLandUse = action.payload.selectedLandUse || null;
+    },
+    requestLandContextReload: (state, action )=> {
+      state.landContextReloadKey = action.payload || Date.now();
+      state.schoolsInRadius = [];
+      state.projectsInRadius = [];
+      state.landUsesInRadius = [];
+      state.selectedLandUse = null;
     },
     updateSchoolTypes: (state, action )=> {
       state.schoolTypes = action.payload;
@@ -55,10 +73,8 @@ export const searchRadiusStateSlice = createSlice({
 //Source
 //https://labs.mapbox.com/education/proximity-analysis/selecting-within-a-distance/#your-turn
 //Creates radiusGeojson circle
-function makeRadiusGeojson(lngLatArray, radiusInMeters){
-  var pt = point(lngLatArray);
-  var buffered = buffer(pt, radiusInMeters, { units: 'kilometers' });
-  return buffered;
+function makeRadiusGeojson(lngLatArray, radiusInKilometers){
+  return circle(lngLatArray, radiusInKilometers, { units: 'kilometers' });
 }
 
 function parseStationNames(str){
@@ -83,7 +99,7 @@ function toPascalCase(str) {
   return str.replace(/(\w)(\w*)/g, function(g0,g1,g2){return g1.toUpperCase() + g2.toLowerCase();});
 }
 // Action creators are generated for each case reducer function
-export const { updateLocation, updateRadius, updateMrtInRadius, updatePropertyTypes, updateSchoolsInRadius, updateLandUsesInRadius, updateSelectedLandUse, updateSchoolTypes } = searchRadiusStateSlice.actions
+export const { updateLocation, updateRadius, updateMrtInRadius, updatePropertyTypes, updateSchoolsInRadius, updateProjectsInRadius, updateLandUsesInRadius, updateSelectedLandUse, updateLandContextResults, requestLandContextReload, updateSchoolTypes } = searchRadiusStateSlice.actions
 
 const searchRadiusStateReducer = searchRadiusStateSlice.reducer;
 export default searchRadiusStateReducer
