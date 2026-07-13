@@ -2,6 +2,7 @@
   "name": "showhouse-monorepo",
   "private": true,
   "version": "0.0.0",
+  "license": "UNLICENSED",
   "scripts": {
     "api:install": "yarn --cwd apps/api install",
     "api:build": "yarn --cwd apps/api build",
