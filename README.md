@@ -2,6 +2,8 @@
   <img src="apps/app/public/showhaus192.png" alt="Showhaus logo" width="144" />
 </p>
 
+https://github.com/user-attachments/assets/776f9dc3-b76c-46f7-b228-e8f34c1910c1
+
 <h1 align="center">Showhaus</h1>
 
 <p align="center">
