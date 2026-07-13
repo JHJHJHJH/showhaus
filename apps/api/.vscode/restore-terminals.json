@@ -1,0 +1,35 @@
+{
+  "artificialDelayMilliseconds": 700,
+  "keepExistingTerminalsOpen": false,
+  "runOnStartup": true,
+  "terminals": [
+    {
+      "splitTerminals": [
+        {
+          "name": "gemini",
+          "commands": ["gemini"]
+        }
+      ]
+    },
+        {
+      "splitTerminals": [
+        {
+          "name": "codex",
+          "commands": ["codex"]
+        }
+      ]
+    },
+    {
+      "splitTerminals": [
+        {
+          "name": "docker ",
+          "commands": [
+            "docker compose up -d",
+            "docker compose logs -f main"
+          ],
+          "shouldRunCommands": true
+        }
+      ]
+    }
+  ]
+}

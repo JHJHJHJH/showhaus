@@ -1,0 +1,21 @@
+meta {
+  name: Create UraPrivateResi
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/ura-private-resi
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "street": "ORCHARD ROAD",
+    "x": 103.8329,
+    "y": 1.3048,
+    "project": "ION ORCHARD",
+    "marketSegment": "CCR"
+  }
+}
