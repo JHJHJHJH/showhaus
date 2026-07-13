@@ -2,14 +2,14 @@
   <img src="apps/app/public/showhaus192.png" alt="Showhaus logo" width="144" />
 </p>
 
-https://github.com/user-attachments/assets/776f9dc3-b76c-46f7-b228-e8f34c1910c1
+
 
 <h1 align="center">Showhaus</h1>
 
 <p align="center">
   Singapore property exploration with a React map frontend, NestJS API, PostGIS database, and Martin vector tile server.
 </p>
-
+https://github.com/user-attachments/assets/776f9dc3-b76c-46f7-b228-e8f34c1910c1
 ## Overview
 
 Showhaus is a monorepo for exploring Singapore property data on an interactive map.
