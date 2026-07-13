@@ -1,0 +1,18 @@
+{
+  "name": "showhouse-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "api:install": "yarn --cwd apps/api install",
+    "api:build": "yarn --cwd apps/api build",
+    "api:test": "yarn --cwd apps/api test",
+    "api:start": "yarn --cwd apps/api start",
+    "api:start:dev": "yarn --cwd apps/api start:dev",
+    "api:lint": "yarn --cwd apps/api lint",
+    "api:scrape:newlauncher": "yarn --cwd apps/api scrape:newlauncher",
+    "app:install": "yarn --cwd apps/app install",
+    "app:build": "yarn --cwd apps/app build",
+    "app:test": "yarn --cwd apps/app test",
+    "app:start": "yarn --cwd apps/app start"
+  }
+}

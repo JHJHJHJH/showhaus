@@ -1,0 +1,12 @@
+# Legacy standalone repositories retained locally after monorepo migration
+/showhouse.api/
+/showhouse.app/
+
+# Common local files
+.env
+.env.*.local
+.DS_Store
+node_modules/
+dist/
+build/
+coverage/
