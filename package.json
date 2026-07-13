@@ -2,7 +2,7 @@
   "name": "showhouse-monorepo",
   "private": true,
   "version": "0.0.0",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "api:install": "yarn --cwd apps/api install",
     "api:build": "yarn --cwd apps/api build",
@@ -14,6 +14,8 @@
     "app:install": "yarn --cwd apps/app install",
     "app:build": "yarn --cwd apps/app build",
     "app:test": "yarn --cwd apps/app test",
-    "app:start": "yarn --cwd apps/app start"
+    "app:start": "yarn --cwd apps/app start",
+    "dev": "docker compose up --build",
+    "dev:down": "docker compose down"
   }
 }

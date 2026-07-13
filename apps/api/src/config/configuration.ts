@@ -9,6 +9,10 @@ export default () => ({
     process.env.MARTIN_DATABASE_URL ||
     `postgresql://${process.env.POSTGRES_USER}:${process.env.POSTGRES_PASSWORD}@${process.env.POSTGRES_HOST}:${process.env.POSTGRES_PORT || 5433}/${process.env.POSTGRES_DB}`,
   URA_API_KEY: process.env.URA_API_KEY,
+  GOOGLE_API_KEY: process.env.GOOGLE_API_KEY,
+  GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
+  NEWLAUNCHER_DATA_DIR: process.env.NEWLAUNCHER_DATA_DIR,
+  NEWLAUNCHER_DOWNLOAD_ASSETS: process.env.NEWLAUNCHER_DOWNLOAD_ASSETS,
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   SHOWHOUSE_API_URL:

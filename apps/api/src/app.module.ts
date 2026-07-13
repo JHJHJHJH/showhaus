@@ -10,6 +10,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import config from './config/configuration';
 import { LoggerMiddleware } from './middlewares/logger.middleware';
 import { TilesModule } from './tiles/tiles.module';
+import { NewlauncherScraperModule } from './newlauncher-scraper/newlauncher-scraper.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { TilesModule } from './tiles/tiles.module';
     TilesModule,
     UraScraperModule,
     SchoolScraperModule,
+    NewlauncherScraperModule,
   ],
   controllers: [AppController],
   providers: [AppService],
