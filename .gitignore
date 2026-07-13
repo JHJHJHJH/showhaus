@@ -1,6 +1,7 @@
-# Legacy standalone repositories retained locally after monorepo migration
+# Legacy / sibling standalone repositories retained locally after monorepo migration
 /showhouse.api/
 /showhouse.app/
+/mynextsg.homes/
 
 # Common local files
 .env
